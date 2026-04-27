@@ -9,28 +9,31 @@
 <style>
   :root{--navy:#1B3A5C;--navy2:#0F2540;--sky:#5A9BC0;--ice:#BDD5EA;--cream:#F5F1EB;--charcoal:#2A2A2A;--mid:#6B7A8D;--accent:#E8A952;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Lora',Georgia,serif;background:var(--cream);color:var(--charcoal);overflow-x:hidden;}
+  body{font-family:'Lora',Georgia,serif;font-size:17px;background:var(--cream);color:var(--charcoal);overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.4;}
 
   /* TOPBAR */
-  .site-topbar{background:var(--navy2);padding:0 60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.07);position:relative;z-index:10;}
-  .site-topbar-brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.4);padding:12px 0;text-decoration:none;}
-  .site-topbar-links{display:flex;gap:0;}
-  .site-topbar-links a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;padding:12px 18px;border-bottom:2px solid transparent;transition:all .2s;}
+  .site-topbar{background:var(--navy2);padding:0 60px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.07);position:relative;z-index:10;}
+  .site-topbar-left{display:flex;align-items:center;width:100%;}
+  .site-topbar-brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:13px 20px 13px 0;text-decoration:none;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap;flex-shrink:0;}
+  .site-topbar-links{display:flex;gap:0;align-items:center;overflow-x:auto;}
+  .site-topbar-links a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;padding:13px 16px;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
   .site-topbar-links a:hover,.site-topbar-links a.current{color:var(--accent);border-bottom-color:var(--accent);}
 
-  /* HERO */
-  header{position:relative;overflow:hidden;background:var(--navy2);padding:70px 60px 60px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;}
+    /* HERO */
+  header{position:relative;overflow:hidden;background:var(--navy2);padding:64px 60px 56px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;}
   header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent) 0%,var(--sky) 50%,transparent 100%);}
   .header-bg-text{position:absolute;top:-20px;right:-10px;font-family:'Syne',sans-serif;font-size:clamp(100px,18vw,220px);font-weight:800;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;user-select:none;letter-spacing:-6px;}
-  .header-name{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;color:var(--white);line-height:1;letter-spacing:-1px;}
-  .header-role{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-top:16px;}
-  .header-tagline{font-family:'Lora',serif;font-style:italic;color:var(--ice);font-size:16px;margin-top:20px;max-width:440px;line-height:1.6;}
+  .header-name{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,74px);font-weight:800;color:var(--white);line-height:1;letter-spacing:-1px;}
+  .header-role{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-top:16px;}
+  .header-tagline{font-family:'Lora',serif;font-style:italic;color:var(--ice);font-size:17px;margin-top:20px;max-width:440px;line-height:1.65;}
   .header-links{display:flex;flex-direction:column;gap:10px;align-items:flex-end;position:relative;z-index:1;}
-  .header-links a{font-family:'DM Mono',monospace;font-size:12px;color:var(--ice);text-decoration:none;letter-spacing:1px;transition:color .2s;opacity:.8;}
+  .header-links a{font-family:'DM Mono',monospace;font-size:13px;color:var(--ice);text-decoration:none;letter-spacing:1px;transition:color .2s;opacity:.8;}
   .header-links a:hover{color:var(--accent);opacity:1;}
-  .cv-btn{display:inline-flex!important;align-items:center;gap:8px;background:var(--accent);color:var(--navy2)!important;font-size:11px!important;font-weight:600;letter-spacing:2px!important;text-transform:uppercase;padding:10px 18px;border-radius:100px;opacity:1!important;transition:background .2s,transform .15s!important;margin-top:6px;}
+  .cv-btn{display:inline-flex!important;align-items:center;gap:8px;background:var(--accent);color:var(--navy2)!important;font-size:12px!important;font-weight:600;letter-spacing:2px!important;text-transform:uppercase;padding:11px 20px;border-radius:100px;opacity:1!important;transition:background .2s,transform .15s!important;margin-top:6px;}
   .cv-btn:hover{background:#f0bb6a!important;transform:translateY(-1px);}
+
+
 
   /* MAIN */
   main{max-width:900px;margin:0 auto;padding:60px;position:relative;z-index:1;}
@@ -121,17 +124,17 @@
 
 <!-- TOPBAR -->
 <div class="site-topbar">
-  <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad · QA Portfolio</a>
-  <div class="site-topbar-links">
+  <div class="site-topbar-left">
+    <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad</a>
+    <div class="site-topbar-links">
     <a href="https://aviorh-world.github.io/QAME/">Home</a>
     <a href="https://aviorh-world.github.io/QAME/jifiti.html">Jifiti</a>
     <a href="https://aviorh-world.github.io/QAME/about.html" class="current">About Me</a>
-    <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff Tool</a>
-    <a href="mailto:Aviorh@gmail.com">Contact</a>
+    <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+    <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff</a>
+    </div>
   </div>
-</div>
-
-<!-- HERO -->
+</div><!-- HERO -->
 <header>
   <div class="header-bg-text">QA</div>
   <div>
@@ -143,7 +146,7 @@
     <a href="mailto:Aviorh@gmail.com">✉ Aviorh@gmail.com</a>
     <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">↗ LinkedIn</a>
     <a href="tel:0545959059">📞 054-595-9059</a>
-    <a class="cv-btn" href="avior_hadad_cv_final.docx" target="_blank">📄 View CV</a>
+    <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">📄 View CV</a>
   </div>
 </header>
 
@@ -373,7 +376,7 @@
       <a href="mailto:Aviorh@gmail.com">✉ Email</a>
       <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">↗ LinkedIn</a>
       <a href="tel:0545959059">📞 054-595-9059</a>
-      <a href="avior_hadad_cv_final.docx" target="_blank">📄 View CV</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">📄 View CV</a>
     </div>
   </div>
   <hr class="sf-divider"/>
