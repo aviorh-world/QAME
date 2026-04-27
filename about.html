@@ -2,415 +2,309 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>About Me · Avior Hadad · QA Engineer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
-<style>
-  :root{--navy:#1B3A5C;--navy2:#0F2540;--sky:#5A9BC0;--ice:#BDD5EA;--cream:#F5F1EB;--charcoal:#2A2A2A;--mid:#6B7A8D;--accent:#E8A952;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:'Lora',Georgia,serif;font-size:17px;background:var(--cream);color:var(--charcoal);overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.4;}
-
-  /* TOPBAR */
-  .site-topbar{background:var(--navy2);padding:0 60px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,0.07);position:relative;z-index:10;}
-  .site-topbar-left{display:flex;align-items:center;width:100%;}
-  .site-topbar-brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.35);padding:13px 20px 13px 0;text-decoration:none;border-right:1px solid rgba(255,255,255,0.08);margin-right:4px;white-space:nowrap;flex-shrink:0;}
-  .site-topbar-links{display:flex;gap:0;align-items:center;overflow-x:auto;}
-  .site-topbar-links a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;padding:13px 16px;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;}
-  .site-topbar-links a:hover,.site-topbar-links a.current{color:var(--accent);border-bottom-color:var(--accent);}
-
-    /* HERO */
-  header{position:relative;overflow:hidden;background:var(--navy2);padding:64px 60px 56px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;}
-  header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent) 0%,var(--sky) 50%,transparent 100%);}
-  .header-bg-text{position:absolute;top:-20px;right:-10px;font-family:'Syne',sans-serif;font-size:clamp(100px,18vw,220px);font-weight:800;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;user-select:none;letter-spacing:-6px;}
-  .header-name{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,74px);font-weight:800;color:var(--white);line-height:1;letter-spacing:-1px;}
-  .header-role{font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-top:16px;}
-  .header-tagline{font-family:'Lora',serif;font-style:italic;color:var(--ice);font-size:17px;margin-top:20px;max-width:440px;line-height:1.65;}
-  .header-links{display:flex;flex-direction:column;gap:10px;align-items:flex-end;position:relative;z-index:1;}
-  .header-links a{font-family:'DM Mono',monospace;font-size:13px;color:var(--ice);text-decoration:none;letter-spacing:1px;transition:color .2s;opacity:.8;}
-  .header-links a:hover{color:var(--accent);opacity:1;}
-  .cv-btn{display:inline-flex!important;align-items:center;gap:8px;background:var(--accent);color:var(--navy2)!important;font-size:12px!important;font-weight:600;letter-spacing:2px!important;text-transform:uppercase;padding:11px 20px;border-radius:100px;opacity:1!important;transition:background .2s,transform .15s!important;margin-top:6px;}
-  .cv-btn:hover{background:#f0bb6a!important;transform:translateY(-1px);}
-
-
-
-  /* MAIN */
-  main{max-width:900px;margin:0 auto;padding:60px;position:relative;z-index:1;}
-  .section{margin-bottom:72px;}
-  .section-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--sky);margin-bottom:8px;}
-  .section-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-bottom:36px;position:relative;display:inline-block;}
-  .section-title::after{content:'';position:absolute;left:0;bottom:-8px;width:36px;height:3px;background:var(--accent);border-radius:2px;}
-
-  /* INTRO CARD */
-  .intro-card{background:var(--navy);border-radius:16px;padding:36px 40px;color:var(--white);margin-bottom:48px;position:relative;overflow:hidden;}
-  .intro-card::before{content:'';position:absolute;top:-30px;right:-20px;font-family:'Syne',sans-serif;font-size:120px;font-weight:800;color:rgba(255,255,255,0.04);line-height:1;pointer-events:none;}
-  .intro-quote{font-family:'Lora',serif;font-style:italic;font-size:18px;line-height:1.8;color:var(--ice);margin-bottom:20px;}
-  .intro-stats{display:flex;gap:32px;flex-wrap:wrap;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);}
-  .intro-stat-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--accent);line-height:1;}
-  .intro-stat-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-top:4px;}
-
-  /* FAQ */
-  .faq-list{display:flex;flex-direction:column;gap:0;}
-  .faq-item{border-bottom:1px solid var(--border);overflow:hidden;}
-  .faq-item:first-child{border-top:1px solid var(--border);}
-  .faq-q{width:100%;background:none;border:none;text-align:left;padding:22px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;}
-  .faq-q-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);line-height:1.4;}
-  .faq-q-icon{font-family:'DM Mono',monospace;font-size:20px;color:var(--accent);flex-shrink:0;transition:transform .25s;line-height:1;}
-  .faq-item.open .faq-q-icon{transform:rotate(45deg);}
-  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .3s ease;}
-  .faq-item.open .faq-a{max-height:600px;}
-  .faq-a-inner{padding:0 0 24px 0;}
-  .faq-a-inner p{font-size:16px;line-height:1.85;color:var(--charcoal);margin-bottom:14px;}
-  .faq-a-inner p:last-child{margin-bottom:0;}
-  .faq-a-inner strong{color:var(--navy);}
-  .faq-link{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);text-decoration:none;border:1px solid rgba(90,155,192,0.3);padding:8px 16px;border-radius:8px;transition:all .2s;}
-  .faq-link:hover{background:var(--sky);color:var(--white);border-color:var(--sky);}
-  .faq-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.2);padding:3px 10px;border-radius:4px;margin-bottom:12px;}
-
-  /* PHILOSOPHY GRID */
-  .philosophy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-  .philosophy-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;}
-  .philosophy-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(27,58,92,0.10);}
-  .philosophy-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
-  .philosophy-icon{font-size:24px;margin-bottom:10px;}
-  .philosophy-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:8px;}
-  .philosophy-desc{font-size:13px;line-height:1.7;color:var(--mid);}
-
-  /* FOOTER */
-  .site-footer{background:var(--navy2);color:rgba(255,255,255,0.45);padding:48px 60px 32px;position:relative;z-index:1;margin-top:40px;}
-  .site-footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:40px;}
-  .sf-brand{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);margin-bottom:8px;}
-  .sf-tagline{font-size:12px;line-height:1.7;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
-  .sf-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-  .sf-col a{display:block;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.45);text-decoration:none;margin-bottom:10px;letter-spacing:1px;transition:color .2s;}
-  .sf-col a:hover{color:var(--white);}
-  .sf-divider{border:none;border-top:1px solid rgba(255,255,255,0.07);margin-bottom:20px;}
-  .sf-bottom{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;}
-  .sf-bottom-right{display:flex;gap:20px;}
-  .sf-bottom-right a{color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s;}
-  .sf-bottom-right a:hover{color:var(--accent);}
-
-  @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-  .fade-in{opacity:0;animation:fadeUp .6s ease forwards;}
-
-  @media(max-width:768px){
-    .site-topbar{padding:0 16px;flex-wrap:wrap;}
-    .site-topbar-brand{font-size:10px;padding:10px 0;width:100%;border-bottom:1px solid rgba(255,255,255,0.06);}
-    .site-topbar-links{width:100%;overflow-x:auto;}
-    .site-topbar-links a{padding:10px 12px;font-size:10px;}
-    header{padding:40px 20px 36px;grid-template-columns:1fr;gap:24px;}
-    .header-name{font-size:44px;}
-    .header-links{align-items:flex-start;}
-    main{padding:36px 20px;}
-    .section{margin-bottom:52px;}
-    .intro-card{padding:24px 20px;}
-    .intro-quote{font-size:16px;}
-    .intro-stats{gap:20px;}
-    .philosophy-grid{grid-template-columns:1fr;}
-    .faq-q-text{font-size:14px;}
-    .site-footer{padding:36px 20px 24px;}
-    .site-footer-grid{grid-template-columns:1fr;gap:24px;}
-    .sf-bottom{flex-direction:column;gap:10px;text-align:center;}
-    .sf-bottom-right{flex-wrap:wrap;justify-content:center;}
-  }
-  @media(max-width:420px){
-    .header-name{font-size:36px;}
-    .site-topbar-brand{display:none;}
-  }
-</style>
+<style>:root{--navy:#1B3A5C;--navy2:#0F2540;--sky:#5A9BC0;--ice:#BDD5EA;--cream:#F5F1EB;--charcoal:#2A2A2A;--mid:#6B7A8D;--accent:#E8A952;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:17px;}
+body{font-family:'Lora',Georgia,serif;background:var(--cream);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");opacity:0.4;}
+.site-topbar{background:var(--navy2);padding:0 60px;display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:0;z-index:100;}
+.site-topbar-brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.38);padding:0 20px 0 0;text-decoration:none;border-right:1px solid rgba(255,255,255,0.08);margin-right:0;white-space:nowrap;display:flex;align-items:center;flex-shrink:0;}
+.site-topbar-links{display:flex;align-items:stretch;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
+.site-topbar-links::-webkit-scrollbar{display:none;}
+.site-topbar-links a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);text-decoration:none;padding:0 18px;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;min-height:46px;}
+.site-topbar-links a:hover,.site-topbar-links a.current{color:var(--accent);border-bottom-color:var(--accent);}
+.site-hero{position:relative;overflow:hidden;background:var(--navy2);padding:60px 60px 52px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;}
+.site-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent) 0%,var(--sky) 50%,transparent 100%);}
+.hero-bg{position:absolute;top:-10px;right:-10px;font-family:'Syne',sans-serif;font-size:clamp(90px,15vw,200px);font-weight:800;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;user-select:none;letter-spacing:-4px;}
+.hero-role{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+.hero-name{font-family:'Syne',sans-serif;font-size:clamp(40px,6vw,72px);font-weight:800;color:var(--white);line-height:1.02;letter-spacing:-1px;}
+.hero-tagline{font-family:'Lora',serif;font-style:italic;color:var(--ice);font-size:17px;margin-top:18px;max-width:420px;line-height:1.65;}
+.hero-right{display:flex;flex-direction:column;gap:10px;align-items:flex-end;}
+.hero-right a{font-family:'DM Mono',monospace;font-size:12px;color:var(--ice);text-decoration:none;letter-spacing:1px;transition:color .2s;opacity:.8;}
+.hero-right a:hover{color:var(--accent);opacity:1;}
+.cv-btn{display:inline-flex !important;align-items:center;gap:8px;background:var(--accent);color:var(--navy2) !important;font-size:11px !important;font-weight:700;letter-spacing:2px !important;text-transform:uppercase;padding:11px 20px;border-radius:100px;opacity:1 !important;transition:background .2s,transform .1s !important;margin-top:4px;}
+.cv-btn:hover{background:#f0bb6a !important;transform:translateY(-1px);}
+main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
+.section{margin-bottom:72px;}
+.s-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--sky);margin-bottom:8px;}
+.s-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-bottom:32px;position:relative;display:inline-block;}
+.s-title::after{content:'';position:absolute;left:0;bottom:-8px;width:36px;height:3px;background:var(--accent);border-radius:2px;}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(27,58,92,0.10);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
+.card-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);background:rgba(90,155,192,0.1);padding:3px 10px;border-radius:4px;margin-bottom:12px;}
+.card-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.card-desc{font-size:14px;line-height:1.75;color:var(--mid);}
+.card-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);text-decoration:none;transition:color .2s;}
+.card-link:hover{color:var(--navy);}
+.chip{font-family:'DM Mono',monospace;font-size:11px;color:var(--navy);background:var(--cream);border:1px solid rgba(27,58,92,0.15);padding:4px 11px;border-radius:100px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.site-footer{background:var(--navy2);padding:48px 60px 32px;position:relative;z-index:1;margin-top:40px;}
+.sf-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:36px;}
+.sf-brand{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--white);margin-bottom:8px;}
+.sf-tag{font-size:12px;line-height:1.7;color:rgba(255,255,255,0.4);font-family:'DM Mono',monospace;}
+.sf-col-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.sf-col a{display:block;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;margin-bottom:9px;letter-spacing:1px;transition:color .2s;}
+.sf-col a:hover{color:var(--white);}
+.sf-div{border:none;border-top:1px solid rgba(255,255,255,0.07);margin-bottom:18px;}
+.sf-bottom{display:flex;justify-content:space-between;align-items:center;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+.sf-bottom-r{display:flex;gap:20px;}
+.sf-bottom-r a{color:rgba(255,255,255,0.3);text-decoration:none;transition:color .2s;}
+.sf-bottom-r a:hover{color:var(--accent);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{opacity:0;animation:fadeUp .55s ease forwards;}
+@media(max-width:768px){
+  .site-topbar{padding:0 12px;}
+  .site-topbar-brand{font-size:10px;padding:0 12px 0 0;}
+  .site-topbar-links a{padding:0 10px;font-size:10px;min-height:42px;}
+  .site-hero{padding:38px 20px 34px;grid-template-columns:1fr;gap:22px;}
+  .hero-name{font-size:44px;}
+  .hero-right{align-items:flex-start;}
+  main{padding:36px 18px;}
+  .section{margin-bottom:52px;}
+  .s-title{font-size:22px;}
+  .site-footer{padding:36px 20px 24px;}
+  .sf-grid{grid-template-columns:1fr;gap:24px;}
+  .sf-bottom{flex-direction:column;gap:10px;text-align:center;}
+  .sf-bottom-r{flex-wrap:wrap;justify-content:center;}
+}
+@media(max-width:420px){.hero-name{font-size:36px;}}
+.intro-card{background:var(--navy);border-radius:14px;padding:34px 38px;color:var(--white);margin-bottom:48px;position:relative;overflow:hidden;}
+.intro-quote{font-family:'Lora',serif;font-style:italic;font-size:17px;line-height:1.85;color:var(--ice);margin-bottom:20px;}
+.intro-stats{display:flex;gap:28px;flex-wrap:wrap;padding-top:18px;border-top:1px solid rgba(255,255,255,0.1);}
+.i-stat-n{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--accent);line-height:1;}
+.i-stat-l{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-top:4px;}
+.phil-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.phil-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px;position:relative;overflow:hidden;}
+.phil-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
+.phil-icon{font-size:22px;margin-bottom:10px;}
+.phil-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.phil-desc{font-size:13px;line-height:1.7;color:var(--mid);}
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.stack-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.stack-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.hi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.hi-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:20px 22px;position:relative;overflow:hidden;}
+.hi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
+.hi-icon{font-size:22px;margin-bottom:10px;}
+.hi-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:7px;}
+.hi-desc{font-size:13px;line-height:1.7;color:var(--mid);}
+.faq-list{display:flex;flex-direction:column;}
+.faq-item{border-bottom:1px solid var(--border);}
+.faq-item:first-child{border-top:1px solid var(--border);}
+.faq-q{width:100%;background:none;border:none;text-align:left;padding:20px 0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.faq-q-text{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--navy);line-height:1.4;}
+.faq-icon{font-family:'DM Mono',monospace;font-size:20px;color:var(--accent);flex-shrink:0;transition:transform .25s;line-height:1;}
+.faq-item.open .faq-icon{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;}
+.faq-item.open .faq-a{max-height:500px;}
+.faq-inner{padding:0 0 22px;}
+.faq-inner p{font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:12px;}
+.faq-inner p:last-child{margin-bottom:0;}
+.faq-inner strong{color:var(--navy);}
+.faq-tag{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.2);padding:3px 10px;border-radius:4px;margin-bottom:10px;}
+.faq-link{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);text-decoration:none;border:1px solid rgba(90,155,192,0.3);padding:7px 14px;border-radius:8px;transition:all .2s;}
+.faq-link:hover{background:var(--sky);color:var(--white);}
+@media(max-width:768px){
+  .phil-grid{grid-template-columns:1fr;}
+  .hi-grid{grid-template-columns:1fr;}
+  .intro-stats{gap:18px;}
+}</style>
 </head>
 <body>
-
-<!-- TOPBAR -->
 <div class="site-topbar">
-  <div class="site-topbar-left">
-    <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad</a>
-    <div class="site-topbar-links">
-    <a href="https://aviorh-world.github.io/QAME/">Home</a>
-    <a href="https://aviorh-world.github.io/QAME/jifiti.html">Jifiti</a>
-    <a href="https://aviorh-world.github.io/QAME/about.html" class="current">About Me</a>
-    <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
-    <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff</a>
-    </div>
-  </div>
-</div><!-- HERO -->
-<header>
-  <div class="header-bg-text">QA</div>
+  <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad</a>
+  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html" class="current">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html">CV</a></div>
+</div>
+<div class="site-hero">
+  <div class="hero-bg">QA</div>
   <div>
-    <div class="header-role">QA Engineer · Manual &amp; Automation</div>
-    <div class="header-name">Avior<br/>Hadad</div>
-    <div class="header-tagline">10+ years breaking software so users don't have to.</div>
+    <div class="hero-role">QA Engineer &middot; Manual &amp; Automation</div>
+    <div class="hero-name">Avior<br>Hadad</div>
+    <div class="hero-tagline">10+ years breaking software so users don&rsquo;t have to.</div>
   </div>
-  <div class="header-links">
-    <a href="mailto:Aviorh@gmail.com">✉ Aviorh@gmail.com</a>
-    <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">↗ LinkedIn</a>
-    <a href="tel:0545959059">📞 054-595-9059</a>
-    <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">📄 View CV</a>
+  <div class="hero-right">
+    <a href="mailto:Aviorh@gmail.com">&#9993; Aviorh@gmail.com</a>
+    <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
+    <a href="tel:0545959059">&#128222; 054-595-9059</a>
+    <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">&#128196; View CV</a>
   </div>
-</header>
-
+</div>
 <main>
 
-  <!-- INTRO -->
-  <div class="intro-card fade-in">
-    <div class="intro-quote">"I am a technically oriented QA Engineer with a strong analytical mindset, focused on prevention rather than detection. I think in terms of systems, risk, and root cause — not just test cases."</div>
-    <div class="intro-stats">
-      <div><div class="intro-stat-num">10+</div><div class="intro-stat-label">Years in QA</div></div>
-      <div><div class="intro-stat-num">4</div><div class="intro-stat-label">Companies</div></div>
-      <div><div class="intro-stat-num">5+</div><div class="intro-stat-label">Integrations at Jifiti</div></div>
-      <div><div class="intro-stat-num">∞</div><div class="intro-stat-label">Bugs Found</div></div>
-    </div>
+<div class="intro-card fade-in">
+  <div class="intro-quote">&ldquo;I&rsquo;m a technically oriented QA Engineer focused on prevention rather than detection. I think in terms of systems, risk, and root cause &mdash; not just test cases.&rdquo;</div>
+  <div class="intro-stats">
+    <div><div class="i-stat-n">10+</div><div class="i-stat-l">Years in QA</div></div>
+    <div><div class="i-stat-n">4</div><div class="i-stat-l">Companies</div></div>
+    <div><div class="i-stat-n">5+</div><div class="i-stat-l">Integrations</div></div>
+    <div><div class="i-stat-n">&infin;</div><div class="i-stat-l">Bugs Found</div></div>
   </div>
+</div>
 
-  <!-- QA PHILOSOPHY -->
-  <section class="section fade-in" style="animation-delay:.1s">
-    <div class="section-label">01 / How I Think</div>
-    <div class="section-title">QA Philosophy</div>
-    <div class="philosophy-grid">
-      <div class="philosophy-card">
-        <div class="philosophy-icon">🔬</div>
-        <div class="philosophy-title">Root Cause First</div>
-        <div class="philosophy-desc">Every bug I investigate, I isolate the root cause before deciding on the fix. Understanding <em>why</em> it happened matters more than just reproducing it.</div>
-      </div>
-      <div class="philosophy-card">
-        <div class="philosophy-icon">🛡️</div>
-        <div class="philosophy-title">Prevention Over Detection</div>
-        <div class="philosophy-desc">A bug found in production is a failure of the process. I focus on building coverage that catches regressions before they reach users.</div>
-      </div>
-      <div class="philosophy-card">
-        <div class="philosophy-icon">🧩</div>
-        <div class="philosophy-title">System Thinking</div>
-        <div class="philosophy-desc">I don't test layers in isolation. I understand how the backend, API, UI, and third-party services interact — and where they break.</div>
-      </div>
-      <div class="philosophy-card">
-        <div class="philosophy-icon">📝</div>
-        <div class="philosophy-title">Knowledge Sharing</div>
-        <div class="philosophy-desc">I write detailed documentation of test procedures, integration flows, and findings — so the whole team can benefit, not just me.</div>
-      </div>
-      <div class="philosophy-card">
-        <div class="philosophy-icon">🤖</div>
-        <div class="philosophy-title">Automation Mindset</div>
-        <div class="philosophy-desc">Every repeatable manual test is a candidate for automation. I run automated test suites via Cloudbeat, analyze results, and identify failures. I'm also actively developing Playwright skills to contribute to scripted automation.</div>
-      </div>
-      <div class="philosophy-card">
-        <div class="philosophy-icon">🚀</div>
-        <div class="philosophy-title">AI-Augmented Testing</div>
-        <div class="philosophy-desc">I leverage AI tools to shorten investigation time, generate test ideas, and build smarter test coverage — including tools I build myself.</div>
-      </div>
+<section class="section fade-in" style="animation-delay:.05s">
+  <div class="s-label">01 / How I Work at Jifiti</div>
+  <div class="s-title">Role &amp; Focus</div>
+  <div class="hi-grid">
+    <div class="hi-card"><div class="hi-icon">&#128279;</div><div class="hi-title">Multi-Integration QA</div><div class="hi-desc">End-to-end ownership across 5+ lender/merchant integrations &mdash; Citizens Pay, El Corte Ingl&eacute;s (FECI), Rural King/Reprise, Barclays, HGV/Hilton.</div></div>
+    <div class="hi-card"><div class="hi-icon">&#128203;</div><div class="hi-title">Knowledge Documentation</div><div class="hi-desc">Authored internal Jifipedia (Confluence) articles &mdash; test procedures, integration flows, job validation guides shared across R&amp;D.</div></div>
+    <div class="hi-card"><div class="hi-icon">&#9881;&#65039;</div><div class="hi-title">Automated Testing</div><div class="hi-desc">Running test suites and analyzing results via <strong>Cloudbeat</strong> (test management platform with built-in runner). Actively developing Playwright skills.</div></div>
+    <div class="hi-card"><div class="hi-icon">&#128269;</div><div class="hi-title">Deep Log Analysis</div><div class="hi-desc">Root-cause investigation using Coralogix, Stackify, SQL queries, and API tracing across Jifiti and third-party lender services.</div></div>
+  </div>
+</section>
+
+<section class="section fade-in" style="animation-delay:.08s">
+  <div class="s-label">02 / Tech Stack</div>
+  <div class="s-title">Technologies &amp; Tools</div>
+  <div class="stack-grid">
+    <div class="stack-card"><div class="stack-lbl">Backend</div><div class="chips"><span class="chip">C# / .NET 6</span><span class="chip">ASP.NET Core</span><span class="chip">REST APIs</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Dev Tools</div><div class="chips"><span class="chip">Visual Studio</span><span class="chip">Azure DevOps</span><span class="chip">Git</span><span class="chip">Docker</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Test Mgmt</div><div class="chips"><span class="chip">Cloudbeat</span><span class="chip">Jira</span><span class="chip">Zephyr</span><span class="chip">Confluence</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">API &amp; Debug</div><div class="chips"><span class="chip">Postman</span><span class="chip">Swagger</span><span class="chip">Fiddler</span><span class="chip">Webhook.site</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Automation</div><div class="chips"><span class="chip">Playwright</span><span class="chip">Selenium</span><span class="chip">TestProject</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Monitoring</div><div class="chips"><span class="chip">Coralogix</span><span class="chip">Stackify</span><span class="chip">Kibana</span><span class="chip">FullStory</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Database</div><div class="chips"><span class="chip">SQL Server</span><span class="chip">MongoDB</span><span class="chip">Oracle</span></div></div>
+    <div class="stack-card"><div class="stack-lbl">Cross-env</div><div class="chips"><span class="chip">BrowserStack</span><span class="chip">DEV/QA/UAT/PROD</span></div></div>
+  </div>
+</section>
+
+<section class="section fade-in" style="animation-delay:.1s">
+  <div class="s-label">03 / QA Philosophy</div>
+  <div class="s-title">How I Think</div>
+  <div class="phil-grid">
+    <div class="phil-card"><div class="phil-icon">&#128300;</div><div class="phil-title">Root Cause First</div><div class="phil-desc">I isolate the root cause before deciding on a fix. Understanding <em>why</em> it happened matters more than just reproducing it.</div></div>
+    <div class="phil-card"><div class="phil-icon">&#128737;&#65039;</div><div class="phil-title">Prevention Over Detection</div><div class="phil-desc">A bug in production is a process failure. I build coverage that catches regressions before they reach users.</div></div>
+    <div class="phil-card"><div class="phil-icon">&#129513;</div><div class="phil-title">System Thinking</div><div class="phil-desc">I test across backend, API, UI, and third-party services together &mdash; not layers in isolation.</div></div>
+    <div class="phil-card"><div class="phil-icon">&#128221;</div><div class="phil-title">Knowledge Sharing</div><div class="phil-desc">I write detailed procedures and guides so the whole team benefits from what I learn.</div></div>
+    <div class="phil-card"><div class="phil-icon">&#129302;</div><div class="phil-title">Automation Mindset</div><div class="phil-desc">Every repeatable test is a candidate for automation. I run suites via Cloudbeat and develop Playwright skills to expand coverage.</div></div>
+    <div class="phil-card"><div class="phil-icon">&#128640;</div><div class="phil-title">AI-Augmented</div><div class="phil-desc">I use AI to shorten investigation time, generate test ideas, and build tools &mdash; including the UI Diff tool in My Projects.</div></div>
+  </div>
+</section>
+
+<section class="section fade-in" style="animation-delay:.12s">
+  <div class="s-label">04 / FAQ</div>
+  <div class="s-title">Common Questions</div>
+  <div class="faq-list" id="faqList">
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Do you write code?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Technical Context</div>
+        <p>My coding experience is recent and still developing. I work with a <strong>C#/.NET backend</strong> environment &mdash; I read the codebase, work in Visual Studio, analyze APIs, trace logs, and write SQL queries for data validation.</p>
+        <p>I also write <strong>JavaScript helpers and bookmarklets</strong> for testing tasks, and I&rsquo;m actively learning Playwright. The UI Diff tool in My Projects is an example of what I&rsquo;ve built.</p>
+        <a class="faq-link" href="https://aviorh-world.github.io/QAME/projects.html">&#8599; See My Projects</a>
+      </div></div>
     </div>
-  </section>
 
-  <!-- FAQ -->
-  <section class="section fade-in" style="animation-delay:.15s">
-    <div class="section-label">02 / FAQ</div>
-    <div class="section-title">Common Questions</div>
-    <div class="faq-list" id="faqList">
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">Do you write code?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Technical Context</div>
-            <p>My coding experience is recent and still developing. I work with a <strong>C# / .NET backend</strong> environment — I read and understand the codebase, work in Visual Studio, analyze API responses, trace logs, and write SQL queries for data validation.</p>
-            <p>I also write <strong>JavaScript helpers and bookmarklets</strong> to automate repetitive testing tasks, and I'm actively learning Playwright to build more structured automation. The UI Diff tool you see in this portfolio is an example of what I've built.</p>
-            <a class="faq-link" href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank">↗ See the UI Diff Tool I built</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">What is Cloudbeat and how do you use it?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Automation Platform</div>
-            <p>Cloudbeat is a <strong>test management platform with a built-in test runner</strong> — similar to TestRail, but with the ability to execute tests directly from the platform. My role is to run the test suites, monitor execution results, and analyze failures — identifying root causes, regressions, and areas that need follow-up investigation.</p>
-            <p>My role is test design and failure analysis, not scripting the automation engine itself. This is how I describe it honestly: I'm automation-oriented and execution-experienced, and I'm developing my code-writing skills in parallel.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">Are you interested in moving toward full Automation Engineering?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Career Direction</div>
-            <p>Yes — it's a deliberate goal, not just a trend I'm following. I approach every manual test with the question: <em>"Could this be automated?"</em> When I find a root cause and a repeatable scenario, my first instinct is to cover it with automation to prevent future regression.</p>
-            <p>I'm actively building Playwright skills and have already explored fixture architecture and integration test design. The transition from execution-focused QA to automation engineering is where I'm heading.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">How do you investigate bugs?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Investigation Process</div>
-            <p>I investigate systematically: <strong>logs first</strong> (Coralogix, Stackify, Kibana), then API behavior via Postman/Swagger/Fiddler, then data validation via SQL queries, then environment comparison (DEV vs QA vs UAT vs PROD).</p>
-            <p>My goal is always to isolate the root cause — not just reproduce the issue. I want to understand whether it's a Jifiti-side bug, a third-party lender issue, a configuration error, or a data problem. That distinction drives the fix and the regression coverage.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">What types of bugs do you usually find?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Bug Categories</div>
-            <p>I work across all layers: <strong>logic bugs</strong> (wrong business rules), <strong>data inconsistencies</strong> (wrong values, missing records), <strong>API and integration failures</strong> (wrong payloads, HTTP errors, auth issues), <strong>configuration problems</strong> (wrong URLs, missing feature flags), and <strong>regressions</strong> (things that used to work).</p>
-            <p>I'm not a UI-only tester. At Jifiti I regularly find issues that originate deep in the backend — a job that silently fails, a field that doesn't get saved, an edge case in the lender API response handling.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">How do you use AI in your QA work?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">AI & Tooling</div>
-            <p>I actively use AI to accelerate investigation, generate test ideas, write documentation faster, and build tools. I created a <strong>NotebookLM-based knowledge session</strong> for internal QA onboarding, and built a UI comparison tool that runs deterministic checks between Figma designs and live pages.</p>
-            <p>Beyond using AI tools, I think about how to apply AI to real testing problems — which is what led me to build the UI Diff tool. The goal is always the same: reduce manual effort and increase accuracy.</p>
-            <a class="faq-link" href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank">↗ UI Diff Tool</a>
-            <a class="faq-link" href="https://aviorh-world.github.io/QAME/jifiti.html#video" target="_blank" style="margin-left:8px;">↗ NotebookLM Video</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">How do you work with developers?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Collaboration</div>
-            <p>I try to speak the developer's language. When I report a bug, I include: exact reproduction steps, relevant log lines with timestamps, API request/response payloads, SQL query results that confirm the data state, and a hypothesis on root cause.</p>
-            <p>My goal is to reduce back-and-forth. A developer should be able to read my bug report and go straight to the fix — not spend 30 minutes trying to reproduce it.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">Do you contribute to QA best practices and documentation?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Knowledge Sharing</div>
-            <p>Yes — actively. At Jifiti I wrote multiple <strong>Jifipedia (Confluence) articles</strong> that became the standard reference for testing procedures across the R&D team: step-by-step guides for adding approvers in the John Deere system, FTP/Fiserv validation procedures, branding system documentation, and more.</p>
-            <p>I also created a structured E2E testing guide for the QA team.</p>
-            <a class="faq-link" href="https://aviorh-world.github.io/QAME/jifiti.html#screenshots" target="_blank">↗ See documentation examples</a>
-            <a class="faq-link" href="https://drive.google.com/file/d/1sprjn4SeB986ZutFcKroAewLBR-Xx2-w/view" target="_blank" style="margin-left:8px;">↗ E2E Testing Guide</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">What is your strongest technical advantage?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Differentiator</div>
-            <p>The combination of <strong>deep system understanding + analytical investigation + AI-driven productivity</strong>. I don't just find bugs — I understand why they happen, document them clearly, and think about how to prevent them from returning.</p>
-            <p>I also build tools to solve real problems, which puts me in a different category from a traditional manual QA engineer. The UI Diff tool is one example — built from scratch to solve a specific gap in our visual testing workflow.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">
-          <span class="faq-q-text">Where are you heading next in your career?</span>
-          <span class="faq-q-icon">+</span>
-        </button>
-        <div class="faq-a">
-          <div class="faq-a-inner">
-            <div class="faq-tag">Career Goals</div>
-            <p>I'm aiming to grow into an <strong>automation-heavy QA or SDET role</strong>, where I can combine my backend understanding, system-level thinking, and growing Playwright/JavaScript skills to build scalable, long-term test infrastructure.</p>
-            <p>The goal isn't just to run more tests — it's to build a quality system that scales with the product and catches the right things before they reach users.</p>
-          </div>
-        </div>
-      </div>
-
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">What is Cloudbeat and how do you use it?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Automation Platform</div>
+        <p>Cloudbeat is a <strong>test management platform with a built-in runner</strong> &mdash; similar to TestRail but with the ability to execute tests directly. My role is to run test suites, monitor results, and analyze failures: root causes, regressions, and areas needing follow-up.</p>
+      </div></div>
     </div>
-  </section>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Are you moving toward full Automation Engineering?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Career Direction</div>
+        <p>Yes &mdash; it&rsquo;s a deliberate goal. Every manual test I do, I ask: <em>&ldquo;Could this be automated?&rdquo;</em> When I find a repeatable root cause, my first instinct is to cover it with automation to prevent regression.</p>
+        <p>I&rsquo;m building Playwright skills and have explored fixture architecture and integration test design.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How do you investigate bugs?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Investigation Process</div>
+        <p><strong>Logs first</strong> (Coralogix, Stackify, Kibana), then API behavior via Postman/Swagger/Fiddler, then data validation via SQL, then environment comparison (DEV vs QA vs UAT vs PROD).</p>
+        <p>Goal: isolate the root cause &mdash; not just reproduce. Is it Jifiti-side, a lender issue, a config error, or a data problem?</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">How do you work with developers?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Collaboration</div>
+        <p>I include: exact reproduction steps, relevant log lines with timestamps, API request/response payloads, SQL results that confirm data state, and a root cause hypothesis.</p>
+        <p>Goal: developer reads the report and goes straight to the fix &mdash; no 30-minute reproduction session.</p>
+      </div></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">
+        <span class="faq-q-text">Where are you heading next?</span><span class="faq-icon">+</span>
+      </button>
+      <div class="faq-a"><div class="faq-inner">
+        <div class="faq-tag">Career Goals</div>
+        <p>Growing into an <strong>automation-heavy QA or SDET role</strong> &mdash; combining backend understanding, system-level thinking, and Playwright/JavaScript skills to build scalable test infrastructure.</p>
+      </div></div>
+    </div>
+
+  </div>
+</section>
 
 </main>
-
-<!-- FOOTER -->
+<script>
+function toggleFaq(btn){
+  var item=btn.parentElement;
+  var isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(function(el){el.classList.remove('open');});
+  if(!isOpen)item.classList.add('open');
+}
+</script>
 <footer class="site-footer">
-  <div class="site-footer-grid">
+  <div class="sf-grid">
     <div>
       <div class="sf-brand">Avior Hadad</div>
-      <div class="sf-tagline">QA Engineer · Manual &amp; Automation<br/>Jerusalem · Hybrid<br/>10+ years finding what others miss.</div>
+      <div class="sf-tag">QA Engineer &middot; Manual &amp; Automation<br>Jerusalem &middot; Hybrid</div>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Navigate</div>
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
-      <a href="https://aviorh-world.github.io/QAME/jifiti.html">Jifiti Case Study</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About Me</a>
-      <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff Tool</a>
+      <a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Connect</div>
-      <a href="mailto:Aviorh@gmail.com">✉ Email</a>
-      <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">↗ LinkedIn</a>
-      <a href="tel:0545959059">📞 054-595-9059</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">📄 View CV</a>
+      <a href="mailto:Aviorh@gmail.com">&#9993; Email</a>
+      <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
+      <a href="tel:0545959059">&#128222; 054-595-9059</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">&#128196; View CV</a>
     </div>
   </div>
-  <hr class="sf-divider"/>
+  <hr class="sf-div"/>
   <div class="sf-bottom">
-    <span>© 2025 Avior Hadad · All rights reserved</span>
-    <div class="sf-bottom-right">
-      <a href="https://aviorh-world.github.io/QAME/">Portfolio</a>
+    <span>&copy; 2025 Avior Hadad</span>
+    <div class="sf-bottom-r">
+      <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About</a>
-      <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff</a>
+      <a href="https://aviorh-world.github.io/QAME/projects.html">Projects</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
     </div>
   </div>
 </footer>
-
 <script>
-function toggleFaq(btn) {
-  var item = btn.parentElement;
-  var isOpen = item.classList.contains('open');
-  // Close all
-  document.querySelectorAll('.faq-item.open').forEach(function(el) {
-    el.classList.remove('open');
-  });
-  // Open clicked if it wasn't open
-  if (!isOpen) item.classList.add('open');
-}
-
-// Scroll animations
-var observer = new IntersectionObserver(function(entries) {
-  entries.forEach(function(e) {
-    if (e.isIntersecting) { e.target.style.animationPlayState = 'running'; e.target.style.opacity = '1'; }
-  });
-}, { threshold: 0.08 });
-document.querySelectorAll('.fade-in').forEach(function(el) {
-  el.style.animationPlayState = 'paused';
-  observer.observe(el);
+var obs=new IntersectionObserver(function(e){
+  e.forEach(function(x){if(x.isIntersecting){x.target.style.animationPlayState='running';x.target.style.opacity='1';}});
+},{threshold:0.08});
+document.querySelectorAll('.fade-in').forEach(function(el){
+  el.style.animationPlayState='paused'; obs.observe(el);
 });
 </script>
 </body>
