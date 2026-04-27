@@ -22,7 +22,12 @@
   header{background:var(--navy2);padding:28px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent);}
   .header-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--white);letter-spacing:-0.5px;}
   .header-sub{font-size:11px;color:var(--ice);letter-spacing:3px;text-transform:uppercase;margin-top:4px;opacity:0.7;}
-  .header-badge{font-size:11px;color:var(--accent);border:1px solid var(--accent);padding:4px 12px;border-radius:100px;letter-spacing:2px;text-transform:uppercase;}
+
+  .tool-subheader{background:var(--navy);border-bottom:3px solid var(--accent);}
+  .tool-subheader-inner{max-width:1020px;margin:0 auto;padding:16px 32px;display:flex;align-items:center;gap:20px;}
+  .tool-subheader-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);letter-spacing:-0.3px;}
+  .tool-subheader-sub{font-size:11px;color:var(--ice);letter-spacing:3px;text-transform:uppercase;opacity:0.7;flex:1;}
+  .header-badge{font-size:11px;color:var(--accent);border:1px solid var(--accent);padding:4px 12px;border-radius:100px;letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
 
   .container{max-width:1020px;margin:0 auto;padding:40px 32px;}
 
@@ -108,6 +113,19 @@
   .sf-bottom-right a{color:rgba(255,255,255,0.35);text-decoration:none;transition:color .2s;}
   .sf-bottom-right a:hover{color:var(--accent);}
 
+
+  /* ── SHARED HERO HEADER ── */
+  header.site-hero{position:relative;overflow:hidden;background:var(--navy2);padding:70px 60px 60px;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;}
+  header.site-hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent) 0%,var(--sky) 50%,transparent 100%);}
+  .header-bg-text{position:absolute;top:-20px;right:-10px;font-family:'Syne',sans-serif;font-size:clamp(100px,18vw,220px);font-weight:800;color:rgba(255,255,255,0.03);line-height:1;pointer-events:none;user-select:none;letter-spacing:-6px;}
+  .header-name{font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;color:var(--white);line-height:1;letter-spacing:-1px;}
+  .header-role{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-top:16px;}
+  .header-tagline{font-family:'Lora',serif;font-style:italic;color:var(--ice);font-size:16px;margin-top:20px;max-width:440px;line-height:1.6;}
+  .header-links{display:flex;flex-direction:column;gap:10px;align-items:flex-end;position:relative;z-index:1;}
+  .header-links a{font-family:'DM Mono',monospace;font-size:12px;color:var(--ice);text-decoration:none;letter-spacing:1px;transition:color .2s;opacity:.8;}
+  .header-links a:hover{color:var(--accent);opacity:1;}
+  .cv-btn{display:inline-flex!important;align-items:center;gap:8px;background:var(--accent);color:var(--navy2)!important;font-size:11px!important;font-weight:600;letter-spacing:2px!important;text-transform:uppercase;padding:10px 18px;border-radius:100px;opacity:1!important;transition:background .2s,transform .15s!important;margin-top:6px;}
+  .cv-btn:hover{background:#f0bb6a!important;transform:translateY(-1px);}
   @media(max-width:700px){
     .site-topbar{padding:0 20px;} header{padding:24px;flex-direction:column;gap:12px;text-align:center;}
     .steps-grid{grid-template-columns:1fr;} .inputs-grid{grid-template-columns:1fr;}
@@ -129,14 +147,30 @@
   </div>
 </div>
 
-<!-- TOOL HEADER -->
-<header>
+<!-- ── HERO ── -->
+<header class="site-hero">
+  <div class="header-bg-text">QA</div>
   <div>
-    <div class="header-title">UI Design Diff</div>
-    <div class="header-sub">Figma → Browser · Deterministic Check</div>
+    <div class="header-role">QA Engineer · Manual &amp; Automation</div>
+    <div class="header-name">Avior<br/>Hadad</div>
+    <div class="header-tagline">10+ years breaking software so users don't have to.</div>
   </div>
-  <div class="header-badge">No AI · 100% Deterministic</div>
+  <div class="header-links">
+    <a href="mailto:Aviorh@gmail.com">✉ Aviorh@gmail.com</a>
+    <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">↗ LinkedIn</a>
+    <a href="tel:0545959059">📞 054-595-9059</a>
+    <a class="cv-btn" href="avior_hadad_cv_final.docx" target="_blank">📄 View CV</a>
+  </div>
 </header>
+
+<!-- TOOL SUBHEADER -->
+<div class="tool-subheader">
+  <div class="tool-subheader-inner">
+    <div class="tool-subheader-title">UI Design Diff</div>
+    <div class="tool-subheader-sub">Figma → Browser · Deterministic Check</div>
+    <div class="header-badge">No AI · 100% Deterministic</div>
+  </div>
+</div>
 
 <div class="container">
 

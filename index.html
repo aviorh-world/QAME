@@ -132,12 +132,63 @@
   @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
   .fade-in{opacity:0;animation:fadeUp .6s ease forwards;}
 
+  /* ── MOBILE ── */
   @media(max-width:768px){
-    .site-topbar{padding:0 20px;}.site-topbar-links a{padding:12px 10px;font-size:10px;}
-    header{padding:50px 28px 50px;grid-template-columns:1fr;}.header-links{align-items:flex-start;}
-    nav{padding:0 20px;} main{padding:40px 24px;} .about-grid{grid-template-columns:1fr;}
-    .site-footer-grid{grid-template-columns:1fr;gap:28px;} .site-footer{padding:40px 28px 28px;}
-    .sf-bottom{flex-direction:column;gap:12px;text-align:center;}
+    /* topbar */
+    .site-topbar{padding:0 16px;flex-wrap:wrap;gap:0;}
+    .site-topbar-brand{font-size:10px;padding:10px 0;width:100%;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .site-topbar-links{width:100%;overflow-x:auto;}
+    .site-topbar-links a{padding:10px 12px;font-size:10px;}
+
+    /* hero */
+    header{padding:40px 24px 40px;grid-template-columns:1fr;gap:28px;}
+    .header-name{font-size:44px;}
+    .header-links{align-items:flex-start;gap:8px;}
+    .header-links a{font-size:11px;}
+    .cv-btn{align-self:flex-start;}
+
+    /* page nav */
+    nav{padding:0 16px;}
+    nav a{padding:14px 14px;font-size:12px;}
+    .edit-nav-btn{padding:6px 12px;font-size:10px;}
+
+    /* main */
+    main{padding:36px 20px;}
+    .section{margin-bottom:56px;}
+    .section-title{font-size:24px;}
+
+    /* about */
+    .about-grid{grid-template-columns:1fr;gap:28px;}
+    .about-text p{font-size:15px;}
+    .stats-card{padding:24px 20px;}
+    .stat-number{font-size:32px;}
+
+    /* projects */
+    .projects-grid{grid-template-columns:1fr;}
+
+    /* skills */
+    .skills-row{gap:8px 6px;}
+    .skill-chip{font-size:11px;padding:5px 10px;}
+
+    /* contact */
+    .contact-row{flex-direction:column;gap:12px;}
+    .contact-item{padding:14px 18px;font-size:12px;}
+
+    /* footer */
+    .site-footer{padding:36px 20px 24px;}
+    .site-footer-grid{grid-template-columns:1fr;gap:24px;}
+    .sf-brand{font-size:18px;}
+    .sf-bottom{flex-direction:column;gap:10px;text-align:center;}
+    .sf-bottom-right{flex-wrap:wrap;justify-content:center;gap:12px;}
+
+    /* modal */
+    .modal{width:90vw;padding:28px 24px;}
+    .save-banner{font-size:10px;padding:12px 18px;width:90vw;justify-content:space-between;}
+  }
+
+  @media(max-width:420px){
+    .header-name{font-size:36px;}
+    .site-topbar-brand{display:none;}
   }
 </style>
 </head>
@@ -168,6 +219,7 @@
   <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad · QA Portfolio</a>
   <div class="site-topbar-links">
     <a href="https://aviorh-world.github.io/QAME/" class="current">Home</a>
+    <a href="https://aviorh-world.github.io/QAME/jifiti.html">Jifiti</a>
     <a href="https://aviorh-world.github.io/QAME/ui-diff.html">UI Diff Tool</a>
     <a href="mailto:Aviorh@gmail.com">Contact</a>
   </div>
@@ -228,6 +280,12 @@
     <div class="section-title">Projects &amp; Case Studies</div>
     <div class="projects-grid">
       <div class="project-card">
+        <span class="project-tag">Case Study</span>
+        <div class="project-title">Jifiti · QA Analyst</div>
+        <div class="project-desc">End-to-end QA across 5+ fintech integrations. C#/.NET backend, Playwright automation, Confluence documentation, Coralogix log analysis.</div>
+        <a class="project-link" href="https://aviorh-world.github.io/QAME/jifiti.html">↗ View Case Study</a>
+      </div>
+      <div class="project-card">
         <span class="project-tag">QA Tool</span>
         <div class="project-title">UI Design Diff</div>
         <div class="project-desc">A deterministic, AI-free tool that compares Figma designs against live browser output — pixel-level checks for color, typography, and layout.</div>
@@ -280,12 +338,13 @@
   <div class="site-footer-grid">
     <div>
       <div class="sf-brand">Avior Hadad</div>
-      <div class="sf-tagline">QA Engineer · Manual &amp; Automation<br/>Petah Tikva / Jerusalem · Hybrid<br/>10+ years finding what others miss.</div>
+      <div class="sf-tagline">QA Engineer · Manual &amp; Automation<br/>Jerusalem · Hybrid<br/>10+ years finding what others miss.</div>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Navigate</div>
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/#about">About</a>
+      <a href="https://aviorh-world.github.io/QAME/jifiti.html">Jifiti Case Study</a>
       <a href="https://aviorh-world.github.io/QAME/#projects">Projects</a>
       <a href="https://aviorh-world.github.io/QAME/#skills">Skills</a>
       <a href="https://aviorh-world.github.io/QAME/#contact">Contact</a>
