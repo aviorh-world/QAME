@@ -107,7 +107,10 @@
   .sf-bottom-right a:hover{color:var(--accent);}
 
   @media(max-width:768px){
-    .site-topbar{padding:0 16px;}
+    .site-topbar{padding:0;}
+  .site-topbar-brand{display:none;}
+  .site-topbar-links{width:100%;justify-content:space-around;}
+  .site-topbar-links a{flex:1;justify-content:center;text-align:center;padding:0 6px;font-size:10px;min-height:44px;letter-spacing:1px;}
     .site-topbar-left{overflow-x:auto;width:100%;}
     .site-topbar-links a{padding:11px 10px;font-size:10px;}
     header{padding:40px 20px 36px;grid-template-columns:1fr;gap:24px;}

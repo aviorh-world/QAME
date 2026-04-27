@@ -33,6 +33,7 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 .s-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--sky);margin-bottom:8px;}
 .s-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:var(--navy);margin-bottom:32px;position:relative;display:inline-block;}
 .s-title::after{content:'';position:absolute;left:0;bottom:-8px;width:36px;height:3px;background:var(--accent);border-radius:2px;}
+.s-subtitle{font-family:'DM Mono',monospace;font-size:12px;color:var(--mid);letter-spacing:1px;margin-top:-20px;margin-bottom:28px;line-height:1.6;}
 .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:28px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
 .card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(27,58,92,0.10);}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--navy);}
@@ -58,9 +59,10 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 .fade-in{opacity:0;animation:fadeUp .55s ease forwards;}
 @media(max-width:768px){
-  .site-topbar{padding:0 12px;}
-  .site-topbar-brand{font-size:10px;padding:0 12px 0 0;}
-  .site-topbar-links a{padding:0 10px;font-size:10px;min-height:42px;}
+  .site-topbar{padding:0;}
+  .site-topbar-brand{display:none;}
+  .site-topbar-links{width:100%;justify-content:space-around;}
+  .site-topbar-links a{flex:1;justify-content:center;text-align:center;padding:0 6px;font-size:10px;min-height:44px;letter-spacing:1px;}
   .site-hero{padding:38px 20px 34px;grid-template-columns:1fr;gap:22px;}
   .hero-name{font-size:44px;}
   .hero-right{align-items:flex-start;}
@@ -239,6 +241,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <section class="section fade-in" id="docs">
   <div class="s-label">01 / Documentation</div>
   <div class="s-title">Jifipedia Articles I Authored</div>
+  <div class="s-subtitle">Sample of articles I wrote for the Jifiti internal knowledge base</div>
   <p style="font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:28px;max-width:680px;">During my time at Jifiti I wrote internal knowledge-base articles on Jifipedia (Confluence) &mdash; step-by-step QA procedures, integration validation flows, and system documentation shared across R&amp;D. Click any image to expand.</p>
   <div class="ss-grid">
     <div class="ss-item" onclick="openLb('Screenshot1.png','How to Add an Authorized Approver in the John Deere System')">
@@ -280,6 +283,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <section class="section fade-in" id="videos" style="animation-delay:.1s">
   <div class="s-label">02 / Knowledge Sharing</div>
   <div class="s-title">Instructional Videos</div>
+  <div class="s-subtitle">Sample of instructional content I created for QA onboarding and knowledge sharing</div>
   <div class="video-grid">
     <div class="video-wrap">
       <div class="video-head">
@@ -313,6 +317,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <section class="section fade-in" id="uidiff" style="animation-delay:.12s">
   <div class="s-label">03 / QA Tool</div>
   <div class="s-title">UI Design Diff</div>
+  <div class="s-subtitle">Sample of tools I've built to improve testing quality &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool</a></div>
   <div class="diff-tool-section">
     <div class="diff-tool-header">
       <div class="diff-tool-title">UI Design Diff</div>

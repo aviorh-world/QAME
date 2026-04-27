@@ -58,9 +58,10 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 .fade-in{opacity:0;animation:fadeUp .55s ease forwards;}
 @media(max-width:768px){
-  .site-topbar{padding:0 12px;}
-  .site-topbar-brand{font-size:10px;padding:0 12px 0 0;}
-  .site-topbar-links a{padding:0 10px;font-size:10px;min-height:42px;}
+  .site-topbar{padding:0;}
+  .site-topbar-brand{display:none;}
+  .site-topbar-links{width:100%;justify-content:space-around;}
+  .site-topbar-links a{flex:1;justify-content:center;text-align:center;padding:0 6px;font-size:10px;min-height:44px;letter-spacing:1px;}
   .site-hero{padding:38px 20px 34px;grid-template-columns:1fr;gap:22px;}
   .hero-name{font-size:44px;}
   .hero-right{align-items:flex-start;}
