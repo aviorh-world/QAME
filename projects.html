@@ -83,8 +83,6 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 .ss-cap{padding:14px 16px;}
 .ss-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);margin-bottom:4px;}
 .ss-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.ss-drive{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);text-decoration:none;transition:color .2s;}
-.ss-drive:hover{color:var(--navy);}
 .video-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .video-head{background:var(--navy);padding:14px 22px;display:flex;align-items:center;gap:12px;}
 .video-head-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);}
@@ -207,7 +205,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <body>
 <div class="site-topbar">
   <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad &middot; QA Portfolio</a>
-  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html" class="current">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html">CV</a></div>
+  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html" class="current">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a></div>
 </div>
 <div class="site-hero">
   <div class="hero-bg">QA</div>
@@ -258,35 +256,35 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   <p style="font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:28px;max-width:680px;">During my time at Jifiti I wrote internal knowledge-base articles on Jifipedia (Confluence) &mdash; step-by-step QA procedures, integration validation flows, and system documentation shared across R&amp;D. Click any image to expand.</p>
   <div class="ss-grid">
     <div class="ss-item" onclick="openLb('Screenshot1.png','How to Add an Authorized Approver in the John Deere System')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot1.png" alt="John Deere Authorized Approver guide"/>
       <div class="ss-cap">
         <div class="ss-tag">QA Procedure</div>
         <div class="ss-title">How to Add an Authorized Approver in the John Deere System</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1iOzP1CUvaV0XRdPRm9ve7aRsk_qW2MIy/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
     <div class="ss-item" onclick="openLb('Screenshot2.png','Validation: Sending & Receiving Adjustment File from Fiserv')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot2.png" alt="Fiserv adjustment file validation"/>
       <div class="ss-cap">
         <div class="ss-tag">Integration Validation</div>
         <div class="ss-title">Validation: Sending &amp; Receiving Adjustment File from Fiserv</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1xSmGkTvWTIFejhy7CtNsrmu3AtnNgjaH/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
     <div class="ss-item" onclick="openLb('Screenshot3.png','Jifiti Branding – Main Things to Know')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot3.png" alt="Jifiti Branding documentation"/>
       <div class="ss-cap">
         <div class="ss-tag">System Documentation</div>
         <div class="ss-title">Jifiti Branding &ndash; Main Things to Know</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1A1k_Ow8vdr9MiFkFmONd_MVTPFdZTibx/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
     <div class="ss-item" onclick="openLb('Screenshot4.png','Fiserv Adjustment File – Job & FTP Validation Steps')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot4.png" alt="Fiserv validation alternate view"/>
       <div class="ss-cap">
         <div class="ss-tag">Integration Validation</div>
         <div class="ss-title">Fiserv Adjustment File &ndash; Job &amp; FTP Validation Steps</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/11Jx1W2rfHkHJAK1Pb2aU2HeCWVQjZ7sS/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
   </div>
@@ -543,7 +541,7 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About Me</a>
       <a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Connect</div>
@@ -560,7 +558,7 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About</a>
       <a href="https://aviorh-world.github.io/QAME/projects.html">Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a>
     </div>
   </div>
 </footer>

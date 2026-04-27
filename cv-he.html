@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>CV · Avior Hadad</title>
+<title>קורות חיים · אביאור חדד</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
 <style>:root{--navy:#1B3A5C;--navy2:#0F2540;--sky:#5A9BC0;--ice:#BDD5EA;--cream:#F5F1EB;--charcoal:#2A2A2A;--mid:#6B7A8D;--accent:#E8A952;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
@@ -126,12 +126,20 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     .cv-skills-grid{grid-template-columns:1fr;}
     .cv-job-hdr{flex-direction:column;gap:3px;}
     .cv-meta{text-align:left;}
-  }</style>
+  }
+  body[dir="rtl"] .cv-bullets li{padding-left:0;padding-right:18px;}
+  body[dir="rtl"] .cv-bullets li::before{left:auto;right:0;}
+  body[dir="rtl"] .cv-job-hdr{flex-direction:row-reverse;}
+  body[dir="rtl"] .cv-meta{text-align:left;}
+  body[dir="rtl"] .cv-sk-lbl{text-align:right;}
+  body[dir="rtl"] .cv-edu-row{flex-direction:row-reverse;}
+  body[dir="rtl"] .cv-port{flex-direction:row-reverse;}
+  .rtl-note{font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);text-align:center;margin-bottom:12px;letter-spacing:1px;}</style>
 </head>
-<body>
+<body dir="rtl">
 <div class="site-topbar">
   <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad &middot; QA Portfolio</a>
-  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html" class="current">CV</a></div>
+  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">בית</a><a href="https://aviorh-world.github.io/QAME/about.html">עלי</a><a href="https://aviorh-world.github.io/QAME/projects.html">פרויקטים</a><a href="https://aviorh-world.github.io/QAME/cv-he.html" class="current">קו"ח</a></div>
 </div>
 
 <div class="site-hero">
@@ -148,106 +156,106 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">&#128196; View CV</a>
   </div>
 </div>
-<div class="cv-wrap">
-<div class="lang-switch">
-  <a href="https://aviorh-world.github.io/QAME/cv.html" class="active">&#127468;&#127463; English</a>
-  <a href="https://aviorh-world.github.io/QAME/cv-he.html">&#127470;&#127473; עברית</a>
+<div class="cv-wrap" dir="rtl">
+<div class="lang-switch" dir="ltr">
+  <a href="https://aviorh-world.github.io/QAME/cv.html">&#127468;&#127463; English</a>
+  <a href="https://aviorh-world.github.io/QAME/cv-he.html" class="active">&#127470;&#127473; עברית</a>
 </div>
 <div class="cv-card">
   <div class="cv-band">
-    <div class="cv-name">Avior Hadad</div>
-    <div class="cv-title-line">QA Engineer &middot; Manual &amp; Automation</div>
-    <div class="cv-contacts">
-      <a class="cv-contact" href="https://wa.me/972545959059" target="_blank">&#128222; 054-595-9059</a>
-      <a class="cv-contact" href="mailto:Aviorh@gmail.com">&#9993; Aviorh@gmail.com</a>
-      <a class="cv-contact" href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
-      <span class="cv-contact">&#128205; Jerusalem &middot; Hybrid</span>
+    <div class="cv-name">אביאור חדד</div>
+    <div class="cv-title-line">מהנדס QA &middot; בדיקות ידניות ואוטומציה</div>
+    <div class="cv-contacts" style="flex-direction:row-reverse;">
+      <a class="cv-contact" href="https://wa.me/972545959059" target="_blank">054-595-9059 &#128222;</a>
+      <a class="cv-contact" href="mailto:Aviorh@gmail.com">Aviorh@gmail.com &#9993;</a>
+      <a class="cv-contact" href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">LinkedIn &#8599;</a>
+      <span class="cv-contact">ירושלים &middot; היברידי &#128205;</span>
     </div>
   </div>
   <div class="cv-body">
 
     <div class="cv-sec">
-      <div class="cv-sec-title">Professional Summary</div>
-      <p class="cv-summary">QA Engineer with 10+ years across fintech, travel, and retail. Known for thorough root-cause investigation, structured documentation, and close developer collaboration. Works in a C#/.NET environment at the testing level — not a developer. Actively developing automation skills. Leverages AI tools to accelerate test design, documentation, and tooling.</p>
+      <div class="cv-sec-title">תקציר מקצועי</div>
+      <p class="cv-summary" style="text-align:right;">מהנדס QA עם 10+ שנות ניסיון בפינטק, נסיעות וקמעונאות. מוכר ביכולת חקירת שורש הבעיה, תיעוד מובנה ושיתוף פעולה עם צוותי פיתוח. עובד בסביבת C#/.NET ברמת בדיקות — ללא פיתוח. מפתח כישורי אוטומציה; עושה שימוש מקצועי בכלי AI לשיפור תהליכי הבדיקה.</p>
     </div>
 
     <div class="cv-sec">
-      <div class="cv-sec-title">Experience</div>
+      <div class="cv-sec-title">ניסיון תעסוקתי</div>
       <div class="cv-job">
         <div class="cv-job-hdr">
-          <div><div class="cv-company">Jifiti</div><div class="cv-role">QA Engineer</div></div>
-          <div class="cv-meta"><div class="cv-period">2022 &ndash; Present</div><div class="cv-loc">Modi&rsquo;in &middot; Hybrid</div></div>
+          <div><div class="cv-company">Jifiti</div><div class="cv-role">מהנדס QA</div></div>
+          <div class="cv-meta"><div class="cv-period">2022 &ndash; היום</div><div class="cv-loc">מודיעין &middot; היברידי</div></div>
         </div>
-        <ul class="cv-bullets">
-          <li>QA lead across 5+ merchant and lender integrations on a consumer financing platform (fintech)</li>
-          <li>End-to-end flow testing: loan origination, account management, and third-party lender API validation</li>
-          <li>Log analysis via Coralogix and Kibana; SQL queries for data validation; API testing with Postman and Swagger</li>
-          <li>Test management and execution using Cloudbeat (test management platform with built-in runner)</li>
-          <li>Beginner-level Playwright scripting; experienced in running and analyzing automated test suites</li>
-          <li>Authored internal QA knowledge-base articles (Jifipedia / Confluence) adopted across the R&amp;D team</li>
-          <li>Leverages AI tools (Claude, NotebookLM) to accelerate test design, documentation, and custom QA tooling</li>
+        <ul class="cv-bullets" style="text-align:right;">
+          <li>אחריות QA על 5+ אינטגרציות עם ספקי מימון ומסחר בפלטפורמת פינטק</li>
+          <li>בדיקות E2E: יצירת הלוואות, ניהול חשבונות ואימות API מול ספקים חיצוניים</li>
+          <li>ניתוח לוגים ב-Coralogix ו-Kibana; שאילתות SQL לאימות נתונים; בדיקות API עם Postman ו-Swagger</li>
+          <li>ניהול והרצת בדיקות דרך Cloudbeat (פלטפורמת ניהול בדיקות עם runner מובנה)</li>
+          <li>כתיבת קוד Playwright ברמת מתחיל; ניסיון בהרצה וניתוח חבילות בדיקות אוטומטיות</li>
+          <li>כתיבת מאמרי ידע פנימיים (Jifipedia / Confluence) שאומצו ע"י צוות ה-R&amp;D כולו</li>
+          <li>שימוש מקצועי בכלי AI (Claude, NotebookLM) לתכנון בדיקות, תיעוד ובניית כלי QA</li>
         </ul>
       </div>
       <div class="cv-job">
         <div class="cv-job-hdr">
-          <div><div class="cv-company">Wix</div><div class="cv-role">QA Engineer (Sole QA)</div></div>
-          <div class="cv-meta"><div class="cv-period">2019 &ndash; 2022</div><div class="cv-loc">Petah Tikva</div></div>
+          <div><div class="cv-company">Wix</div><div class="cv-role">מהנדס QA (QA יחיד)</div></div>
+          <div class="cv-meta"><div class="cv-period">2019 &ndash; 2022</div><div class="cv-loc">פתח תקווה</div></div>
         </div>
-        <ul class="cv-bullets">
-          <li>Sole QA for a cross-functional squad of 8; owned full test cycle from strategy to defect closure</li>
-          <li>Web and mobile manual testing, API testing (Postman, Fiddler), third-party integration validation</li>
-          <li>Selenium + TestProject automation &mdash; wrote and maintained regression suites</li>
+        <ul class="cv-bullets" style="text-align:right;">
+          <li>QA יחיד בסקוואד של 8 מהנדסים; אחריות מלאה על מחזור הבדיקות מתכנון ועד סגירת ליקויים</li>
+          <li>בדיקות ידניות Web ו-Mobile, בדיקות API (Postman, Fiddler), אינטגרציות צד שלישי</li>
+          <li>אוטומציה עם Selenium + TestProject — כתיבה ותחזוקה של סוויטות רגרסיה</li>
         </ul>
       </div>
       <div class="cv-job">
         <div class="cv-job-hdr">
-          <div><div class="cv-company">Hotelbeds</div><div class="cv-role">QA Engineer &amp; Scrum Master</div></div>
-          <div class="cv-meta"><div class="cv-period">2016 &ndash; 2019</div><div class="cv-loc">Petah Tikva</div></div>
+          <div><div class="cv-company">Hotelbeds</div><div class="cv-role">מהנדס QA ו-Scrum Master</div></div>
+          <div class="cv-meta"><div class="cv-period">2016 &ndash; 2019</div><div class="cv-loc">פתח תקווה</div></div>
         </div>
-        <ul class="cv-bullets">
-          <li>Functional testing for a global B2B travel platform; Scrum Master for a team of 12</li>
-          <li>SQL database validation; test results analysis and defect reporting</li>
+        <ul class="cv-bullets" style="text-align:right;">
+          <li>בדיקות פונקציונליות לפלטפורמת נסיעות B2B גלובלית; Scrum Master לצוות של 12</li>
+          <li>אימות נתונים ב-SQL; ניתוח תוצאות וגיבוש דוחות ליקויים</li>
         </ul>
       </div>
       <div class="cv-job">
         <div class="cv-job-hdr">
-          <div><div class="cv-company">NCR</div><div class="cv-role">QA Engineer</div></div>
-          <div class="cv-meta"><div class="cv-period">2013 &ndash; 2016</div><div class="cv-loc">Ra&rsquo;anana</div></div>
+          <div><div class="cv-company">NCR</div><div class="cv-role">מהנדס QA</div></div>
+          <div class="cv-meta"><div class="cv-period">2013 &ndash; 2016</div><div class="cv-loc">רעננה</div></div>
         </div>
-        <ul class="cv-bullets">
-          <li>Hardware and software integration testing for retail POS systems</li>
-          <li>Authored full test documentation: STD / STR / STP</li>
+        <ul class="cv-bullets" style="text-align:right;">
+          <li>בדיקות אינטגרציה של חומרה ותוכנה במערכות קופה (POS)</li>
+          <li>כתיבת תיעוד בדיקות מלא: STD / STR / STP</li>
         </ul>
       </div>
     </div>
 
     <div class="cv-sec">
-      <div class="cv-sec-title">Technical Skills</div>
-      <div class="cv-skills-grid">
-        <div class="cv-sk"><span class="cv-sk-lbl">Test Mgmt</span><div class="cv-chips"><span class="cv-chip">Cloudbeat</span><span class="cv-chip">Jira</span><span class="cv-chip">Zephyr</span><span class="cv-chip">Confluence</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">Automation</span><div class="cv-chips"><span class="cv-chip">Playwright (beginner)</span><span class="cv-chip">Selenium</span><span class="cv-chip">TestProject</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">API &amp; Debug</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">Backend Env</span><div class="cv-chips"><span class="cv-chip">C#/.NET (test-facing)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">Database</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">AI &amp; Tools</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span><span class="cv-chip">FullStory</span></div></div>
+      <div class="cv-sec-title">כישורים טכניים</div>
+      <div class="cv-skills-grid" style="direction:rtl;">
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">ניהול בדיקות</span><div class="cv-chips"><span class="cv-chip">Cloudbeat</span><span class="cv-chip">Jira</span><span class="cv-chip">Zephyr</span><span class="cv-chip">Confluence</span></div></div>
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">אוטומציה</span><div class="cv-chips"><span class="cv-chip">Playwright (מתחיל)</span><span class="cv-chip">Selenium</span><span class="cv-chip">TestProject</span></div></div>
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">API ודיבאג</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">סביבת Backend</span><div class="cv-chips"><span class="cv-chip">C#/.NET (לצורכי בדיקות)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span></div></div>
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">מסד נתונים</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span></div></div>
+        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">AI וכלים</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span></div></div>
       </div>
     </div>
 
     <div class="cv-sec">
-      <div class="cv-sec-title">Education &amp; Certifications</div>
-      <div class="cv-edu-row"><div><div class="cv-edu-name">Automation Full-Stack Course (90 hrs)</div><div class="cv-edu-sub">QAExperts College</div></div><span class="cv-edu-yr">2022</span></div>
-      <div class="cv-edu-row"><div><div class="cv-edu-name">QA Engineering Course (360 hrs)</div><div class="cv-edu-sub">Experis College</div></div><span class="cv-edu-yr">2013</span></div>
-      <div class="cv-edu-row"><div><div class="cv-edu-name">B.Ed with Distinction</div><div class="cv-edu-sub">Hemdat Hadarom College</div></div><span class="cv-edu-yr">2008&ndash;2012</span></div>
+      <div class="cv-sec-title">השכלה והסמכות</div>
+      <div class="cv-edu-row"><div><div class="cv-edu-name">קורס Full-Stack Automation (90 שעות)</div><div class="cv-edu-sub">מכללת QAExperts</div></div><span class="cv-edu-yr">2022</span></div>
+      <div class="cv-edu-row"><div><div class="cv-edu-name">קורס הנדסת QA (360 שעות)</div><div class="cv-edu-sub">מכללת Experis</div></div><span class="cv-edu-yr">2013</span></div>
+      <div class="cv-edu-row"><div><div class="cv-edu-name">B.Ed בהצטיינות</div><div class="cv-edu-sub">מכללת חמדת הדרום</div></div><span class="cv-edu-yr">2008&ndash;2012</span></div>
     </div>
 
     <div class="cv-sec">
-      <div class="cv-sec-title">Languages</div>
-      <p class="cv-lang-line"><strong>Hebrew</strong> &mdash; Native &nbsp;&nbsp;&nbsp; <strong>English</strong> &mdash; Professional Proficiency</p>
+      <div class="cv-sec-title">שפות</div>
+      <p class="cv-lang-line" style="text-align:right;"><strong>עברית</strong> &mdash; שפת אם &nbsp;&nbsp;&nbsp; <strong>אנגלית</strong> &mdash; רמה מקצועית</p>
     </div>
 
     <div class="cv-port">
-      <div><div class="cv-port-lbl">Portfolio &amp; Projects</div><a class="cv-port-url" href="https://aviorh-world.github.io/QAME/" target="_blank">aviorh-world.github.io/QAME</a></div>
       <span style="font-size:20px;color:var(--sky)">&#8599;</span>
+      <div><div class="cv-port-lbl">פורטפוליו ופרויקטים</div><a class="cv-port-url" href="https://aviorh-world.github.io/QAME/" target="_blank">aviorh-world.github.io/QAME</a></div>
     </div>
   </div>
 </div>
