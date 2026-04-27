@@ -189,7 +189,20 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   .edit-row{grid-template-columns:1fr;}
   .bm-row{flex-direction:column;}
   .diff-tool-header{flex-direction:column;align-items:flex-start;gap:10px;}
-}</style>
+}
+  .wf-locked-msg{font-family:'DM Mono',monospace;font-size:12px;color:var(--mid);letter-spacing:1px;margin-bottom:16px;padding:10px 14px;background:rgba(232,169,82,0.08);border:1px solid rgba(232,169,82,0.2);border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+  .wf-unlock-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:var(--navy2);border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;transition:background .2s;white-space:nowrap;}
+  .wf-unlock-btn:hover{background:#f0bb6a;}
+  .wf-files{display:flex;flex-direction:column;gap:10px;}
+  .wf-file{display:flex;align-items:center;gap:14px;padding:14px 20px;background:var(--white);border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--navy);transition:all .2s;pointer-events:none;opacity:.45;cursor:default;}
+  .wf-file.unlocked{pointer-events:auto;opacity:1;cursor:pointer;}
+  .wf-file.unlocked:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
+  .wf-file-icon{font-size:22px;flex-shrink:0;}
+  .wf-file-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+  .wf-file-type{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-top:3px;}
+  .wf-file.unlocked:hover .wf-file-type{color:var(--ice);}
+  .wf-lock-icon{margin-left:auto;font-size:16px;opacity:.35;}
+</style>
 </head>
 <body>
 <div class="site-topbar">
@@ -310,6 +323,40 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
       <div class="edit-field"><label>Google Drive or YouTube URL</label><input type="text" id="newVidUrl" placeholder="https://drive.google.com/file/d/.../view"/></div>
     </div>
     <button class="add-btn" onclick="addVideo()">+ Add Video</button>
+  </div>
+</section>
+
+
+<!-- WORK SAMPLE FILES -->
+<section class="section fade-in" id="workfiles" style="animation-delay:.11s">
+  <div class="s-label">02.5 / Work Samples</div>
+  <div class="s-title">Sample Work Files</div>
+  <p class="s-subtitle">A sample of QA documents, test plans, and test cases I&rsquo;ve created &mdash; password required to view.</p>
+  <div class="wf-locked-msg" id="wfLockedMsg">
+    &#128274; These files are password-protected. Click to unlock and view.
+    <button class="wf-unlock-btn" onclick="openWfModal()">Unlock</button>
+  </div>
+  <div class="wf-files">
+    <a class="wf-file" id="wf1" href="https://docs.google.com/document/d/10ShltWP62Of9nL2CICKchjzRrx4DM91T/edit?usp=sharing" target="_blank">
+      <span class="wf-file-icon">&#128196;</span>
+      <div class="wf-file-info"><div class="wf-file-name">End-to-End FECI Phase 2</div><div class="wf-file-type">Google Doc &middot; E2E Test Flow</div></div>
+      <span class="wf-lock-icon">&#128274;</span>
+    </a>
+    <a class="wf-file" id="wf2" href="https://docs.google.com/document/d/1e4nPVw2i2DfRPvzDjq5NPIUiiwTPQyVi/edit" target="_blank">
+      <span class="wf-file-icon">&#128196;</span>
+      <div class="wf-file-info"><div class="wf-file-name">E2E Testing Guide</div><div class="wf-file-type">Google Doc &middot; QA Guide</div></div>
+      <span class="wf-lock-icon">&#128274;</span>
+    </a>
+    <a class="wf-file" id="wf3" href="https://docs.google.com/document/d/1zV8-KdqB83NUlHTMYPrekzpMJSYAzcbM/edit?usp=drive_link" target="_blank">
+      <span class="wf-file-icon">&#128196;</span>
+      <div class="wf-file-info"><div class="wf-file-name">Rural King &ndash; Reprise Test Strategy</div><div class="wf-file-type">Google Doc &middot; Test Plan</div></div>
+      <span class="wf-lock-icon">&#128274;</span>
+    </a>
+    <a class="wf-file" id="wf4" href="https://docs.google.com/spreadsheets/d/1B1gLiVzSeXTcY7-Xy7ahQpEBsp0mt2lD/edit?usp=drive_link" target="_blank">
+      <span class="wf-file-icon">&#128202;</span>
+      <div class="wf-file-info"><div class="wf-file-name">Reprise E2E Test Cases</div><div class="wf-file-type">Google Sheets &middot; Test Cases</div></div>
+      <span class="wf-lock-icon">&#128274;</span>
+    </a>
   </div>
 </section>
 

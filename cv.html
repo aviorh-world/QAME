@@ -117,20 +117,6 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
   .cv-port-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);}
   .cv-port-url{font-family:'DM Mono',monospace;font-size:13px;color:var(--sky);text-decoration:none;font-weight:600;}
   .cv-port-url:hover{color:var(--navy);}
-  /* Work Files section */
-  .wf-locked-msg{font-family:'DM Mono',monospace;font-size:12px;color:var(--mid);letter-spacing:1px;margin-bottom:16px;padding:10px 14px;background:rgba(232,169,82,0.08);border:1px solid rgba(232,169,82,0.2);border-radius:8px;display:flex;align-items:center;gap:10px;}
-  .wf-unlock-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:var(--navy2);border:none;padding:6px 14px;border-radius:6px;cursor:pointer;transition:background .2s;font-weight:600;}
-  .wf-unlock-btn:hover{background:#f0bb6a;}
-  .wf-files{display:flex;flex-direction:column;gap:10px;}
-  .wf-file{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--cream);border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--navy);transition:all .2s;pointer-events:none;opacity:.5;}
-  .wf-file.unlocked{pointer-events:auto;opacity:1;}
-  .wf-file.unlocked:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
-  .wf-file-icon{font-size:20px;flex-shrink:0;}
-  .wf-file-info{}
-  .wf-file-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
-  .wf-file-type{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-top:2px;}
-  .wf-file.unlocked:hover .wf-file-type{color:var(--ice);}
-  .wf-lock-icon{margin-left:auto;font-size:14px;opacity:.4;}
   /* Modal */
   .modal-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(10,20,35,0.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
   .modal-overlay.visible{display:flex;}
@@ -175,19 +161,6 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">&#128196; View CV</a>
   </div>
 </div>
-<div class="modal-overlay" id="pwModal">
-  <div class="modal">
-    <div class="modal-title">Work Files</div>
-    <div class="modal-sub">&#128274; Password required</div>
-    <input type="password" id="pwInput" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPw()"/>
-    <div class="modal-err" id="pwErr"></div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
-      <button class="modal-btn ok" onclick="checkPw()">Unlock</button>
-    </div>
-  </div>
-</div>
-
 <div class="cv-wrap">
 <div class="cv-card">
 
@@ -294,35 +267,6 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
       </div>
     </div>
 
-    <div class="cv-section">
-      <div class="cv-sec-title">Work Sample Files</div>
-      <div class="wf-locked-msg">
-        &#128274; These files are password-protected. Click to unlock.
-        <button class="wf-unlock-btn" onclick="openModal()">Unlock</button>
-      </div>
-      <div class="wf-files" id="wfFiles">
-        <a class="wf-file" id="wf1" href="https://docs.google.com/document/d/10ShltWP62Of9nL2CICKchjzRrx4DM91T/edit?usp=sharing" target="_blank">
-          <span class="wf-file-icon">&#128196;</span>
-          <div class="wf-file-info"><div class="wf-file-name">End-to-End FECI Phase 2</div><div class="wf-file-type">Google Doc &middot; E2E Test Flow</div></div>
-          <span class="wf-lock-icon">&#128274;</span>
-        </a>
-        <a class="wf-file" id="wf2" href="https://docs.google.com/document/d/1e4nPVw2i2DfRPvzDjq5NPIUiiwTPQyVi/edit" target="_blank">
-          <span class="wf-file-icon">&#128196;</span>
-          <div class="wf-file-info"><div class="wf-file-name">E2E Testing Guide</div><div class="wf-file-type">Google Doc &middot; QA Guide</div></div>
-          <span class="wf-lock-icon">&#128274;</span>
-        </a>
-        <a class="wf-file" id="wf3" href="https://docs.google.com/document/d/1zV8-KdqB83NUlHTMYPrekzpMJSYAzcbM/edit?usp=drive_link" target="_blank">
-          <span class="wf-file-icon">&#128196;</span>
-          <div class="wf-file-info"><div class="wf-file-name">Rural King &ndash; Reprise Test Strategy</div><div class="wf-file-type">Google Doc &middot; Test Plan</div></div>
-          <span class="wf-lock-icon">&#128274;</span>
-        </a>
-        <a class="wf-file" id="wf4" href="https://docs.google.com/spreadsheets/d/1B1gLiVzSeXTcY7-Xy7ahQpEBsp0mt2lD/edit?usp=drive_link" target="_blank">
-          <span class="wf-file-icon">&#128202;</span>
-          <div class="wf-file-info"><div class="wf-file-name">Reprise E2E Test Cases</div><div class="wf-file-type">Google Sheets &middot; Test Cases</div></div>
-          <span class="wf-lock-icon">&#128274;</span>
-        </a>
-      </div>
-    </div>
 
     <div class="cv-portfolio">
       <div>
@@ -337,21 +281,7 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 </div>
 
 <script>
-function openModal(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
-function closeModal(){document.getElementById('pwModal').classList.remove('visible');}
-function checkPw(){
-  if(document.getElementById('pwInput').value==='AviorW@'){
-    closeModal();
-    document.querySelectorAll('.wf-file').forEach(function(el){el.classList.add('unlocked');});
-    document.querySelectorAll('.wf-lock-icon').forEach(function(el){el.textContent='&#8599;';el.style.opacity='0.7';});
-    document.querySelector('.wf-locked-msg').style.display='none';
-  } else {
-    document.getElementById('pwErr').textContent='&#10007; Incorrect password';
-    document.getElementById('pwInput').value='';
-    document.getElementById('pwInput').focus();
-  }
-}
-document.getElementById('pwModal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
 </script>
 <footer class="site-footer">
   <div class="sf-grid">
