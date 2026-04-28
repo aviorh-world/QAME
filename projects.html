@@ -119,12 +119,17 @@ body.edit-mode .edit-wrap{display:block;}
 .save-btn{background:var(--accent);color:var(--navy2);border:none;padding:7px 15px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;}
 
 .edit-topbar-btn:hover{color:var(--accent);border-color:var(--accent);}
-.lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(5,12,25,0.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:32px;}
-.lightbox.open{display:flex;}
-.lb-inner{position:relative;max-width:90vw;max-height:90vh;}
-.lb-img{max-width:100%;max-height:85vh;border-radius:6px;display:block;}
-.lb-close{position:absolute;top:-14px;right:-14px;width:34px;height:34px;background:var(--accent);border:none;border-radius:50%;font-size:16px;cursor:pointer;color:var(--navy2);font-weight:700;}
-.lb-cap{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);text-align:center;margin-top:10px;letter-spacing:1px;}
+.lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(5,12,25,0.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
+  .lightbox.open{display:flex;flex-direction:column;}
+  .lb-toolbar{position:fixed;top:18px;right:18px;display:flex;gap:8px;z-index:2010;}
+  .lb-btn{width:42px;height:42px;background:rgba(232,169,82,0.9);border:none;border-radius:50%;font-size:18px;cursor:pointer;color:var(--navy2);font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .lb-btn:hover{background:var(--accent);transform:scale(1.05);}
+  .lb-zoom-info{position:fixed;top:25px;left:25px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:2px;background:rgba(0,0,0,0.4);padding:8px 14px;border-radius:100px;z-index:2010;}
+  .lb-stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;overflow:auto;cursor:zoom-in;}
+  .lb-stage.zoomed{cursor:grab;}
+  .lb-stage.zoomed:active{cursor:grabbing;}
+  .lb-img{max-width:90vw;max-height:85vh;border-radius:6px;display:block;transition:transform .25s ease;transform-origin:center;user-select:none;-webkit-user-drag:none;}
+  .lb-cap{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);text-align:center;letter-spacing:1px;padding:14px;}
 .diff-tool-section{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 .diff-tool-header{background:var(--navy);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;}
 .diff-tool-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);letter-spacing:-0.3px;}
@@ -205,7 +210,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <body>
 <div class="site-topbar">
   <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad &middot; QA Portfolio</a>
-  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html" class="current">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a></div>
+  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html" class="current">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html">CV</a></div>
 </div>
 <div class="site-hero">
   <div class="hero-bg">QA</div>
@@ -238,12 +243,19 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   &#9999;&#65039; Edit mode &mdash; add videos below
   <button class="save-btn" onclick="exitEdit()">&#10003; Done</button>
 </div>
-<div class="lightbox" id="lb" onclick="closeLb(event)">
-  <div class="lb-inner">
-    <button class="lb-close" onclick="closeLb()">&#10005;</button>
-    <img class="lb-img" id="lbImg" src="" alt=""/>
-    <div class="lb-cap" id="lbCap"></div>
+<div class="lightbox" id="lb">
+  <div class="lb-zoom-info" id="lbZoomInfo">100%</div>
+  <div class="lb-toolbar">
+    <button class="lb-btn" onclick="zoomIn()" title="Zoom in">+</button>
+    <button class="lb-btn" onclick="zoomOut()" title="Zoom out">&minus;</button>
+    <button class="lb-btn" onclick="zoomReset()" title="Reset">&#11118;</button>
+    <button class="lb-btn" onclick="closeLb()" title="Close">&#10005;</button>
   </div>
+  <div class="lb-stage" id="lbStage" onclick="stageClick(event)">
+    <img class="lb-img" id="lbImg" src="" alt=""/>
+  </div>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
 </div>
 
 <main>
@@ -421,10 +433,57 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 </section>
 
 </main><script>
-// ── Lightbox ──
-function openLb(src,cap){document.getElementById('lbImg').src=src;document.getElementById('lbCap').textContent=cap;document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden';}
-function closeLb(e){if(!e||e.target===document.getElementById('lb')||e.target.classList.contains('lb-close')){document.getElementById('lb').classList.remove('open');document.body.style.overflow='';}}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLb({target:document.getElementById('lb')});});
+// ── Lightbox with zoom ──
+var lbZoom = 1, lbPanX = 0, lbPanY = 0, lbDragStart = null;
+function openLb(src,cap){
+  document.getElementById('lbImg').src=src;
+  document.getElementById('lbCap').textContent=cap;
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow='hidden';
+  zoomReset();
+}
+function closeLb(){
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow='';
+}
+function applyZoom(){
+  var img=document.getElementById('lbImg');
+  img.style.transform='translate('+lbPanX+'px,'+lbPanY+'px) scale('+lbZoom+')';
+  document.getElementById('lbZoomInfo').textContent=Math.round(lbZoom*100)+'%';
+  document.getElementById('lbStage').classList.toggle('zoomed', lbZoom > 1);
+}
+function zoomIn(){ lbZoom=Math.min(lbZoom*1.4, 8); applyZoom(); }
+function zoomOut(){ lbZoom=Math.max(lbZoom/1.4, 0.5); if(lbZoom<=1){lbPanX=0;lbPanY=0;} applyZoom(); }
+function zoomReset(){ lbZoom=1; lbPanX=0; lbPanY=0; applyZoom(); }
+function stageClick(e){
+  if(e.target.id==='lbStage' && lbZoom===1){closeLb();}
+}
+// Click on image to zoom in at click position
+document.getElementById('lbImg').addEventListener('click',function(e){
+  e.stopPropagation();
+  if(lbZoom < 4){ zoomIn(); }
+});
+// Mouse wheel zoom
+document.getElementById('lbStage').addEventListener('wheel',function(e){
+  if(!document.getElementById('lb').classList.contains('open'))return;
+  e.preventDefault();
+  if(e.deltaY < 0)zoomIn(); else zoomOut();
+}, {passive: false});
+// Pan when zoomed
+document.getElementById('lbImg').addEventListener('mousedown',function(e){
+  if(lbZoom > 1){ lbDragStart={x:e.clientX-lbPanX, y:e.clientY-lbPanY}; e.preventDefault(); }
+});
+document.addEventListener('mousemove',function(e){
+  if(lbDragStart){ lbPanX=e.clientX-lbDragStart.x; lbPanY=e.clientY-lbDragStart.y; applyZoom(); }
+});
+document.addEventListener('mouseup',function(){ lbDragStart=null; });
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('lb').classList.contains('open'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='+'||e.key==='=')zoomIn();
+  if(e.key==='-')zoomOut();
+  if(e.key==='0')zoomReset();
+});});
 
 // ── Password / Edit mode ──
 function openPw(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
