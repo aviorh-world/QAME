@@ -114,7 +114,28 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
   .phil-grid{grid-template-columns:1fr;}
   .hi-grid{grid-template-columns:1fr;}
   .intro-stats{gap:18px;}
-}</style>
+}
+  /* TESTIMONIALS */
+  .testimonials{margin-bottom:72px;}
+  .testimonial-card{background:var(--navy);border-radius:16px;padding:44px 48px;position:relative;overflow:hidden;min-height:200px;display:flex;flex-direction:column;justify-content:center;}
+  .testimonial-card::before{content:'\201C';position:absolute;top:16px;left:28px;font-family:'Lora',serif;font-size:120px;color:rgba(255,255,255,0.06);line-height:1;pointer-events:none;}
+  .testimonial-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent) 0%,var(--sky) 50%,transparent 100%);}
+  .testimonial-quote{font-family:'Lora',serif;font-style:italic;font-size:18px;line-height:1.9;color:var(--ice);opacity:0;transform:translateY(12px);transition:opacity .6s ease, transform .6s ease;max-width:680px;}
+  .testimonial-quote.active{opacity:1;transform:translateY(0);}
+  .testimonial-author{margin-top:22px;display:flex;align-items:center;gap:12px;opacity:0;transition:opacity .5s ease .2s;}
+  .testimonial-author.active{opacity:1;}
+  .testimonial-author-line{width:28px;height:2px;background:var(--accent);}
+  .testimonial-author-name{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+  .testimonial-author-role{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-left:8px;}
+  .testimonial-dots{display:flex;gap:8px;margin-top:20px;justify-content:center;}
+  .testimonial-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.15);transition:background .3s,transform .3s;cursor:pointer;}
+  .testimonial-dot.active{background:var(--accent);transform:scale(1.3);}
+  .testimonial-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);text-align:center;margin-top:14px;}
+  @media(max-width:768px){
+    .testimonial-card{padding:32px 24px;min-height:180px;}
+    .testimonial-quote{font-size:16px;}
+  }
+</style>
 </head>
 <body>
 <div class="site-topbar">
@@ -144,6 +165,22 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     <div><div class="i-stat-n">4</div><div class="i-stat-l">Companies</div></div>
     <div><div class="i-stat-n">5+</div><div class="i-stat-l">Integrations</div></div>
     <div><div class="i-stat-n">&infin;</div><div class="i-stat-l">Bugs Found</div></div>
+  </div>
+</div>
+
+
+<div class="testimonials fade-in" style="animation-delay:.03s">
+  <div class="s-label">What Managers Say</div>
+  <div class="s-title">Performance Reviews</div>
+  <div class="testimonial-card">
+    <div class="testimonial-quote active" id="tq"></div>
+    <div class="testimonial-author active" id="ta">
+      <div class="testimonial-author-line"></div>
+      <span class="testimonial-author-name" id="tan"></span>
+      <span class="testimonial-author-role" id="tar"></span>
+    </div>
+    <div class="testimonial-dots" id="tdots"></div>
+    <div class="testimonial-label">From actual performance reviews</div>
   </div>
 </div>
 
@@ -308,6 +345,60 @@ var obs=new IntersectionObserver(function(e){
 document.querySelectorAll('.fade-in').forEach(function(el){
   el.style.animationPlayState='paused'; obs.observe(el);
 });
+
+// ── Testimonials ──
+var quotes = [
+  {text: "You see the project as a whole. You take ownership and people trust you and rely on you.", author: "T.R", role: "QA & Integration Manager"},
+  {text: "Avior has made great progress in automation testing by starting to write automation tests, which has added value to the team\u2019s testing efforts.", author: "A.S", role: "Software Team Leader"},
+  {text: "He has developed a strong understanding of the overall system, including logs and database management, which has contributed to his thorough testing approach.", author: "A.S", role: "Software Team Leader"},
+  {text: "You are a great QA engineer and team player. You have great time management.", author: "T.R", role: "QA & Integration Manager"},
+  {text: "Creating the E2E template was a huge win.", author: "T.R", role: "QA & Integration Manager"},
+  {text: "He has become the team\u2019s expert on F***, providing valuable insights and expertise. His contribution in this area is greatly appreciated.", author: "A.S", role: "Software Team Leader"},
+  {text: "You write high quality automation requirements.", author: "T.R", role: "QA & Integration Manager"},
+  {text: "He actively engages with the developers\u2019 pull requests to gain more context, helping him better understand the development process and improving the quality of his testing.", author: "A.S", role: "Software Team Leader"},
+];
+var qi = 0;
+var tq = document.getElementById('tq');
+var ta = document.getElementById('ta');
+var tan_ = document.getElementById('tan');
+var tar_ = document.getElementById('tar');
+var tdots = document.getElementById('tdots');
+// Build dots
+quotes.forEach(function(_, i) {
+  var d = document.createElement('div');
+  d.className = 'testimonial-dot' + (i === 0 ? ' active' : '');
+  d.onclick = function() { goTo(i); };
+  tdots.appendChild(d);
+});
+function showQuote(i) {
+  tq.textContent = quotes[i].text;
+  tan_.textContent = quotes[i].author;
+  tar_.textContent = quotes[i].role;
+  tq.classList.add('active');
+  ta.classList.add('active');
+  tdots.querySelectorAll('.testimonial-dot').forEach(function(d, j) {
+    d.classList.toggle('active', j === i);
+  });
+}
+function goTo(i) {
+  tq.classList.remove('active');
+  ta.classList.remove('active');
+  qi = i;
+  setTimeout(function() { showQuote(qi); }, 400);
+  clearInterval(tInterval);
+  tInterval = setInterval(nextQuote, 8000);
+}
+function nextQuote() {
+  tq.classList.remove('active');
+  ta.classList.remove('active');
+  setTimeout(function() {
+    qi = (qi + 1) % quotes.length;
+    showQuote(qi);
+  }, 400);
+}
+showQuote(0);
+var tInterval = setInterval(nextQuote, 8000);
+
 </script>
 </body>
 </html>
