@@ -118,6 +118,10 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
   .lang-switch{text-align:center;margin-bottom:12px;position:relative;z-index:1;}
   .lang-switch a{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);text-decoration:none;padding:7px 16px;border:1px solid var(--border);border-radius:100px;margin:0 4px;transition:all .2s;background:var(--white);}
   .lang-switch a:hover,.lang-switch a.active{background:var(--navy);color:var(--white);border-color:var(--navy);}
+
+  .cv-sk-rtl{display:flex;gap:10px;align-items:flex-start;direction:rtl;}
+  .cv-sk-lbl-rtl{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--mid);flex-shrink:0;width:110px;padding-top:4px;text-align:right;}
+  .cv-sk-rtl .cv-chips{display:flex;flex-wrap:wrap;gap:4px;direction:ltr;justify-content:flex-end;}
   @media(max-width:768px){
     .cv-wrap{padding:28px 14px;}
     .cv-band{padding:22px 20px;}
@@ -231,12 +235,12 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     <div class="cv-sec">
       <div class="cv-sec-title">כישורים טכניים</div>
       <div class="cv-skills-grid" style="direction:rtl;">
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">ניהול בדיקות</span><div class="cv-chips"><span class="cv-chip">Cloudbeat</span><span class="cv-chip">Jira</span><span class="cv-chip">Zephyr</span><span class="cv-chip">Confluence</span></div></div>
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">אוטומציה</span><div class="cv-chips"><span class="cv-chip">Playwright (מתחיל)</span><span class="cv-chip">Selenium</span><span class="cv-chip">TestProject</span></div></div>
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">API ודיבאג</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">סביבת Backend</span><div class="cv-chips"><span class="cv-chip">C#/.NET (לצורכי בדיקות)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span></div></div>
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">מסד נתונים</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span></div></div>
-        <div class="cv-sk" style="flex-direction:row-reverse;"><span class="cv-sk-lbl">AI וכלים</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">ניהול בדיקות</span><div class="cv-chips"><span class="cv-chip">Cloudbeat</span><span class="cv-chip">Jira</span><span class="cv-chip">Zephyr</span><span class="cv-chip">Confluence</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">אוטומציה</span><div class="cv-chips"><span class="cv-chip">Playwright (מתחיל)</span><span class="cv-chip">Selenium</span><span class="cv-chip">TestProject</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">API ודיבאג</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">סביבת Backend</span><div class="cv-chips"><span class="cv-chip">C#/.NET (לצורכי בדיקות)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">מסד נתונים</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">AI וכלים</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span></div></div>
       </div>
     </div>
 
