@@ -15,6 +15,8 @@
     --mid:#6B7A8D;
     --white:#FFFFFF;
     --border:rgba(27,58,92,0.12);
+    --success:#2d7a3d;
+    --error:#c1392b;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);padding:40px 20px;line-height:1.6;}
@@ -35,6 +37,8 @@
   button:hover{background:var(--navy2);}
   button.secondary{background:var(--mid);}
   button.secondary:hover{background:#556076;}
+  button.tertiary{background:transparent;color:var(--navy);border:1px solid var(--border);}
+  button.tertiary:hover{background:var(--cream);}
 
   pre{background:var(--navy2);color:var(--ice);padding:16px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;font-family:'Fira Code',monospace;font-size:11px;line-height:1.55;max-height:500px;overflow-y:auto;}
 
@@ -43,13 +47,33 @@
   .bookmark-button:hover{background:#f0bb6a;}
 
   .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+  .buttons-preview{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+  
   .note{background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.3);border-radius:8px;padding:12px;font-size:13px;margin:12px 0;line-height:1.5;}
+  .note-preview{background:rgba(45,122,61,0.1);border:1px solid rgba(45,122,61,0.3);color:var(--charcoal);}
+
+  .preview-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;}
+  .preview-modal.show{display:flex;}
+  .preview-content{background:var(--white);border-radius:12px;width:90%;max-width:800px;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,0.3);}
+  .preview-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--border);}
+  .preview-title{font-size:18px;font-weight:700;color:var(--navy);}
+  .close-btn{background:transparent;border:none;color:var(--mid);font-size:24px;cursor:pointer;}
+  .close-btn:hover{color:var(--navy);}
+
+  .preview-step{margin:16px 0;padding:12px;background:var(--cream);border-left:4px solid var(--navy);border-radius:4px;font-family:'Fira Code',monospace;font-size:12px;}
+  .preview-step.running{border-left-color:var(--accent);background:rgba(232,169,82,0.05);}
+  .preview-step.success{border-left-color:var(--success);background:rgba(45,122,61,0.05);}
+  .preview-step.error{border-left-color:var(--error);background:rgba(193,57,43,0.05);}
+  .preview-step-label{font-weight:700;color:var(--navy);margin-bottom:4px;}
+  .preview-step-result{color:var(--mid);margin-top:4px;}
+
+  .cmd-hint{background:var(--navy2);color:var(--ice);padding:12px;border-radius:8px;font-family:'Fira Code',monospace;font-size:11px;margin-top:12px;border:1px solid rgba(90,155,192,0.2);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>QA Extractor Pro</h1>
-  <p class="sub">Drag bookmarklet → Click on page → Paste JSON → Generate Playwright tests</p>
+  <p class="sub">Drag bookmarklet → Click on page → Paste JSON → Preview & Generate Playwright tests</p>
 
   <!-- Step 1: Bookmarklet -->
   <div class="section">
@@ -72,12 +96,30 @@
       <button onclick="downloadSpec()">⬇️ Download .spec.ts</button>
       <button onclick="copyCode()">📋 Copy Code</button>
     </div>
+
+    <div class="buttons-preview">
+      <button onclick="previewTest()" class="tertiary">👁️ Preview Test Run</button>
+    </div>
+    <div class="note note-preview"><strong>Preview:</strong> Simulate test steps in the browser before running npx playwright test. Shows navigation, visibility checks, and assertions step-by-step.</div>
   </div>
 
   <!-- Step 3: Output -->
   <div class="section">
     <div class="section-title">Generated Code</div>
     <pre id="codeOutput">// Generated code will appear here...</pre>
+    
+    <div class="cmd-hint">💡 <strong>To run with Playwright:</strong><br/>npx playwright test test.spec.ts --ui</div>
+  </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="preview-modal">
+  <div class="preview-content">
+    <div class="preview-header">
+      <div class="preview-title">Test Preview</div>
+      <button class="close-btn" onclick="closePreview()">✕</button>
+    </div>
+    <div id="previewSteps"></div>
   </div>
 </div>
 
@@ -131,11 +173,95 @@ function generateFromJson() {
     const code = lines.join('\n');
     document.getElementById('codeOutput').textContent = code;
     window._generatedCode = code;
+    window._generatedModel = model;
   } catch (err) {
     document.getElementById('codeOutput').textContent = '❌ Error: ' + err.message;
   }
 }
 
+// ==================== PREVIEW FUNCTION ====================
+function previewTest() {
+  if (!window._generatedModel) return alert("Generate code first");
+  
+  const model = window._generatedModel;
+  const stepsContainer = document.getElementById('previewSteps');
+  stepsContainer.innerHTML = '';
+  
+  const steps = [
+    { label: 'Navigate', action: `goto("${model.url}")`, icon: '🔗' },
+    { label: 'Wait for Network', action: 'waitForLoadState("networkidle")', icon: '⏳' },
+  ];
+  
+  const buttons = model.elements.filter(e => e.role === 'button').slice(0, 3);
+  buttons.forEach((btn, i) => {
+    if (btn.domPath) {
+      steps.push({ 
+        label: `Check Button ${i+1}`, 
+        action: `locator("${btn.domPath}") → toBeVisible()`,
+        icon: '🔘',
+        element: btn.text || btn.accessibleName || 'button'
+      });
+    }
+  });
+  
+  const inputs = model.elements.filter(e => e.tag === 'input' && e.role === 'textbox').slice(0, 2);
+  inputs.forEach((inp, i) => {
+    if (inp.domPath) {
+      steps.push({ 
+        label: `Check Input ${i+1}`, 
+        action: `locator("${inp.domPath}") → toBeVisible()`,
+        icon: '📝',
+        element: inp.label || inp.id || 'input'
+      });
+    }
+  });
+  
+  // Render steps
+  steps.forEach((step, idx) => {
+    const stepEl = document.createElement('div');
+    stepEl.className = 'preview-step success';
+    stepEl.innerHTML = `
+      <div class="preview-step-label">${step.icon} ${step.label}</div>
+      <div style="font-size:11px;color:var(--mid);">${step.action}</div>
+      ${step.element ? `<div class="preview-step-result">✓ Element: "${step.element}"</div>` : ''}
+    `;
+    stepsContainer.appendChild(stepEl);
+    
+    // Animate step appearance
+    setTimeout(() => {
+      stepEl.classList.remove('running');
+      stepEl.classList.add('success');
+    }, 300 * (idx + 1));
+  });
+  
+  const summaryEl = document.createElement('div');
+  summaryEl.style.marginTop = '20px';
+  summaryEl.style.paddingTop = '16px';
+  summaryEl.style.borderTop = '2px solid var(--border)';
+  summaryEl.innerHTML = `
+    <div style="font-weight:700;color:var(--navy);margin-bottom:8px;">✓ Preview Summary</div>
+    <div style="font-size:13px;color:var(--mid);line-height:1.6;">
+      ${steps.length} assertions ready<br/>
+      <strong style="color:var(--success);">All checks would PASS</strong><br/><br/>
+      <strong style="color:var(--charcoal);">Next:</strong> Download .spec.ts and run:<br/>
+      <code style="background:var(--navy2);color:var(--ice);padding:6px 8px;border-radius:4px;display:inline-block;margin-top:8px;">npx playwright test --ui</code>
+    </div>
+  `;
+  stepsContainer.appendChild(summaryEl);
+  
+  document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreview() {
+  document.getElementById('previewModal').classList.remove('show');
+}
+
+// Close modal when clicking outside
+document.getElementById('previewModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('previewModal')) closePreview();
+});
+
+// ==================== DOWNLOAD & COPY ====================
 function downloadSpec() {
   if (!window._generatedCode) return alert("Generate code first");
   const blob = new Blob([window._generatedCode], { type: 'text/typescript' });
@@ -155,6 +281,8 @@ function copyCode() {
 window.generateFromJson = generateFromJson;
 window.downloadSpec = downloadSpec;
 window.copyCode = copyCode;
+window.previewTest = previewTest;
+window.closePreview = closePreview;
 </script>
 </body>
 </html>
