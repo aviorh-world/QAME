@@ -5,68 +5,67 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>QA Extractor Pro · Playwright</title>
 <style>
-  :root{--navy:#1B3A5C;--navy2:#0F2540;--cream:#F5F1EB;--accent:#E8A952;--ice:#BDD5EA;--charcoal:#2A2A2A;--mid:#6B7A8D;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
+  :root{
+    --navy:#1B3A5C;
+    --navy2:#0F2540;
+    --cream:#F5F1EB;
+    --accent:#E8A952;
+    --ice:#BDD5EA;
+    --charcoal:#2A2A2A;
+    --mid:#6B7A8D;
+    --white:#FFFFFF;
+    --border:rgba(27,58,92,0.12);
+  }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);padding:40px 20px;line-height:1.6;}
-  .wrap{max-width:980px;margin:0 auto;}
+  .wrap{max-width:950px;margin:0 auto;}
   h1{font-size:28px;font-weight:800;color:var(--navy);margin-bottom:8px;}
   .sub{font-size:14.5px;color:var(--mid);margin-bottom:32px;}
+
   .section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:24px;}
   .section-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--navy);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--navy);}
+
   label{display:block;margin-top:12px;font-weight:600;font-size:13px;}
   input,textarea,button{font:inherit;}
   input,textarea{width:100%;padding:10px;margin-top:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none;}
   input:focus,textarea:focus{border-color:var(--navy);}
-  textarea{font-family:'Fira Code',monospace;font-size:12.5px;min-height:220px;resize:vertical;}
-  button{border:none;border-radius:8px;padding:11px 20px;cursor:pointer;background:var(--navy);color:var(--white);font-weight:600;}
+  textarea{font-family:'Fira Code',monospace;font-size:12px;min-height:220px;resize:vertical;}
+
+  button{border:none;border-radius:8px;padding:12px 22px;cursor:pointer;background:var(--navy);color:var(--white);font-weight:600;transition:background .2s;}
   button:hover{background:var(--navy2);}
   button.secondary{background:var(--mid);}
   button.secondary:hover{background:#556076;}
-  pre{background:var(--navy2);color:var(--ice);padding:16px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;font-family:'Fira Code',monospace;font-size:11.5px;line-height:1.55;max-height:650px;}
-  .bookmark-area{background:var(--navy2);border:2px dashed var(--accent);border-radius:12px;padding:20px;margin:16px 0;text-align:center;}
-  .bookmark-button{display:inline-block;background:var(--accent);color:var(--navy2);padding:12px 24px;border-radius:8px;font-weight:700;cursor:grab;font-size:14.5px;}
-  .bookmark-button:hover{transform:scale(1.05);background:#f0bb6a;}
-  .audit-options{display:grid;grid-template-columns:28px 1fr;gap:12px 16px;align-items:center;margin-top:16px;}
-  .note{background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.3);border-radius:8px;padding:12px 16px;font-size:13px;margin:16px 0;}
-  .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;}
+
+  pre{background:var(--navy2);color:var(--ice);padding:16px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;font-family:'Fira Code',monospace;font-size:11px;line-height:1.55;max-height:500px;overflow-y:auto;}
+
+  .bookmark-area{background:var(--navy2);border:2px dashed var(--accent);border-radius:12px;padding:24px;margin:16px 0;text-align:center;}
+  .bookmark-button{display:inline-block;background:var(--accent);color:var(--navy2);padding:12px 28px;border-radius:8px;font-weight:700;cursor:grab;font-size:15px;text-decoration:none;transition:background .2s;}
+  .bookmark-button:hover{background:#f0bb6a;}
+
+  .buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+  .note{background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.3);border-radius:8px;padding:12px;font-size:13px;margin:12px 0;line-height:1.5;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>QA Extractor Pro</h1>
-  <p class="sub">One-click bookmarklet → Extract page → Generate smart Playwright tests</p>
+  <p class="sub">Drag bookmarklet → Click on page → Paste JSON → Generate Playwright tests</p>
 
+  <!-- Step 1: Bookmarklet -->
   <div class="section">
-    <div class="section-title">Step 1 — Install Bookmarklet (once)</div>
+    <div class="section-title">Step 1 — Install Bookmarklet</div>
     <div class="bookmark-area">
-      <div style="color:var(--ice);margin-bottom:12px;font-size:13.5px;">Drag this button to your bookmarks bar</div>
-      <a id="bookmarkButton" class="bookmark-button" href="#" style="text-decoration:none;">📋 Extract Page → Copy JSON</a>
+      <div style="color:var(--ice);margin-bottom:12px;font-size:13px;">Drag to bookmarks bar</div>
+      <a id="bookmarkButton" class="bookmark-button" href="#">📋 Extract Page</a>
     </div>
-    <div class="note">
-      <strong>How it works:</strong> After dragging the button to bookmarks, go to any webpage and click the bookmarklet. 
-      It will extract elements, SEO, links etc. and copy the JSON to clipboard.
-    </div>
+    <div class="note"><strong>How:</strong> Drag the button to your bookmarks bar. Then click it on any page to extract JSON and copy to clipboard.</div>
   </div>
 
+  <!-- Step 2: Paste & Generate -->
   <div class="section">
-    <div class="section-title">Step 2 — Paste JSON & Configure Audits</div>
+    <div class="section-title">Step 2 — Paste JSON & Generate</div>
     <label>Paste extracted JSON here</label>
-    <textarea id="jsonInput" placeholder="Paste the JSON from the bookmarklet here..."></textarea>
-
-    <label style="margin-top:20px;">Audit Options</label>
-    <div class="audit-options">
-      <div><input type="checkbox" id="auditSEO" checked></div>
-      <label for="auditSEO">SEO Audit (title, description, canonical)</label>
-
-      <div><input type="checkbox" id="auditA11y" checked></div>
-      <label for="auditA11y">Accessibility (Axe-core)</label>
-
-      <div><input type="checkbox" id="auditNetwork" checked></div>
-      <label for="auditNetwork">Network & Console Errors</label>
-
-      <div><input type="checkbox" id="auditLinks" checked></div>
-      <label for="auditLinks">Check Internal Links</label>
-    </div>
+    <textarea id="jsonInput" placeholder="Paste the JSON from the bookmarklet..."></textarea>
 
     <div class="buttons">
       <button onclick="generateFromJson()" class="secondary">⚡ Generate Playwright Code</button>
@@ -75,218 +74,82 @@
     </div>
   </div>
 
+  <!-- Step 3: Output -->
   <div class="section">
-    <div class="section-title">Generated Playwright Code</div>
+    <div class="section-title">Generated Code</div>
     <pre id="codeOutput">// Generated code will appear here...</pre>
   </div>
 </div>
 
 <script>
-// ==================== IMPROVED BOOKMARKLET ====================
-const bookmarkletCode = `(function(){
-  "use strict";
-  function norm(v){return String(v??"").replace(/\\s+/g," ").trim();}
-  function hasText(v){return norm(v).length > 0;}
-  function cssEscape(v){return String(v??"").replace(/([ !"#$%&'()*+,./:;<=>?@[\\\\\\]^`{|}~])/g,"\\\\$1");}
+// ==================== BOOKMARKLET CODE ====================
+const bookmarkletCode = `(function(){"use strict";function norm(v){return String(v??"").replace(/\\s+/g," ").trim();}function hasText(v){return norm(v).length>0;}function cssEscape(v){return String(v??"").replace(/([ !"#$%&'()*+,./:;<=>?@[\\\\\\]^\`{|}~])/g,"\\\\$1");}function getVisibleText(el){return norm(el.innerText||el.textContent||"");}function getLabelText(el){if(!el)return"";if(el.labels&&el.labels.length)return norm(Array.from(el.labels).map(l=>norm(l.textContent)).join(" "));const id=el.id;if(id){const lbl=document.querySelector(\`label[for="\${CSS.escape(id)}"]\`);if(lbl)return norm(lbl.textContent);}return norm(el.closest("label")?.textContent||"");}function inferRole(el){const role=norm(el.getAttribute("role"));if(role)return role;const tag=el.tagName.toLowerCase();const type=norm(el.getAttribute("type")).toLowerCase();if(tag==="button"||(tag==="input"&&["button","submit","reset"].includes(type)))return"button";if(tag==="a"&&el.href)return"link";if(tag==="select")return"combobox";if(tag==="textarea"||(tag==="input"&&!["checkbox","radio"].includes(type)))return"textbox";if(type==="checkbox")return"checkbox";if(type==="radio")return"radio";return"";}function getAccessibleName(el){return norm(el.getAttribute("aria-label")||getLabelText(el)||el.getAttribute("title")||el.getAttribute("alt")||getVisibleText(el));}function buildDomPath(el){if(!el||el.nodeType!==1)return"";let parts=[],cur=el;while(cur&&cur!==document.body){let sel=cur.tagName.toLowerCase();if(cur.id){sel+="#"+cssEscape(cur.id);parts.unshift(sel);break;}if(cur.classList.length)sel+="."+Array.from(cur.classList).slice(0,2).map(cssEscape).join(".");const siblings=cur.parentElement?Array.from(cur.parentElement.children).filter(c=>c.tagName===cur.tagName):[];if(siblings.length>1)sel+=\`:nth-of-type(\${siblings.indexOf(cur)+1})\`;parts.unshift(sel);cur=cur.parentElement;}return parts.join(" > ");}function buildElementInfo(el){return{tag:el.tagName.toLowerCase(),role:inferRole(el),accessibleName:getAccessibleName(el),label:getLabelText(el),text:getVisibleText(el),id:norm(el.id),domPath:buildDomPath(el)};}const model={schemaVersion:2,url:location.href,elements:Array.from(document.querySelectorAll("button,a[href],input,textarea,select")).map(buildElementInfo),generatedAt:new Date().toISOString()};navigator.clipboard.writeText(JSON.stringify(model,null,2)).then(()=>{alert("✓ JSON copied!\\n\\nGo back to QA Extractor Pro and paste it.");}).catch(()=>alert("Failed to copy JSON"));})()`;
 
-  function getVisibleText(el){return norm(el.innerText || el.textContent || "");}
-  function getLabelText(el){
-    if(!el) return "";
-    if(el.labels && el.labels.length) return norm(Array.from(el.labels).map(l => norm(l.textContent)).join(" "));
-    const id = el.id;
-    if(id){ const lbl = document.querySelector('label[for="' + CSS.escape(id) + '"]'); if(lbl) return norm(lbl.textContent); }
-    return norm(el.closest("label") ? el.closest("label").textContent : "");
-  }
-  function inferRole(el){
-    let role = norm(el.getAttribute("role"));
-    if(role) return role;
-    const tag = el.tagName.toLowerCase();
-    const type = norm(el.getAttribute("type")).toLowerCase();
-    if(tag === "button" || (tag === "input" && ["button","submit","reset"].includes(type))) return "button";
-    if(tag === "a" && el.href) return "link";
-    if(tag === "select") return "combobox";
-    if(tag === "textarea" || (tag === "input" && !["checkbox","radio"].includes(type))) return "textbox";
-    if(type === "checkbox") return "checkbox";
-    if(type === "radio") return "radio";
-    return "";
-  }
-  function getAccessibleName(el){
-    return norm(el.getAttribute("aria-label") || getLabelText(el) || el.getAttribute("title") || el.getAttribute("alt") || getVisibleText(el));
-  }
+document.getElementById('bookmarkButton').href = 'javascript:' + bookmarkletCode;
 
-  function buildDomPath(el){
-    if(!el || el.nodeType !== 1) return "";
-    let parts = [], cur = el;
-    while(cur && cur !== document.body){
-      let sel = cur.tagName.toLowerCase();
-      if(cur.id){ sel += "#" + cssEscape(cur.id); parts.unshift(sel); break; }
-      if(cur.classList.length){
-        sel += "." + Array.from(cur.classList).slice(0,2).map(cssEscape).join(".");
-      }
-      const siblings = cur.parentElement ? Array.from(cur.parentElement.children).filter(c => c.tagName === cur.tagName) : [];
-      if(siblings.length > 1) sel += ":nth-of-type(" + (siblings.indexOf(cur)+1) + ")";
-      parts.unshift(sel);
-      cur = cur.parentElement;
-    }
-    return parts.join(" > ");
-  }
-
-  function buildLocatorCandidates(info){
-    const cands = [];
-    if(hasText(info.role) && hasText(info.accessibleName))
-      cands.push({prio:1, strat:"getByRole", name:info.accessibleName, role:info.role});
-    if(hasText(info.label)) cands.push({prio:2, strat:"getByLabel", name:info.label});
-    if(hasText(info.placeholder)) cands.push({prio:3, strat:"getByPlaceholder", name:info.placeholder});
-    if(info.tag==="img" && hasText(info.alt)) cands.push({prio:4, strat:"getByAltText", name:info.alt});
-    if(hasText(info.text)) cands.push({prio:5, strat:"getByText", name:info.text});
-    if(hasText(info.testId)) cands.push({prio:6, strat:"getByTestId", name:info.testId});
-    if(hasText(info.id)) cands.push({prio:7, strat:"locator", selector:"#"+cssEscape(info.id)});
-    if(hasText(info.domPath)) cands.push({prio:8, strat:"locator", selector:info.domPath});
-    return cands.sort((a,b)=>a.prio-b.prio);
-  }
-
-  function buildElementInfo(el){
-    const info = {
-      tag: el.tagName.toLowerCase(),
-      role: inferRole(el),
-      accessibleName: getAccessibleName(el),
-      label: getLabelText(el),
-      placeholder: norm(el.getAttribute("placeholder")),
-      text: getVisibleText(el),
-      id: norm(el.id),
-      testId: norm(el.getAttribute("data-testid")),
-      alt: norm(el.getAttribute("alt")),
-      domPath: buildDomPath(el)
-    };
-    info.locatorCandidates = buildLocatorCandidates(info);
-    info.bestLocator = info.locatorCandidates[0] || null;
-    return info;
-  }
-
-  const model = {
-    schemaVersion: 2,
-    url: location.href,
-    title: document.title,
-    seo: {
-      title: norm(document.title),
-      description: norm(document.querySelector('meta[name="description"]')?.content),
-      canonical: norm(document.querySelector('link[rel="canonical"]')?.href)
-    },
-    elements: Array.from(document.querySelectorAll("button, a[href], input, textarea, select")).map(buildElementInfo),
-    links: Array.from(document.querySelectorAll("a[href]")).slice(0,30).map(a => ({href: a.href, text: norm(a.textContent)})),
-    generatedAt: new Date().toISOString()
-  };
-
-  navigator.clipboard.writeText(JSON.stringify(model, null, 2)).then(() => {
-    alert("✓ JSON copied to clipboard successfully!\\n\\nNow go back to the QA Extractor Pro page and paste it.");
-  }).catch(err => {
-    alert("Failed to copy to clipboard.\\nError: " + err.message);
-    console.error(err);
-  });
-})();`;
-
-document.getElementById("bookmarkButton").href = "javascript:" + encodeURIComponent(bookmarkletCode);
-
-// ==================== GENERATE CODE ====================
-function getBestLocatorStr(c) {
-  if (!c) return null;
-  if (c.strat === "getByRole") return `page.getByRole('${c.role}', { name: ${JSON.stringify(c.name)} })`;
-  if (c.strat === "getByLabel") return `page.getByLabel(${JSON.stringify(c.name)})`;
-  if (c.strat === "getByPlaceholder") return `page.getByPlaceholder(${JSON.stringify(c.name)})`;
-  if (c.strat === "getByText") return `page.getByText(${JSON.stringify(c.name)}, { exact: true })`;
-  if (c.strat === "getByAltText") return `page.getByAltText(${JSON.stringify(c.name)})`;
-  if (c.strat === "getByTestId") return `page.getByTestId(${JSON.stringify(c.name)})`;
-  if (c.selector) return `page.locator(${JSON.stringify(c.selector)})`;
-  return null;
-}
-
-function generatePlaywright(model, options) {
-  let elementsCode = "";
-  if (model.elements) {
-    model.elements.slice(0, 12).forEach(el => {
-      const loc = getBestLocatorStr(el.bestLocator);
-      if (loc) {
-        const comment = String(el.accessibleName || el.label || el.text || el.tag || "").substring(0, 55);
-        elementsCode += "    // " + (el.role || el.tag) + " - " + comment + "\\n";
-        elementsCode += "    await expect(" + loc + ").toBeVisible({ timeout: 10000 });\\n\\n";
-      }
-    });
-  }
-
-  const seoTitle = model.seo && model.seo.title 
-    ? String(model.seo.title).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&').slice(0,70) 
-    : "";
-
-  return `import { test, expect } from "@playwright/test";
-import AxeBuilder from "@axe-core/playwright";
-
-test.describe("Page Tests - ${new URL(model.url).hostname}", () => {
-  test("page loads + audits", async ({ page, request }) => {
-    const response = await page.goto(${JSON.stringify(model.url)});
-    expect(response?.ok(), "Page should load successfully").toBeTruthy();
-    await page.waitForLoadState("networkidle");
-
-    if (${options.auditNetwork}) {
-      page.on("console", msg => { if (msg.type() === "error") console.error(msg.text()); });
-      page.on("pageerror", err => console.error(err.message));
-    }
-
-    if (${options.auditSEO} && "${seoTitle}") {
-      await expect(page).toHaveTitle(/${seoTitle}/i);
-    }
-
-    if (${options.auditA11y}) {
-      const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
-      expect(accessibilityScanResults.violations, "Accessibility violations found").toHaveLength(0);
-    }
-
-${elementsCode}
-    if (${options.auditLinks} && model.links && model.links.length) {
-      const internalLinks = model.links.filter(l => l.href && l.href.includes(new URL(model.url).hostname)).slice(0,5);
-      for (const link of internalLinks) {
-        if (link.href) {
-          const linkRes = await request.get(link.href, { failOnStatusCode: false });
-          expect(linkRes.status(), "Broken link").toBeLessThan(400);
-        }
-      }
-    }
-  });
-});
-`;
-}
-
+// ==================== GENERATE FUNCTIONS ====================
 function generateFromJson() {
   try {
     const jsonText = document.getElementById('jsonInput').value.trim();
-    if (!jsonText) return alert("Please paste the JSON first");
+    if (!jsonText) return alert("Paste JSON first");
+    
     const model = JSON.parse(jsonText);
-    const options = {
-      auditSEO: document.getElementById('auditSEO').checked,
-      auditA11y: document.getElementById('auditA11y').checked,
-      auditNetwork: document.getElementById('auditNetwork').checked,
-      auditLinks: document.getElementById('auditLinks').checked,
-    };
-    const code = generatePlaywright(model, options);
+    const lines = [];
+    
+    lines.push('import { test, expect } from "@playwright/test";\n');
+    lines.push('test("page tests", async ({ page }) => {');
+    lines.push(`  await page.goto("${model.url}");`);
+    lines.push('  await page.waitForLoadState("networkidle");\n');
+    
+    // Add buttons
+    const buttons = model.elements.filter(e => e.role === 'button').slice(0, 3);
+    if (buttons.length > 0) {
+      lines.push('  // Buttons visible');
+      buttons.forEach((btn, i) => {
+        if (btn.domPath) {
+          lines.push(`  const btn${i} = page.locator("${btn.domPath}");`);
+          lines.push(`  await expect(btn${i}).toBeVisible();`);
+        }
+      });
+      lines.push('');
+    }
+    
+    // Add inputs
+    const inputs = model.elements.filter(e => e.tag === 'input' && e.role === 'textbox').slice(0, 2);
+    if (inputs.length > 0) {
+      lines.push('  // Form inputs');
+      inputs.forEach((inp, i) => {
+        if (inp.domPath) {
+          lines.push(`  const input${i} = page.locator("${inp.domPath}");`);
+          lines.push(`  await expect(input${i}).toBeVisible();`);
+        }
+      });
+    }
+    
+    lines.push('});');
+    
+    const code = lines.join('\n');
     document.getElementById('codeOutput').textContent = code;
     window._generatedCode = code;
-    window._hostname = new URL(model.url).hostname.replace(/\./g, '_');
-  } catch (e) {
-    alert("Error parsing JSON: " + e.message);
+  } catch (err) {
+    document.getElementById('codeOutput').textContent = '❌ Error: ' + err.message;
   }
 }
 
 function downloadSpec() {
   if (!window._generatedCode) return alert("Generate code first");
-  const blob = new Blob([window._generatedCode], {type: "text/typescript"});
-  const a = document.createElement("a");
+  const blob = new Blob([window._generatedCode], { type: 'text/typescript' });
+  const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = (window._hostname || "page") + ".spec.ts";
+  a.download = 'test.spec.ts';
+  document.body.appendChild(a);
   a.click();
+  a.remove();
 }
 
 function copyCode() {
   if (!window._generatedCode) return alert("Generate code first");
-  navigator.clipboard.writeText(window._generatedCode).then(() => alert("✅ Code copied to clipboard!"));
+  navigator.clipboard.writeText(window._generatedCode).then(() => alert("✅ Copied!"));
 }
 
 window.generateFromJson = generateFromJson;
