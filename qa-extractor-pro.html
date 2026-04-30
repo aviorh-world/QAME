@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>QA Extractor Pro · Playwright + Audit</title>
+<style>
+  :root{--navy:#1B3A5C;--navy2:#0F2540;--cream:#F5F1EB;--accent:#E8A952;--sky:#5A9BC0;--ice:#BDD5EA;--charcoal:#2A2A2A;--mid:#6B7A8D;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--charcoal);padding:40px 20px;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  h1{font-size:28px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+  .sub{font-size:14px;color:var(--mid);margin-bottom:32px;line-height:1.6;}
+  .section{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin-bottom:24px;}
+  .section-title{font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--navy);margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid var(--navy);}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0;}
+  .col2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  input,select,textarea,button{font:inherit;}
+  input,select,textarea{width:100%;box-sizing:border-box;padding:10px;margin-top:8px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);outline:none;transition:border-color .2s;}
+  input:focus,select:focus,textarea:focus{border-color:var(--navy);}
+  textarea{font-family:'Fira Code',monospace;font-size:12px;min-height:200px;resize:vertical;}
+  label{display:block;margin-top:12px;font-weight:600;font-size:13px;}
+  button{border:none;border-radius:8px;padding:10px 20px;cursor:pointer;background:var(--navy);color:var(--white);font-weight:600;transition:background .2s;}
+  button:hover{background:var(--navy2);}
+  button.secondary{background:var(--mid);}
+  button.secondary:hover{background:#556076;}
+  button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);}
+  button.ghost:hover{background:var(--cream);}
+  pre{background:var(--navy2);color:var(--ice);padding:16px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;min-height:200px;max-height:500px;overflow-y:auto;font-family:'Fira Code',monospace;font-size:11px;line-height:1.6;}
+  .badge{display:inline-block;background:var(--accent);color:var(--navy2);padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;margin:2px;}
+  .note{background:rgba(232,169,82,0.1);border:1px solid rgba(232,169,82,0.2);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--charcoal);line-height:1.6;margin:12px 0;}
+  .checkbox-row{display:flex;align-items:center;gap:10px;margin:10px 0;}
+  input[type="checkbox"]{width:18px;height:18px;cursor:pointer;}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0;}
+  .stat{background:var(--cream);padding:8px 14px;border-radius:6px;font-size:12px;color:var(--mid);}
+  .stat-bold{font-weight:700;color:var(--navy);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>QA Extractor Pro</h1>
+  <p class="sub">Functional tests + page audit in one. Extract with bookmarklet, audit with options, generate Playwright.</p>
+
+  <div class="section">
+    <div class="section-title">Configure Extraction</div>
+    <div class="col2">
+      <div>
+        <label>Page Type</label>
+        <select id="pageType">
+          <option value="content">Content</option>
+          <option value="landing">Landing</option>
+          <option value="webapp">Web App</option>
+        </select>
+      </div>
+      <div>
+        <label>Test ID Attribute</label>
+        <input id="testIdAttr" type="text" value="data-testid" placeholder="data-testid"/>
+      </div>
+    </div>
+    
+    <label style="margin-top:20px;font-weight:700;">Page Audit Options</label>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditSEO" checked/>
+      <label for="auditSEO" style="margin-top:0;">Audit SEO (title, meta, canonical, og)</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditNetwork" checked/>
+      <label for="auditNetwork" style="margin-top:0;">Monitor network (page errors, failed requests, HTTP 4xx/5xx)</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditLinks" checked/>
+      <label for="auditLinks" style="margin-top:0;">Check internal links (broken 404s)</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditLocale" checked/>
+      <label for="auditLocale" style="margin-top:0;">Validate lang/dir attributes</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditA11y" checked/>
+      <label for="auditA11y" style="margin-top:0;">Accessibility (H1 count, image alt, icon labels)</label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" id="auditLeftovers"/>
+      <label for="auditLeftovers" style="margin-top:0;">Detect banned leftover texts</label>
+    </div>
+
+    <label style="margin-top:16px;">Banned texts (comma-separated, if audit enabled)</label>
+    <input id="bannedTexts" type="text" placeholder="lorem ipsum, todo, test test"/>
+
+    <label style="margin-top:16px;">Expected lang (optional)</label>
+    <input id="expectedLang" type="text" placeholder="e.g. en, he"/>
+
+    <label style="margin-top:16px;">Expected dir (optional)</label>
+    <select id="expectedDir">
+      <option value="">(not enforced)</option>
+      <option value="ltr">ltr</option>
+      <option value="rtl">rtl</option>
+    </select>
+
+    <div class="row" style="margin-top:24px;">
+      <button onclick="extractFromCurrentPage()">📋 Extract Current Page (as Bookmarklet)</button>
+      <button onclick="generateFromJson()" class="secondary">⚡ Generate Code</button>
+      <button onclick="downloadJson()" class="ghost">⬇️ JSON</button>
+      <button onclick="downloadSpec()" class="ghost">⬇️ .spec.ts</button>
+      <button onclick="copyCode()" class="ghost">📌 Copy</button>
+    </div>
+    <p class="note"><strong>Bookmarklet:</strong> Drag the button above to your bookmarks bar, click it on any page to extract everything needed for tests + audit.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Extracted JSON</div>
+    <textarea id="jsonOutput" placeholder="Extracted JSON will appear here..."></textarea>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Generated Playwright</div>
+    <pre id="codeOutput">// Generated code will appear here</pre>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  function norm(v) { return String(v ?? "").replace(/\s+/g, " ").trim(); }
+  function hasText(v) { return norm(v).length > 0; }
+  function jsTemplate(v) {
+    return "`" + String(v ?? "").replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$/g,"\\$").replace(/\r/g,"\\r").replace(/\n/g,"\\n") + "`";
+  }
+  function cssEscape(v) {
+    return String(v ?? "").replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g,"\\$1");
+  }
+  function cssAttrEscape(v) {
+    return String(v ?? "").replace(/\\/g,"\\\\").replace(/"/g,'\\"');
+  }
+  function slugify(v) {
+    return norm(v).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || 'generated';
+  }
+  function uniqueBy(arr, fn) {
+    const seen = new Set();
+    const out = [];
+    arr.forEach(item => {
+      const key = fn(item);
+      if (!seen.has(key)) { seen.add(key); out.push(item); }
+    });
+    return out;
+  }
+
+  function getVisibleText(el) { return norm(el.innerText || el.textContent || ""); }
+  function getLabelText(el) {
+    if (!el) return "";
+    if (el.labels && el.labels.length) return norm(Array.from(el.labels).map(x => norm(x.textContent)).join(" "));
+    const id = el.getAttribute("id");
+    if (id) { const explicit = document.querySelector(`label[for="${CSS.escape(id)}"]`); if (explicit) return norm(explicit.textContent); }
+    const pLabel = el.closest("label");
+    if (pLabel) return norm(pLabel.textContent);
+    return "";
+  }
+
+  function inferRole(el) {
+    const explicit = norm(el.getAttribute("role"));
+    if (explicit) return explicit;
+    const tag = el.tagName.toLowerCase();
+    const type = norm(el.getAttribute("type")).toLowerCase();
+    if (tag === "button") return "button";
+    if (tag === "a" && el.getAttribute("href")) return "link";
+    if (tag === "select") return "combobox";
+    if (tag === "textarea") return "textbox";
+    if (tag === "input") {
+      if (["button","submit","reset"].includes(type)) return "button";
+      if (type === "checkbox") return "checkbox";
+      if (type === "radio") return "radio";
+      return "textbox";
+    }
+    return "";
+  }
+
+  function getAccessibleName(el) {
+    return norm(el.getAttribute("aria-label") || getLabelText(el) || el.getAttribute("title") || el.getAttribute("alt") || getVisibleText(el));
+  }
+
+  function buildDomPath(el) {
+    if (!el || el.nodeType !== 1) return "";
+    const parts = [];
+    let current = el;
+    while (current && current !== document.body && current.nodeType === 1) {
+      let selector = current.tagName.toLowerCase();
+      if (current.id) {
+        selector += "#" + cssEscape(current.id);
+        parts.unshift(selector);
+        break;
+      }
+      const classes = Array.from(current.classList).slice(0,2).map(cssEscape);
+      if (classes.length) selector += "." + classes.join(".");
+      const siblings = current.parentElement ? Array.from(current.parentElement.children).filter(c => c.tagName === current.tagName) : [];
+      if (siblings.length > 1) selector += `:nth-of-type(${siblings.indexOf(current)+1})`;
+      parts.unshift(selector);
+      current = current.parentElement;
+    }
+    return parts.join(" > ");
+  }
+
+  function buildLocatorCandidates(info) {
+    const scope = "page";
+    const candidates = [];
+    if (hasText(info.role) && hasText(info.accessibleName)) {
+      candidates.push({ priority: 1, strategy: "getByRole", reason: "role + accessible name", locator: `${scope}.getByRole(${jsTemplate(info.role)}, { name: ${jsTemplate(info.accessibleName)} })` });
+    }
+    if (hasText(info.label)) {
+      candidates.push({ priority: 2, strategy: "getByLabel", reason: "form label", locator: `${scope}.getByLabel(${jsTemplate(info.label)})` });
+    }
+    if (hasText(info.placeholder)) {
+      candidates.push({ priority: 3, strategy: "getByPlaceholder", reason: "placeholder", locator: `${scope}.getByPlaceholder(${jsTemplate(info.placeholder)})` });
+    }
+    if (info.tag === "img" && hasText(info.alt)) {
+      candidates.push({ priority: 4, strategy: "getByAltText", reason: "image alt", locator: `${scope}.getByAltText(${jsTemplate(info.alt)})` });
+    }
+    if (hasText(info.title)) {
+      candidates.push({ priority: 5, strategy: "getByTitle", reason: "title attr", locator: `${scope}.getByTitle(${jsTemplate(info.title)})` });
+    }
+    if (hasText(info.testId)) {
+      candidates.push({ priority: 6, strategy: "getByTestId", reason: "test id", locator: `${scope}.getByTestId(${jsTemplate(info.testId)})` });
+    }
+    if (hasText(info.text)) {
+      candidates.push({ priority: 7, strategy: "getByText", reason: "visible text", locator: `${scope}.getByText(${jsTemplate(info.text)}, { exact: true })` });
+    }
+    if (hasText(info.id)) {
+      candidates.push({ priority: 8, strategy: "css-id", reason: "element id", locator: `${scope}.locator(${jsTemplate("#"+cssEscape(info.id))})` });
+    }
+    if (hasText(info.name) && hasText(info.tag)) {
+      const selector = `${info.tag}[name="${cssAttrEscape(info.name)}"]` + (hasText(info.type) ? `[type="${cssAttrEscape(info.type)}"]` : "");
+      candidates.push({ priority: 9, strategy: "css-name", reason: "name/type", locator: `${scope}.locator(${jsTemplate(selector)})` });
+    }
+    if (hasText(info.domPath)) {
+      candidates.push({ priority: 10, strategy: "domPath", reason: "dom path fallback", locator: `${scope}.locator(${jsTemplate(info.domPath)})` });
+    }
+    return uniqueBy(candidates.sort((a,b) => a.priority - b.priority), x => x.locator);
+  }
+
+  function buildElementInfo(el) {
+    const testIdAttr = norm(document.getElementById('testIdAttr').value) || 'data-testid';
+    const info = {
+      tag: el.tagName.toLowerCase(),
+      type: norm(el.getAttribute("type")),
+      id: norm(el.id),
+      name: norm(el.getAttribute("name")),
+      role: inferRole(el),
+      text: getVisibleText(el),
+      label: getLabelText(el),
+      accessibleName: getAccessibleName(el),
+      placeholder: norm(el.getAttribute("placeholder")),
+      title: norm(el.getAttribute("title")),
+      alt: norm(el.getAttribute("alt")),
+      href: norm(el.getAttribute("href")),
+      testId: norm(el.getAttribute(testIdAttr)),
+      required: el.hasAttribute("required"),
+      minLength: el.hasAttribute("minlength") ? Number(el.getAttribute("minlength")) : null,
+      maxLength: el.hasAttribute("maxlength") ? Number(el.getAttribute("maxlength")) : null,
+      pattern: norm(el.getAttribute("pattern")) || null,
+      disabled: !!el.disabled,
+      domPath: buildDomPath(el)
+    };
+    const locatorCandidates = buildLocatorCandidates(info);
+    return { ...info, locatorCandidates, bestLocator: locatorCandidates[0]?.locator || "", locatorReason: locatorCandidates[0]?.reason || "no locator" };
+  }
+
+  function collectSEO() {
+    const title = norm(document.title);
+    const description = norm(document.querySelector('meta[name="description"]')?.getAttribute('content'));
+    const canonical = norm(document.querySelector('link[rel="canonical"]')?.getAttribute('href'));
+    const ogTitle = norm(document.querySelector('meta[property="og:title"]')?.getAttribute('content'));
+    const ogDesc = norm(document.querySelector('meta[property="og:description"]')?.getAttribute('content'));
+    const ogImage = norm(document.querySelector('meta[property="og:image"]')?.getAttribute('content'));
+    return { title, description, canonical, openGraph: { title: ogTitle, description: ogDesc, image: ogImage } };
+  }
+
+  function collectLinks(baseUrl) {
+    return uniqueBy(Array.from(document.querySelectorAll("a[href]")).map(a => {
+      const href = norm(a.getAttribute("href"));
+      let absoluteHref = href;
+      let category = "other";
+      try { absoluteHref = new URL(href, baseUrl).toString(); } catch(_) {}
+      if (href.startsWith("#")) category = "anchor";
+      else if (/^javascript:/i.test(href)) category = "javascript";
+      else if (/^mailto:/i.test(href)) category = "mailto";
+      else if (/^tel:/i.test(href)) category = "tel";
+      else {
+        try {
+          const sameOrigin = new URL(absoluteHref).origin === new URL(baseUrl).origin;
+          category = sameOrigin ? "internal" : "external";
+        } catch(_) { category = "other"; }
+      }
+      return { href, absoluteHref, text: norm(a.textContent), category, shouldCheck: category === "internal" };
+    }), x => x.absoluteHref || x.href);
+  }
+
+  function collectImages() {
+    return Array.from(document.querySelectorAll("img")).map(img => ({ selector: buildDomPath(img), alt: img.getAttribute("alt"), src: norm(img.getAttribute("src")) }));
+  }
+
+  function collectIconControls() {
+    return Array.from(document.querySelectorAll("button, a[href], [role='button']")).filter(el => !getVisibleText(el) && !!el.querySelector("svg, i, img")).map(el => ({ selector: buildDomPath(el), ariaLabel: el.getAttribute("aria-label"), title: el.getAttribute("title") }));
+  }
+
+  function collectFormFields() {
+    return Array.from(document.querySelectorAll("input, textarea, select")).map(el => {
+      const info = buildElementInfo(el);
+      return { selector: info.domPath, tag: info.tag, type: info.type, name: info.name, label: info.label, required: info.required, minLength: info.minLength, maxLength: info.maxLength, pattern: info.pattern, placeholder: info.placeholder, bestLocator: info.bestLocator, locatorReason: info.locatorReason };
+    });
+  }
+
+  function collectElements() {
+    return Array.from(document.querySelectorAll("button, a[href], input, textarea, select")).map(buildElementInfo);
+  }
+
+  function buildModel() {
+    const url = location.href;
+    const pageType = norm(document.getElementById("pageType").value) || "content";
+    const expectedLang = norm(document.getElementById("expectedLang").value) || null;
+    const expectedDir = norm(document.getElementById("expectedDir").value) || null;
+    const bannedTexts = norm(document.getElementById("bannedTexts").value).split(",").map(x => norm(x)).filter(x => x);
+
+    const model = {
+      schemaVersion: 1,
+      url,
+      pageType,
+      audit: {
+        seo: document.getElementById("auditSEO").checked ? collectSEO() : null,
+        locale: document.getElementById("auditLocale").checked ? { expectedLang, expectedDir, actualLang: norm(document.documentElement.getAttribute("lang")), actualDir: norm(document.documentElement.getAttribute("dir")) } : null,
+        links: document.getElementById("auditLinks").checked ? collectLinks(url) : null,
+        images: document.getElementById("auditA11y").checked ? collectImages() : null,
+        iconControls: document.getElementById("auditA11y").checked ? collectIconControls() : null,
+        h1Count: document.getElementById("auditA11y").checked ? Array.from(document.querySelectorAll("h1")).length : null,
+        bannedTexts: document.getElementById("auditLeftovers").checked ? bannedTexts : null
+      },
+      elements: collectElements(),
+      formFields: collectFormFields(),
+      generatedAt: new Date().toISOString()
+    };
+    return model;
+  }
+
+  function generatePlaywright(model) {
+    const lines = [];
+    lines.push('import { test, expect } from "@playwright/test";');
+    lines.push("");
+    lines.push("const model = " + JSON.stringify(model, null, 2).split("\n").slice(0, 20).join("\n") + "...");
+    lines.push("");
+    lines.push('test.describe("page tests", () => {');
+    lines.push('  test("page loads", async ({ page, request }) => {');
+    
+    // Page load
+    lines.push(`    const res = await page.goto(${jsTemplate(model.url)});`);
+    lines.push("    expect(res).not.toBeNull();");
+    lines.push("    expect(res!.status()).toBeLessThan(400);");
+    lines.push("    await page.waitForLoadState('networkidle');");
+    lines.push("");
+
+    // Audit: SEO
+    if (model.audit.seo) {
+      lines.push("    // SEO audit");
+      lines.push(`    await expect(page).toHaveTitle(/${model.audit.seo.title.slice(0,40)}/);`);
+      if (model.audit.seo.canonical) {
+        lines.push(`    const canonical = page.locator('link[rel="canonical"]');`);
+        lines.push("    await expect(canonical).toHaveCount(1);");
+      }
+      lines.push("");
+    }
+
+    // Audit: Locale
+    if (model.audit.locale) {
+      lines.push("    // Locale audit");
+      if (model.audit.locale.expectedLang) lines.push(`    const lang = await page.locator('html').getAttribute('lang'); expect(lang?.toLowerCase()).toBe('${model.audit.locale.expectedLang.toLowerCase()}');`);
+      if (model.audit.locale.expectedDir) lines.push(`    const dir = await page.locator('html').getAttribute('dir'); expect(dir?.toLowerCase()).toBe('${model.audit.locale.expectedDir.toLowerCase()}');`);
+      lines.push("");
+    }
+
+    // Audit: H1
+    if (model.audit.h1Count !== null) {
+      lines.push("    // Accessibility: H1");
+      lines.push("    await expect(page.locator('h1')).toHaveCount(1);");
+      lines.push("");
+    }
+
+    // Audit: Images alt
+    if (model.audit.images) {
+      lines.push("    // Image alt text");
+      model.audit.images.forEach((img, i) => {
+        if (i < 3) {
+          lines.push(`    const img${i} = page.locator(${jsTemplate(img.selector)});`);
+          lines.push(`    await expect(img${i}).toHaveAttribute('alt', /.+/);`);
+        }
+      });
+      lines.push("");
+    }
+
+    // Audit: Broken links
+    if (model.audit.links) {
+      lines.push("    // Broken internal links");
+      const internalLinks = model.audit.links.filter(l => l.shouldCheck).slice(0, 5);
+      internalLinks.forEach(link => {
+        lines.push(`    const linkRes = await request.get(${jsTemplate(link.absoluteHref)}, { failOnStatusCode: false });`);
+        lines.push(`    expect(linkRes.status(), ${jsTemplate('Broken: ' + link.text)}}).toBeLessThan(400);`);
+      });
+      lines.push("");
+    }
+
+    // Audit: Banned texts
+    if (model.audit.bannedTexts && model.audit.bannedTexts.length > 0) {
+      lines.push("    // Banned leftover texts");
+      lines.push("    const bodyText = ((await page.locator('body').textContent()) || '').toLowerCase();");
+      model.audit.bannedTexts.forEach(text => {
+        lines.push(`    expect(bodyText.includes(${jsTemplate(text.toLowerCase())}), 'Found banned text: ${text}').toBeFalsy();`);
+      });
+      lines.push("");
+    }
+
+    // Form fields visibility
+    if (model.formFields && model.formFields.length > 0) {
+      lines.push("    // Form fields visible");
+      model.formFields.slice(0, 5).forEach((f, i) => {
+        if (f.bestLocator) {
+          lines.push(`    const field${i} = ${f.bestLocator};`);
+          lines.push(`    await expect(field${i}).toBeVisible();`);
+        }
+      });
+      lines.push("");
+    }
+
+    // Interactive elements
+    if (model.elements && model.elements.length > 0) {
+      lines.push("    // Elements visible");
+      model.elements.filter(el => el.bestLocator && el.role).slice(0, 5).forEach((el, i) => {
+        if (el.bestLocator) {
+          lines.push(`    const el${i} = ${el.bestLocator};`);
+          lines.push(`    await expect(el${i}).toBeVisible();`);
+        }
+      });
+    }
+
+    lines.push("  });");
+    lines.push("});");
+    return lines.join("\n");
+  }
+
+  function extractFromCurrentPage() {
+    try {
+      const model = buildModel();
+      const json = JSON.stringify(model, null, 2);
+      const code = generatePlaywright(model);
+      document.getElementById('jsonOutput').value = json;
+      document.getElementById('codeOutput').textContent = code;
+      window._json = json;
+      window._code = code;
+      window._baseName = slugify((new URL(model.url)).hostname);
+    } catch (err) {
+      document.getElementById('codeOutput').textContent = 'Error: ' + err.message;
+    }
+  }
+
+  function generateFromJson() {
+    try {
+      const model = JSON.parse(document.getElementById('jsonOutput').value);
+      const code = generatePlaywright(model);
+      document.getElementById('codeOutput').textContent = code;
+      window._code = code;
+    } catch (err) {
+      document.getElementById('codeOutput').textContent = 'JSON error: ' + err.message;
+    }
+  }
+
+  function downloadJson() {
+    if (!window._json) return alert('No JSON. Extract first.');
+    const blob = new Blob([window._json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (window._baseName || 'extracted') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function downloadSpec() {
+    if (!window._code) return alert('No code. Generate first.');
+    const blob = new Blob([window._code], { type: 'text/typescript' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (window._baseName || 'generated') + '.spec.ts';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  function copyCode() {
+    navigator.clipboard.writeText(document.getElementById('codeOutput').textContent || '').then(() => alert('Copied!'));
+  }
+
+  window.extractFromCurrentPage = extractFromCurrentPage;
+  window.generateFromJson = generateFromJson;
+  window.downloadJson = downloadJson;
+  window.downloadSpec = downloadSpec;
+  window.copyCode = copyCode;
+})();
+</script>
+</body>
+</html>
