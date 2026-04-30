@@ -43,7 +43,8 @@
       <a id="bookmarkButton" class="bookmark-button" href="#" style="text-decoration:none;">📋 Extract Page → Copy JSON</a>
     </div>
     <div class="note">
-      <strong>How it works:</strong> Click the bookmarklet on any webpage. The JSON will be copied to your clipboard automatically.
+      <strong>How it works:</strong> After dragging the button to bookmarks, go to any webpage and click the bookmarklet. 
+      It will extract elements, SEO, links etc. and copy the JSON to clipboard.
     </div>
   </div>
 
@@ -81,97 +82,140 @@
 </div>
 
 <script>
-// BOOKMARKLET
-const bookmarkletCode = `(function(){ "use strict";
+// ==================== IMPROVED BOOKMARKLET ====================
+const bookmarkletCode = `(function(){
+  "use strict";
   function norm(v){return String(v??"").replace(/\\s+/g," ").trim();}
-  function hasText(v){return norm(v).length>0;}
+  function hasText(v){return norm(v).length > 0;}
   function cssEscape(v){return String(v??"").replace(/([ !"#$%&'()*+,./:;<=>?@[\\\\\\]^`{|}~])/g,"\\\\$1");}
-  function getVisibleText(el){return norm(el.innerText||el.textContent||"");}
+
+  function getVisibleText(el){return norm(el.innerText || el.textContent || "");}
   function getLabelText(el){
     if(!el) return "";
-    if(el.labels?.length) return norm(Array.from(el.labels).map(l=>norm(l.textContent)).join(" "));
-    const id=el.id; if(id){const lbl=document.querySelector(\`label[for="\${CSS.escape(id)}"]\`); if(lbl) return norm(lbl.textContent);}
-    return norm(el.closest("label")?.textContent||"");
+    if(el.labels && el.labels.length) return norm(Array.from(el.labels).map(l => norm(l.textContent)).join(" "));
+    const id = el.id;
+    if(id){ const lbl = document.querySelector('label[for="' + CSS.escape(id) + '"]'); if(lbl) return norm(lbl.textContent); }
+    return norm(el.closest("label") ? el.closest("label").textContent : "");
   }
   function inferRole(el){
-    const role=norm(el.getAttribute("role"));
+    let role = norm(el.getAttribute("role"));
     if(role) return role;
-    const tag=el.tagName.toLowerCase(), type=norm(el.getAttribute("type")).toLowerCase();
-    if(tag==="button" || (tag==="input" && ["button","submit","reset"].includes(type))) return "button";
-    if(tag==="a" && el.href) return "link";
-    if(tag==="select") return "combobox";
-    if(tag==="textarea" || (tag==="input" && !["checkbox","radio"].includes(type))) return "textbox";
-    if(type==="checkbox") return "checkbox";
-    if(type==="radio") return "radio";
+    const tag = el.tagName.toLowerCase();
+    const type = norm(el.getAttribute("type")).toLowerCase();
+    if(tag === "button" || (tag === "input" && ["button","submit","reset"].includes(type))) return "button";
+    if(tag === "a" && el.href) return "link";
+    if(tag === "select") return "combobox";
+    if(tag === "textarea" || (tag === "input" && !["checkbox","radio"].includes(type))) return "textbox";
+    if(type === "checkbox") return "checkbox";
+    if(type === "radio") return "radio";
     return "";
   }
   function getAccessibleName(el){
-    return norm(el.getAttribute("aria-label")||getLabelText(el)||el.getAttribute("title")||el.getAttribute("alt")||getVisibleText(el));
+    return norm(el.getAttribute("aria-label") || getLabelText(el) || el.getAttribute("title") || el.getAttribute("alt") || getVisibleText(el));
   }
+
   function buildDomPath(el){
-    if(!el||el.nodeType!==1) return "";
-    let parts=[], cur=el;
-    while(cur && cur!==document.body){
-      let sel=cur.tagName.toLowerCase();
-      if(cur.id){sel+="#"+cssEscape(cur.id); parts.unshift(sel); break;}
-      if(cur.classList.length) sel+="."+Array.from(cur.classList).slice(0,2).map(cssEscape).join(".");
-      const siblings=cur.parentElement?Array.from(cur.parentElement.children).filter(c=>c.tagName===cur.tagName):[];
-      if(siblings.length>1) sel+=`:nth-of-type(\${siblings.indexOf(cur)+1})`;
+    if(!el || el.nodeType !== 1) return "";
+    let parts = [], cur = el;
+    while(cur && cur !== document.body){
+      let sel = cur.tagName.toLowerCase();
+      if(cur.id){ sel += "#" + cssEscape(cur.id); parts.unshift(sel); break; }
+      if(cur.classList.length){
+        sel += "." + Array.from(cur.classList).slice(0,2).map(cssEscape).join(".");
+      }
+      const siblings = cur.parentElement ? Array.from(cur.parentElement.children).filter(c => c.tagName === cur.tagName) : [];
+      if(siblings.length > 1) sel += ":nth-of-type(" + (siblings.indexOf(cur)+1) + ")";
       parts.unshift(sel);
-      cur=cur.parentElement;
+      cur = cur.parentElement;
     }
     return parts.join(" > ");
   }
+
   function buildLocatorCandidates(info){
-    const cands=[];
-    if(hasText(info.role)&&hasText(info.accessibleName)) cands.push({prio:1, strat:"getByRole", name:info.accessibleName, role:info.role});
+    const cands = [];
+    if(hasText(info.role) && hasText(info.accessibleName))
+      cands.push({prio:1, strat:"getByRole", name:info.accessibleName, role:info.role});
     if(hasText(info.label)) cands.push({prio:2, strat:"getByLabel", name:info.label});
     if(hasText(info.placeholder)) cands.push({prio:3, strat:"getByPlaceholder", name:info.placeholder});
-    if(info.tag==="img"&&hasText(info.alt)) cands.push({prio:4, strat:"getByAltText", name:info.alt});
+    if(info.tag==="img" && hasText(info.alt)) cands.push({prio:4, strat:"getByAltText", name:info.alt});
     if(hasText(info.text)) cands.push({prio:5, strat:"getByText", name:info.text});
     if(hasText(info.testId)) cands.push({prio:6, strat:"getByTestId", name:info.testId});
     if(hasText(info.id)) cands.push({prio:7, strat:"locator", selector:"#"+cssEscape(info.id)});
     if(hasText(info.domPath)) cands.push({prio:8, strat:"locator", selector:info.domPath});
     return cands.sort((a,b)=>a.prio-b.prio);
   }
+
   function buildElementInfo(el){
-    const info={tag:el.tagName.toLowerCase(),role:inferRole(el),accessibleName:getAccessibleName(el),label:getLabelText(el),placeholder:norm(el.getAttribute("placeholder")),text:getVisibleText(el),id:norm(el.id),testId:norm(el.getAttribute("data-testid")),alt:norm(el.getAttribute("alt")),domPath:buildDomPath(el)};
+    const info = {
+      tag: el.tagName.toLowerCase(),
+      role: inferRole(el),
+      accessibleName: getAccessibleName(el),
+      label: getLabelText(el),
+      placeholder: norm(el.getAttribute("placeholder")),
+      text: getVisibleText(el),
+      id: norm(el.id),
+      testId: norm(el.getAttribute("data-testid")),
+      alt: norm(el.getAttribute("alt")),
+      domPath: buildDomPath(el)
+    };
     info.locatorCandidates = buildLocatorCandidates(info);
     info.bestLocator = info.locatorCandidates[0] || null;
     return info;
   }
-  const model = {schemaVersion:2,url:location.href,seo:{title:norm(document.title),description:norm(document.querySelector('meta[name="description"]')?.content),canonical:norm(document.querySelector('link[rel="canonical"]')?.href)},elements:Array.from(document.querySelectorAll("button, a[href], input, textarea, select")).map(buildElementInfo),links:Array.from(document.querySelectorAll("a[href]")).slice(0,30).map(a=>({href:a.href,text:norm(a.textContent)})),generatedAt:new Date().toISOString()};
-  navigator.clipboard.writeText(JSON.stringify(model,null,2)).then(()=>alert("✓ JSON copied!")).catch(()=>alert("Failed to copy"));
+
+  const model = {
+    schemaVersion: 2,
+    url: location.href,
+    title: document.title,
+    seo: {
+      title: norm(document.title),
+      description: norm(document.querySelector('meta[name="description"]')?.content),
+      canonical: norm(document.querySelector('link[rel="canonical"]')?.href)
+    },
+    elements: Array.from(document.querySelectorAll("button, a[href], input, textarea, select")).map(buildElementInfo),
+    links: Array.from(document.querySelectorAll("a[href]")).slice(0,30).map(a => ({href: a.href, text: norm(a.textContent)})),
+    generatedAt: new Date().toISOString()
+  };
+
+  navigator.clipboard.writeText(JSON.stringify(model, null, 2)).then(() => {
+    alert("✓ JSON copied to clipboard successfully!\\n\\nNow go back to the QA Extractor Pro page and paste it.");
+  }).catch(err => {
+    alert("Failed to copy to clipboard.\\nError: " + err.message);
+    console.error(err);
+  });
 })();`;
 
-document.getElementById('bookmarkButton').href = 'javascript:' + bookmarkletCode;
+document.getElementById("bookmarkButton").href = "javascript:" + encodeURIComponent(bookmarkletCode);
 
+// ==================== GENERATE CODE ====================
 function getBestLocatorStr(c) {
-  if(!c) return null;
-  if(c.strat==="getByRole") return `page.getByRole('${c.role}', { name: ${JSON.stringify(c.name)} })`;
-  if(c.strat==="getByLabel") return `page.getByLabel(${JSON.stringify(c.name)})`;
-  if(c.strat==="getByPlaceholder") return `page.getByPlaceholder(${JSON.stringify(c.name)})`;
-  if(c.strat==="getByText") return `page.getByText(${JSON.stringify(c.name)}, { exact: true })`;
-  if(c.strat==="getByAltText") return `page.getByAltText(${JSON.stringify(c.name)})`;
-  if(c.strat==="getByTestId") return `page.getByTestId(${JSON.stringify(c.name)})`;
-  if(c.selector) return `page.locator(${JSON.stringify(c.selector)})`;
+  if (!c) return null;
+  if (c.strat === "getByRole") return `page.getByRole('${c.role}', { name: ${JSON.stringify(c.name)} })`;
+  if (c.strat === "getByLabel") return `page.getByLabel(${JSON.stringify(c.name)})`;
+  if (c.strat === "getByPlaceholder") return `page.getByPlaceholder(${JSON.stringify(c.name)})`;
+  if (c.strat === "getByText") return `page.getByText(${JSON.stringify(c.name)}, { exact: true })`;
+  if (c.strat === "getByAltText") return `page.getByAltText(${JSON.stringify(c.name)})`;
+  if (c.strat === "getByTestId") return `page.getByTestId(${JSON.stringify(c.name)})`;
+  if (c.selector) return `page.locator(${JSON.stringify(c.selector)})`;
   return null;
 }
 
 function generatePlaywright(model, options) {
-  let elementsCode = '';
-  if(model.elements){
-    model.elements.slice(0,12).forEach(el => {
+  let elementsCode = "";
+  if (model.elements) {
+    model.elements.slice(0, 12).forEach(el => {
       const loc = getBestLocatorStr(el.bestLocator);
-      if(loc){
-        const comment = String(el.accessibleName || el.label || el.text || el.tag || '').substring(0,55);
-        elementsCode += '    // ' + (el.role || el.tag) + ' - ' + comment + '\\n';
-        elementsCode += '    await expect(' + loc + ').toBeVisible({ timeout: 10000 });\\n\\n';
+      if (loc) {
+        const comment = String(el.accessibleName || el.label || el.text || el.tag || "").substring(0, 55);
+        elementsCode += "    // " + (el.role || el.tag) + " - " + comment + "\\n";
+        elementsCode += "    await expect(" + loc + ").toBeVisible({ timeout: 10000 });\\n\\n";
       }
     });
   }
 
-  const seoTitle = model.seo && model.seo.title ? String(model.seo.title).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&').slice(0,70) : '';
+  const seoTitle = model.seo && model.seo.title 
+    ? String(model.seo.title).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&').slice(0,70) 
+    : "";
 
   return `import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -227,13 +271,13 @@ function generateFromJson() {
     window._generatedCode = code;
     window._hostname = new URL(model.url).hostname.replace(/\./g, '_');
   } catch (e) {
-    alert("Error: " + e.message);
+    alert("Error parsing JSON: " + e.message);
   }
 }
 
 function downloadSpec() {
   if (!window._generatedCode) return alert("Generate code first");
-  const blob = new Blob([window._generatedCode], {type:"text/typescript"});
+  const blob = new Blob([window._generatedCode], {type: "text/typescript"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = (window._hostname || "page") + ".spec.ts";
@@ -242,7 +286,7 @@ function downloadSpec() {
 
 function copyCode() {
   if (!window._generatedCode) return alert("Generate code first");
-  navigator.clipboard.writeText(window._generatedCode).then(() => alert("✅ Code copied!"));
+  navigator.clipboard.writeText(window._generatedCode).then(() => alert("✅ Code copied to clipboard!"));
 }
 
 window.generateFromJson = generateFromJson;
