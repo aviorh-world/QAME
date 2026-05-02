@@ -381,73 +381,30 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <!-- UI DIFF TOOL -->
 <section class="section fade-in" id="uidiff" style="animation-delay:.12s">
   <div class="s-label">03 / QA Tool</div>
-  <div class="s-title">UI Design Diff</div>
-  <div class="s-subtitle">Sample of tools I've built to improve testing quality &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool</a></div>
+  <div class="s-title">UI Diff Pro</div>
+  <div class="s-subtitle">
+    Latest state-aware UI diff tool preview ·
+    <a href="ui-diff.html?v=20260503-state-aware" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open full tool</a>
+  </div>
   <div class="diff-tool-section">
     <div class="diff-tool-header">
-      <div class="diff-tool-title">UI Design Diff</div>
-      <div class="diff-tool-badge">No AI &middot; 100% Deterministic</div>
+      <div class="diff-tool-title">UI Diff Pro · Latest</div>
+      <div class="diff-tool-badge">State-aware · JSON + Screenshot</div>
     </div>
-    <div class="diff-tool-body">
-      <div class="steps-grid">
-        <div class="step"><div class="step-num">Step 01</div><div class="step-title">Export from Figma</div><ol><li>Open screen in Figma</li><li>Select the main Frame</li><li>Run <strong>"Figma to JSON"</strong> plugin</li><li>Drag the JSON file below</li></ol></div>
-        <div class="step"><div class="step-num">Step 02</div><div class="step-title">Export from Browser</div><ol><li>Drag bookmarklet to browser bar</li><li>Navigate to screen to test</li><li>Click it &mdash; JSON + screenshot download</li><li>Drag both files below</li></ol></div>
-        <div class="step"><div class="step-num">Step 03</div><div class="step-title">Run the Diff</div><ol><li>All files dropped? &#10003;</li><li>Click <strong>Run Deterministic Diff</strong></li><li>Review results inline</li></ol></div>
-      </div>
-      <div class="bm-section">
-        <div class="bm-title">&#128278; Browser Bookmarklets</div>
-        <div class="bm-sub">Drag to your bookmarks bar. Click on any page to extract computed JSON (and optionally a screenshot).</div>
-        <div class="bm-row">
-          <a class="bm-btn ss" id="bmFull" href="#">&#128247; JSON + Screenshot</a>
-          <a class="bm-btn jo" id="bmJson" href="#">{ } JSON Only</a>
-        </div>
-        <div class="bm-hint">&#8593; <span>Drag</span> to browser bookmarks bar &middot; then click on any page</div>
-      </div>
-      <div class="inputs-grid">
-        <div class="input-panel" id="figmaPanel">
-          <div class="input-label"><span class="dot"></span> Figma JSON</div>
-          <div class="drop-zone" id="figmaDrop" onclick="document.getElementById('figmaFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="figmaLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="figmaFile" onchange="loadFile(this,'figmaInput','figmaLoaded','figmaPanel')"/>
-          <textarea class="diff-ta" id="figmaInput" placeholder='{"name":"Screen","children":[]}'></textarea>
-        </div>
-        <div class="input-panel" id="computedPanel">
-          <div class="input-label"><span class="dot"></span> Computed JSON (Browser)</div>
-          <div class="drop-zone" id="computedDrop" onclick="document.getElementById('computedFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="computedLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="computedFile" onchange="loadFile(this,'computedInput','computedLoaded','computedPanel')"/>
-          <textarea class="diff-ta" id="computedInput" placeholder='{"elements":[]}'></textarea>
-        </div>
-      </div>
-      <div class="ss-panel" id="ssPanel">
-        <div class="ss-panel-head">&#128247; Screenshot (optional)</div>
-        <div class="ss-drop" id="ssDrop" onclick="document.getElementById('ssFile').click()">
-          <div class="drop-zone-icon">&#128444;</div>
-          <div class="drop-zone-label" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);">Drop image or <span style="color:var(--sky);text-decoration:underline;cursor:pointer">browse</span></div>
-        </div>
-        <input type="file" accept="image/*" class="file-hidden" id="ssFile" onchange="loadSs(this)"/>
-        <img class="ss-preview" id="ssPreview" alt=""/>
-      </div>
-      <button class="run-btn" onclick="runDiff()">&#9654; Run Deterministic Diff</button>
-      <div class="result-panel" id="resultPanel">
-        <div class="result-head" id="resultHead"></div>
-        <div class="result-body" id="resultBody"></div>
-        <div class="ss-result-wrap" id="ssResultWrap" style="display:none">
-          <div class="ss-result-title">Screenshot Reference</div>
-          <img class="ss-result-img" id="ssResultImg" alt=""/>
-        </div>
-      </div>
+    <div style="height:760px;background:#fff;border-top:1px solid var(--border);">
+      <iframe
+        title="UI Diff Pro latest preview"
+        src="ui-diff.html?v=20260503-state-aware"
+        style="width:100%;height:100%;border:0;background:#fff;display:block;"
+        loading="lazy">
+      </iframe>
     </div>
   </div>
+  <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-top:14px;font-family:'DM Mono',monospace;">
+    Preview loads the current <strong>ui-diff.html</strong>. Upload the latest UI Diff Pro file as <strong>ui-diff.html</strong> to keep this preview and the full tool in sync.
+  </p>
 </section>
-
-  <section class="section fade-in" id="qaextractor" style="animation-delay:.13s">
+<section class="section fade-in" id="qaextractor" style="animation-delay:.13s">
     <div class="s-label">04 / QA Tool</div>
     <div class="s-title">QA Extractor Pro</div>
     <div class="s-subtitle">Bookmarklet → JSON → Playwright &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open in new tab</a></div>
@@ -513,7 +470,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='+'||e.key==='=')zoomIn();
   if(e.key==='-')zoomOut();
   if(e.key==='0')zoomReset();
-});});
+});
 
 // ── Password / Edit mode ──
 function openPw(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
@@ -550,67 +507,7 @@ function renderExtra(){
 }
 function removeVid(i){extraVideos.splice(i,1);renderExtra();}
 
-// ── Bookmarklets ──
-var BM_FULL='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");var ts=Date.now();dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+ts+".json");function loadScript(src,ok,fail){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s);}function cap(){try{html2canvas(document.body,{useCORS:true,backgroundColor:null,scale:devicePixelRatio}).then(function(c){c.toBlob(function(b){if(b)dl(b,"ui-screenshot-"+h+"-"+ts+".png");});});}catch(e){}}if(window.html2canvas){cap();}else{loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",cap,function(){});}})()'
-var BM_JSON='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+Date.now()+".json");})()'
-document.getElementById('bmFull').href=BM_FULL;
-document.getElementById('bmJson').href=BM_JSON;
-
-// ── Drag & Drop ──
-function setupDrop(dropId,panelId,taId,badgeId){
-  var drop=document.getElementById(dropId),panel=document.getElementById(panelId);
-  ['dragenter','dragover'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();panel.classList.add('drag-over');});});
-  ['dragleave','dragend'].forEach(function(ev){drop.addEventListener(ev,function(){panel.classList.remove('drag-over');});});
-  drop.addEventListener('drop',function(e){e.preventDefault();panel.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)readJson(f,taId,badgeId);});
-}
-setupDrop('figmaDrop','figmaPanel','figmaInput','figmaLoaded');
-setupDrop('computedDrop','computedPanel','computedInput','computedLoaded');
-function loadFile(inp,taId,badgeId){if(inp.files[0])readJson(inp.files[0],taId,badgeId);}
-function readJson(file,taId,badgeId){var r=new FileReader();r.onload=function(e){document.getElementById(taId).value=e.target.result;var b=document.getElementById(badgeId);b.style.display='block';b.textContent='✓ '+file.name;};r.readAsText(file);}
-var ssP=document.getElementById('ssPanel'),ssD=document.getElementById('ssDrop');
-['dragenter','dragover'].forEach(function(ev){ssD.addEventListener(ev,function(e){e.preventDefault();ssP.classList.add('drag-over');});});
-['dragleave','dragend'].forEach(function(ev){ssD.addEventListener(ev,function(){ssP.classList.remove('drag-over');});});
-ssD.addEventListener('drop',function(e){e.preventDefault();ssP.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadSs2(f);});
-function loadSs(inp){if(inp.files[0])loadSs2(inp.files[0]);}
-function loadSs2(file){var r=new FileReader();r.onload=function(e){var img=document.getElementById('ssPreview');img.src=e.target.result;img.classList.add('vis');ssD.style.display='none';};r.readAsDataURL(file);}
-
-// ── Diff engine ──
-function hex(rgb){if(!rgb)return null;if(rgb.startsWith('#'))return rgb.toUpperCase();var m=rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);if(!m)return rgb;return '#'+m.slice(1).map(function(v){return Number(v).toString(16).padStart(2,'0');}).join('').toUpperCase();}
-function px(v){return v==null?null:parseFloat(v);}
-function isPill(r,h){return r!=null&&h!=null&&r>=h/2;}
-function runDiff(){
-  var panel=document.getElementById('resultPanel');
-  panel.classList.add('vis');
-  var fig,comp;
-  try{fig=JSON.parse(document.getElementById('figmaInput').value.trim());comp=JSON.parse(document.getElementById('computedInput').value.trim());}
-  catch(e){setR('fail','&#9888; Parse Error',[{t:'fail',tx:'Invalid JSON: '+e.message}]);return;}
-  var lines=[],pass=0,fail=0;
-  var cta=comp.elements&&comp.elements.find(function(e){return e.text==='Go to The Hub';});
-  lines.push({t:'head',tx:'CTA Button — "Go to The Hub"'});
-  if(!cta){lines.push({t:'fail',tx:'✗  Element not found'});fail++;}
-  else{
-    var bg=hex(cta.styles&&cta.styles.background);
-    if(bg==='#002D2A'){lines.push({t:'pass',tx:'✓  Background  →  '+bg});pass++;}else{lines.push({t:'fail',tx:'✗  Background  →  got '+bg+'  expected #002D2A'});fail++;}
-    var fs=px(cta.styles&&cta.styles.fontSize);
-    if(fs===16){lines.push({t:'pass',tx:'✓  Font size   →  16px'});pass++;}else{lines.push({t:'fail',tx:'✗  Font size   →  got '+fs+'px  expected 16px'});fail++;}
-    var lh=px(cta.styles&&cta.styles.lineHeight);
-    if(lh===24){lines.push({t:'pass',tx:'✓  Line height →  24px'});pass++;}else{lines.push({t:'fail',tx:'✗  Line height →  got '+lh+'px  expected 24px'});fail++;}
-    var ra=px(cta.styles&&cta.styles.borderRadius),ht=cta.rect&&cta.rect.h;
-    if(isPill(ra,ht)){lines.push({t:'pass',tx:'✓  Border      →  pill ('+ra+'px / '+ht+'px)'});pass++;}else{lines.push({t:'fail',tx:'✗  Border      →  not pill (r='+ra+' h='+ht+')'});fail++;}
-  }
-  lines.push({t:'info',tx:''});lines.push({t:'info',tx:'─────────────────────────────'});
-  var ok=fail===0;
-  lines.push({t:ok?'pass':'fail',tx:ok?'✓  All checks passed  ('+pass+'/'+pass+')':'✗  '+fail+' check(s) failed  ('+pass+'/'+(pass+fail)+' passed)'});
-  setR(ok?'pass':'fail',ok?'✓  UI matches Figma design':'✗  Mismatches found',lines);
-  var prev=document.getElementById('ssPreview'),wrap=document.getElementById('ssResultWrap'),rImg=document.getElementById('ssResultImg');
-  if(prev.src&&prev.classList.contains('vis')){rImg.src=prev.src;wrap.style.display='block';}else{wrap.style.display='none';}
-}
-function setR(status,hdr,lines){
-  var h=document.getElementById('resultHead'),b=document.getElementById('resultBody');
-  h.className='result-head '+status;h.innerHTML=hdr;
-  b.innerHTML=lines.map(function(l){var cls={pass:'l-pass',fail:'l-fail',info:'l-info',head:'l-head'}[l.t]||'';return '<span class="'+cls+'">'+esc(l.tx)+'</span>';}).join('\n');
-}
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// UI Diff Pro is now loaded via iframe preview above. Old embedded diff engine removed to prevent stale preview and stale bookmarklets.
 </script>
 <footer class="site-footer">
   <div class="sf-grid">
