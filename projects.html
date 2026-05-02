@@ -77,14 +77,14 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
 @media(max-width:420px){.hero-name{font-size:36px;}}
 .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;}
 .ss-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
-.ss-item{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:zoom-in;transition:transform .2s,box-shadow .2s;}
+.ss-item{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:zoom-in;transition:transform .2s,box-shadow .2s;position:relative;}
+.ss-zoom{position:absolute;bottom:78px;right:12px;width:38px;height:38px;background:rgba(27,58,92,0.85);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;color:var(--white);opacity:0;transition:opacity .2s;pointer-events:none;backdrop-filter:blur(4px);z-index:2;}
+.ss-item:hover .ss-zoom{opacity:1;}
 .ss-item:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(27,58,92,0.12);}
 .ss-img{width:100%;display:block;aspect-ratio:16/10;object-fit:cover;object-position:top;}
 .ss-cap{padding:14px 16px;}
 .ss-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);margin-bottom:4px;}
 .ss-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
-.ss-drive{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--sky);text-decoration:none;transition:color .2s;}
-.ss-drive:hover{color:var(--navy);}
 .video-wrap{background:var(--white);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
 .video-head{background:var(--navy);padding:14px 22px;display:flex;align-items:center;gap:12px;}
 .video-head-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);}
@@ -121,12 +121,17 @@ body.edit-mode .edit-wrap{display:block;}
 .save-btn{background:var(--accent);color:var(--navy2);border:none;padding:7px 15px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;}
 
 .edit-topbar-btn:hover{color:var(--accent);border-color:var(--accent);}
-.lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(5,12,25,0.92);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:32px;}
-.lightbox.open{display:flex;}
-.lb-inner{position:relative;max-width:90vw;max-height:90vh;}
-.lb-img{max-width:100%;max-height:85vh;border-radius:6px;display:block;}
-.lb-close{position:absolute;top:-14px;right:-14px;width:34px;height:34px;background:var(--accent);border:none;border-radius:50%;font-size:16px;cursor:pointer;color:var(--navy2);font-weight:700;}
-.lb-cap{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55);text-align:center;margin-top:10px;letter-spacing:1px;}
+.lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(5,12,25,0.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
+  .lightbox.open{display:flex;flex-direction:column;}
+  .lb-toolbar{position:fixed;top:18px;right:18px;display:flex;gap:8px;z-index:2010;}
+  .lb-btn{width:42px;height:42px;background:rgba(232,169,82,0.9);border:none;border-radius:50%;font-size:18px;cursor:pointer;color:var(--navy2);font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .lb-btn:hover{background:var(--accent);transform:scale(1.05);}
+  .lb-zoom-info{position:fixed;top:25px;left:25px;font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:2px;background:rgba(0,0,0,0.4);padding:8px 14px;border-radius:100px;z-index:2010;}
+  .lb-stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;overflow:auto;cursor:zoom-in;}
+  .lb-stage.zoomed{cursor:grab;}
+  .lb-stage.zoomed:active{cursor:grabbing;}
+  .lb-img{max-width:90vw;max-height:85vh;border-radius:6px;display:block;transition:transform .25s ease;transform-origin:center;user-select:none;-webkit-user-drag:none;}
+  .lb-cap{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);text-align:center;letter-spacing:1px;padding:14px;}
 .diff-tool-section{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 .diff-tool-header{background:var(--navy);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;}
 .diff-tool-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);letter-spacing:-0.3px;}
@@ -240,12 +245,19 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   &#9999;&#65039; Edit mode &mdash; add videos below
   <button class="save-btn" onclick="exitEdit()">&#10003; Done</button>
 </div>
-<div class="lightbox" id="lb" onclick="closeLb(event)">
-  <div class="lb-inner">
-    <button class="lb-close" onclick="closeLb()">&#10005;</button>
-    <img class="lb-img" id="lbImg" src="" alt=""/>
-    <div class="lb-cap" id="lbCap"></div>
+<div class="lightbox" id="lb">
+  <div class="lb-zoom-info" id="lbZoomInfo">100%</div>
+  <div class="lb-toolbar">
+    <button class="lb-btn" onclick="zoomIn()" title="Zoom in">+</button>
+    <button class="lb-btn" onclick="zoomOut()" title="Zoom out">&minus;</button>
+    <button class="lb-btn" onclick="zoomReset()" title="Reset">&#11118;</button>
+    <button class="lb-btn" onclick="closeLb()" title="Close">&#10005;</button>
   </div>
+  <div class="lb-stage" id="lbStage" onclick="stageClick(event)">
+    <img class="lb-img" id="lbImg" src="" alt=""/>
+  </div>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
 </div>
 
 <main>
@@ -258,37 +270,30 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   <p style="font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:28px;max-width:680px;">During my time at Jifiti I wrote internal knowledge-base articles on Jifipedia (Confluence) &mdash; step-by-step QA procedures, integration validation flows, and system documentation shared across R&amp;D. Click any image to expand.</p>
   <div class="ss-grid">
     <div class="ss-item" onclick="openLb('Screenshot1.png','How to Add an Authorized Approver in the John Deere System')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot1.png" alt="John Deere Authorized Approver guide"/>
       <div class="ss-cap">
         <div class="ss-tag">QA Procedure</div>
         <div class="ss-title">How to Add an Authorized Approver in the John Deere System</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1iOzP1CUvaV0XRdPRm9ve7aRsk_qW2MIy/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
     <div class="ss-item" onclick="openLb('Screenshot2.png','Validation: Sending & Receiving Adjustment File from Fiserv')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot2.png" alt="Fiserv adjustment file validation"/>
       <div class="ss-cap">
         <div class="ss-tag">Integration Validation</div>
         <div class="ss-title">Validation: Sending &amp; Receiving Adjustment File from Fiserv</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1xSmGkTvWTIFejhy7CtNsrmu3AtnNgjaH/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
     <div class="ss-item" onclick="openLb('Screenshot3.png','Jifiti Branding – Main Things to Know')">
+      <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot3.png" alt="Jifiti Branding documentation"/>
       <div class="ss-cap">
         <div class="ss-tag">System Documentation</div>
         <div class="ss-title">Jifiti Branding &ndash; Main Things to Know</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/1A1k_Ow8vdr9MiFkFmONd_MVTPFdZTibx/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
       </div>
     </div>
-    <div class="ss-item" onclick="openLb('Screenshot4.png','Fiserv Adjustment File – Job & FTP Validation Steps')">
-      <img class="ss-img" src="Screenshot4.png" alt="Fiserv validation alternate view"/>
-      <div class="ss-cap">
-        <div class="ss-tag">Integration Validation</div>
-        <div class="ss-title">Fiserv Adjustment File &ndash; Job &amp; FTP Validation Steps</div>
-        <a class="ss-drive" href="https://drive.google.com/file/d/11Jx1W2rfHkHJAK1Pb2aU2HeCWVQjZ7sS/view?usp=drive_link" target="_blank" onclick="event.stopPropagation()">&#8599; Open in Drive</a>
-      </div>
-    </div>
+    
   </div>
 </section>
 
@@ -308,6 +313,19 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
       <div class="video-body">
         <iframe class="video-embed" src="https://drive.google.com/file/d/1BXOzlS0mpGjZ3D-ViNEEUN9Q0UbRTPgV/preview" allow="autoplay" allowfullscreen></iframe>
         <div class="video-note">&#9654; If it doesn&rsquo;t load: <a href="https://drive.google.com/file/d/1BXOzlS0mpGjZ3D-ViNEEUN9Q0UbRTPgV/view?usp=sharing" target="_blank" style="color:var(--sky)">open in Drive</a></div>
+      </div>
+    </div>
+    
+    <div class="video-wrap">
+      <div class="video-head">
+        <div>
+          <div class="video-head-title">Dynamic Translation System &middot; Merchant Localization</div>
+          <div class="video-head-sub">English Tutorial &middot; Internal System Demo</div>
+        </div>
+      </div>
+      <div class="video-body">
+        <iframe class="video-embed" src="https://drive.google.com/file/d/1lf_8e5bRCWwuAfYY2mXOqNJeohiwVFlV/preview" allow="autoplay" allowfullscreen></iframe>
+        <div class="video-note">&#9654; A walkthrough of the dynamic translation system we built for merchant localization</div>
       </div>
     </div>
     <div id="extraVideos"></div>
@@ -339,7 +357,7 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   <div class="wf-files">
     <a class="wf-file" id="wf1" href="https://docs.google.com/document/d/10ShltWP62Of9nL2CICKchjzRrx4DM91T/edit?usp=sharing" target="_blank">
       <span class="wf-file-icon">&#128196;</span>
-      <div class="wf-file-info"><div class="wf-file-name">End-to-End FECI Phase 2</div><div class="wf-file-type">Google Doc &middot; E2E Test Flow</div></div>
+      <div class="wf-file-info"><div class="wf-file-name">End-to-End F*** Phase 2</div><div class="wf-file-type">Google Doc &middot; E2E Test Flow</div></div>
       <span class="wf-lock-icon">&#128274;</span>
     </a>
     <a class="wf-file" id="wf2" href="https://docs.google.com/document/d/1e4nPVw2i2DfRPvzDjq5NPIUiiwTPQyVi/edit" target="_blank">
@@ -349,12 +367,12 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
     </a>
     <a class="wf-file" id="wf3" href="https://docs.google.com/document/d/1zV8-KdqB83NUlHTMYPrekzpMJSYAzcbM/edit?usp=drive_link" target="_blank">
       <span class="wf-file-icon">&#128196;</span>
-      <div class="wf-file-info"><div class="wf-file-name">Rural King &ndash; Reprise Test Strategy</div><div class="wf-file-type">Google Doc &middot; Test Plan</div></div>
+      <div class="wf-file-info"><div class="wf-file-name">R*** K** &ndash; R*****e Test Strategy</div><div class="wf-file-type">Google Doc &middot; Test Plan</div></div>
       <span class="wf-lock-icon">&#128274;</span>
     </a>
     <a class="wf-file" id="wf4" href="https://docs.google.com/spreadsheets/d/1B1gLiVzSeXTcY7-Xy7ahQpEBsp0mt2lD/edit?usp=drive_link" target="_blank">
       <span class="wf-file-icon">&#128202;</span>
-      <div class="wf-file-info"><div class="wf-file-name">Reprise E2E Test Cases</div><div class="wf-file-type">Google Sheets &middot; Test Cases</div></div>
+      <div class="wf-file-info"><div class="wf-file-name">R*****e E2E Test Cases</div><div class="wf-file-type">Google Sheets &middot; Test Cases</div></div>
       <span class="wf-lock-icon">&#128274;</span>
     </a>
   </div>
@@ -363,77 +381,96 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
 <!-- UI DIFF TOOL -->
 <section class="section fade-in" id="uidiff" style="animation-delay:.12s">
   <div class="s-label">03 / QA Tool</div>
-  <div class="s-title">UI Design Diff</div>
-  <div class="s-subtitle">Sample of tools I've built to improve testing quality &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool</a></div>
+  <div class="s-title">UI Diff Pro</div>
+  <div class="s-subtitle">
+    Latest state-aware UI diff tool preview ·
+    <a href="ui-diff.html?v=20260503-state-aware" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open full tool</a>
+  </div>
   <div class="diff-tool-section">
     <div class="diff-tool-header">
-      <div class="diff-tool-title">UI Design Diff</div>
-      <div class="diff-tool-badge">No AI &middot; 100% Deterministic</div>
+      <div class="diff-tool-title">UI Diff Pro · Latest</div>
+      <div class="diff-tool-badge">State-aware · JSON + Screenshot</div>
     </div>
-    <div class="diff-tool-body">
-      <div class="steps-grid">
-        <div class="step"><div class="step-num">Step 01</div><div class="step-title">Export from Figma</div><ol><li>Open screen in Figma</li><li>Select the main Frame</li><li>Run <strong>"Figma to JSON"</strong> plugin</li><li>Drag the JSON file below</li></ol></div>
-        <div class="step"><div class="step-num">Step 02</div><div class="step-title">Export from Browser</div><ol><li>Drag bookmarklet to browser bar</li><li>Navigate to screen to test</li><li>Click it &mdash; JSON + screenshot download</li><li>Drag both files below</li></ol></div>
-        <div class="step"><div class="step-num">Step 03</div><div class="step-title">Run the Diff</div><ol><li>All files dropped? &#10003;</li><li>Click <strong>Run Deterministic Diff</strong></li><li>Review results inline</li></ol></div>
-      </div>
-      <div class="bm-section">
-        <div class="bm-title">&#128278; Browser Bookmarklets</div>
-        <div class="bm-sub">Drag to your bookmarks bar. Click on any page to extract computed JSON (and optionally a screenshot).</div>
-        <div class="bm-row">
-          <a class="bm-btn ss" id="bmFull" href="#">&#128247; JSON + Screenshot</a>
-          <a class="bm-btn jo" id="bmJson" href="#">{ } JSON Only</a>
-        </div>
-        <div class="bm-hint">&#8593; <span>Drag</span> to browser bookmarks bar &middot; then click on any page</div>
-      </div>
-      <div class="inputs-grid">
-        <div class="input-panel" id="figmaPanel">
-          <div class="input-label"><span class="dot"></span> Figma JSON</div>
-          <div class="drop-zone" id="figmaDrop" onclick="document.getElementById('figmaFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="figmaLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="figmaFile" onchange="loadFile(this,'figmaInput','figmaLoaded','figmaPanel')"/>
-          <textarea class="diff-ta" id="figmaInput" placeholder='{"name":"Screen","children":[]}'></textarea>
-        </div>
-        <div class="input-panel" id="computedPanel">
-          <div class="input-label"><span class="dot"></span> Computed JSON (Browser)</div>
-          <div class="drop-zone" id="computedDrop" onclick="document.getElementById('computedFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="computedLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="computedFile" onchange="loadFile(this,'computedInput','computedLoaded','computedPanel')"/>
-          <textarea class="diff-ta" id="computedInput" placeholder='{"elements":[]}'></textarea>
-        </div>
-      </div>
-      <div class="ss-panel" id="ssPanel">
-        <div class="ss-panel-head">&#128247; Screenshot (optional)</div>
-        <div class="ss-drop" id="ssDrop" onclick="document.getElementById('ssFile').click()">
-          <div class="drop-zone-icon">&#128444;</div>
-          <div class="drop-zone-label" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);">Drop image or <span style="color:var(--sky);text-decoration:underline;cursor:pointer">browse</span></div>
-        </div>
-        <input type="file" accept="image/*" class="file-hidden" id="ssFile" onchange="loadSs(this)"/>
-        <img class="ss-preview" id="ssPreview" alt=""/>
-      </div>
-      <button class="run-btn" onclick="runDiff()">&#9654; Run Deterministic Diff</button>
-      <div class="result-panel" id="resultPanel">
-        <div class="result-head" id="resultHead"></div>
-        <div class="result-body" id="resultBody"></div>
-        <div class="ss-result-wrap" id="ssResultWrap" style="display:none">
-          <div class="ss-result-title">Screenshot Reference</div>
-          <img class="ss-result-img" id="ssResultImg" alt=""/>
-        </div>
-      </div>
+    <div style="height:760px;background:#fff;border-top:1px solid var(--border);">
+      <iframe
+        title="UI Diff Pro latest preview"
+        src="ui-diff.html?v=20260503-state-aware"
+        style="width:100%;height:100%;border:0;background:#fff;display:block;"
+        loading="lazy">
+      </iframe>
     </div>
   </div>
+  <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-top:14px;font-family:'DM Mono',monospace;">
+    Preview loads the current <strong>ui-diff.html</strong>. Upload the latest UI Diff Pro file as <strong>ui-diff.html</strong> to keep this preview and the full tool in sync.
+  </p>
 </section>
+<section class="section fade-in" id="qaextractor" style="animation-delay:.13s">
+    <div class="s-label">04 / QA Tool</div>
+    <div class="s-title">QA Extractor Pro</div>
+    <div class="s-subtitle">Bookmarklet → JSON → Playwright &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open in new tab</a></div>
+    
+    <div style="margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(90,155,192,0.2);">
+      <iframe style="width:100%;height:500px;border:none;background:var(--navy);" src="https://aviorh-world.github.io/QAME/qa-extractor-pro.html"></iframe>
+    </div>
+    
+    <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
+      Streamlines test automation setup. Drag bookmarklet to toolbar, click on any page to extract JSON, paste in tool, preview test steps in browser, then generate or download Playwright .spec.ts files. Integrates with npx playwright test for real execution.
+    </p>
+  </section>
+
 
 </main><script>
-// ── Lightbox ──
-function openLb(src,cap){document.getElementById('lbImg').src=src;document.getElementById('lbCap').textContent=cap;document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden';}
-function closeLb(e){if(!e||e.target===document.getElementById('lb')||e.target.classList.contains('lb-close')){document.getElementById('lb').classList.remove('open');document.body.style.overflow='';}}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLb({target:document.getElementById('lb')});});
+// ── Lightbox with zoom ──
+var lbZoom = 1, lbPanX = 0, lbPanY = 0, lbDragStart = null;
+function openLb(src,cap){
+  document.getElementById('lbImg').src=src;
+  document.getElementById('lbCap').textContent=cap;
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow='hidden';
+  zoomReset();
+}
+function closeLb(){
+  document.getElementById('lb').classList.remove('open');
+  document.body.style.overflow='';
+}
+function applyZoom(){
+  var img=document.getElementById('lbImg');
+  img.style.transform='translate('+lbPanX+'px,'+lbPanY+'px) scale('+lbZoom+')';
+  document.getElementById('lbZoomInfo').textContent=Math.round(lbZoom*100)+'%';
+  document.getElementById('lbStage').classList.toggle('zoomed', lbZoom > 1);
+}
+function zoomIn(){ lbZoom=Math.min(lbZoom*1.4, 8); applyZoom(); }
+function zoomOut(){ lbZoom=Math.max(lbZoom/1.4, 0.5); if(lbZoom<=1){lbPanX=0;lbPanY=0;} applyZoom(); }
+function zoomReset(){ lbZoom=1; lbPanX=0; lbPanY=0; applyZoom(); }
+function stageClick(e){
+  if(e.target.id==='lbStage' && lbZoom===1){closeLb();}
+}
+// Click on image to zoom in at click position
+document.getElementById('lbImg').addEventListener('click',function(e){
+  e.stopPropagation();
+  if(lbZoom < 4){ zoomIn(); }
+});
+// Mouse wheel zoom
+document.getElementById('lbStage').addEventListener('wheel',function(e){
+  if(!document.getElementById('lb').classList.contains('open'))return;
+  e.preventDefault();
+  if(e.deltaY < 0)zoomIn(); else zoomOut();
+}, {passive: false});
+// Pan when zoomed
+document.getElementById('lbImg').addEventListener('mousedown',function(e){
+  if(lbZoom > 1){ lbDragStart={x:e.clientX-lbPanX, y:e.clientY-lbPanY}; e.preventDefault(); }
+});
+document.addEventListener('mousemove',function(e){
+  if(lbDragStart){ lbPanX=e.clientX-lbDragStart.x; lbPanY=e.clientY-lbDragStart.y; applyZoom(); }
+});
+document.addEventListener('mouseup',function(){ lbDragStart=null; });
+document.addEventListener('keydown',function(e){
+  if(!document.getElementById('lb').classList.contains('open'))return;
+  if(e.key==='Escape')closeLb();
+  if(e.key==='+'||e.key==='=')zoomIn();
+  if(e.key==='-')zoomOut();
+  if(e.key==='0')zoomReset();
+});
 
 // ── Password / Edit mode ──
 function openPw(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
@@ -470,67 +507,7 @@ function renderExtra(){
 }
 function removeVid(i){extraVideos.splice(i,1);renderExtra();}
 
-// ── Bookmarklets ──
-var BM_FULL='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");var ts=Date.now();dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+ts+".json");function loadScript(src,ok,fail){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s);}function cap(){try{html2canvas(document.body,{useCORS:true,backgroundColor:null,scale:devicePixelRatio}).then(function(c){c.toBlob(function(b){if(b)dl(b,"ui-screenshot-"+h+"-"+ts+".png");});});}catch(e){}}if(window.html2canvas){cap();}else{loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",cap,function(){});}})()'
-var BM_JSON='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+Date.now()+".json");})()'
-document.getElementById('bmFull').href=BM_FULL;
-document.getElementById('bmJson').href=BM_JSON;
-
-// ── Drag & Drop ──
-function setupDrop(dropId,panelId,taId,badgeId){
-  var drop=document.getElementById(dropId),panel=document.getElementById(panelId);
-  ['dragenter','dragover'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();panel.classList.add('drag-over');});});
-  ['dragleave','dragend'].forEach(function(ev){drop.addEventListener(ev,function(){panel.classList.remove('drag-over');});});
-  drop.addEventListener('drop',function(e){e.preventDefault();panel.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)readJson(f,taId,badgeId);});
-}
-setupDrop('figmaDrop','figmaPanel','figmaInput','figmaLoaded');
-setupDrop('computedDrop','computedPanel','computedInput','computedLoaded');
-function loadFile(inp,taId,badgeId){if(inp.files[0])readJson(inp.files[0],taId,badgeId);}
-function readJson(file,taId,badgeId){var r=new FileReader();r.onload=function(e){document.getElementById(taId).value=e.target.result;var b=document.getElementById(badgeId);b.style.display='block';b.textContent='✓ '+file.name;};r.readAsText(file);}
-var ssP=document.getElementById('ssPanel'),ssD=document.getElementById('ssDrop');
-['dragenter','dragover'].forEach(function(ev){ssD.addEventListener(ev,function(e){e.preventDefault();ssP.classList.add('drag-over');});});
-['dragleave','dragend'].forEach(function(ev){ssD.addEventListener(ev,function(){ssP.classList.remove('drag-over');});});
-ssD.addEventListener('drop',function(e){e.preventDefault();ssP.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadSs2(f);});
-function loadSs(inp){if(inp.files[0])loadSs2(inp.files[0]);}
-function loadSs2(file){var r=new FileReader();r.onload=function(e){var img=document.getElementById('ssPreview');img.src=e.target.result;img.classList.add('vis');ssD.style.display='none';};r.readAsDataURL(file);}
-
-// ── Diff engine ──
-function hex(rgb){if(!rgb)return null;if(rgb.startsWith('#'))return rgb.toUpperCase();var m=rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);if(!m)return rgb;return '#'+m.slice(1).map(function(v){return Number(v).toString(16).padStart(2,'0');}).join('').toUpperCase();}
-function px(v){return v==null?null:parseFloat(v);}
-function isPill(r,h){return r!=null&&h!=null&&r>=h/2;}
-function runDiff(){
-  var panel=document.getElementById('resultPanel');
-  panel.classList.add('vis');
-  var fig,comp;
-  try{fig=JSON.parse(document.getElementById('figmaInput').value.trim());comp=JSON.parse(document.getElementById('computedInput').value.trim());}
-  catch(e){setR('fail','&#9888; Parse Error',[{t:'fail',tx:'Invalid JSON: '+e.message}]);return;}
-  var lines=[],pass=0,fail=0;
-  var cta=comp.elements&&comp.elements.find(function(e){return e.text==='Go to The Hub';});
-  lines.push({t:'head',tx:'CTA Button — "Go to The Hub"'});
-  if(!cta){lines.push({t:'fail',tx:'✗  Element not found'});fail++;}
-  else{
-    var bg=hex(cta.styles&&cta.styles.background);
-    if(bg==='#002D2A'){lines.push({t:'pass',tx:'✓  Background  →  '+bg});pass++;}else{lines.push({t:'fail',tx:'✗  Background  →  got '+bg+'  expected #002D2A'});fail++;}
-    var fs=px(cta.styles&&cta.styles.fontSize);
-    if(fs===16){lines.push({t:'pass',tx:'✓  Font size   →  16px'});pass++;}else{lines.push({t:'fail',tx:'✗  Font size   →  got '+fs+'px  expected 16px'});fail++;}
-    var lh=px(cta.styles&&cta.styles.lineHeight);
-    if(lh===24){lines.push({t:'pass',tx:'✓  Line height →  24px'});pass++;}else{lines.push({t:'fail',tx:'✗  Line height →  got '+lh+'px  expected 24px'});fail++;}
-    var ra=px(cta.styles&&cta.styles.borderRadius),ht=cta.rect&&cta.rect.h;
-    if(isPill(ra,ht)){lines.push({t:'pass',tx:'✓  Border      →  pill ('+ra+'px / '+ht+'px)'});pass++;}else{lines.push({t:'fail',tx:'✗  Border      →  not pill (r='+ra+' h='+ht+')'});fail++;}
-  }
-  lines.push({t:'info',tx:''});lines.push({t:'info',tx:'─────────────────────────────'});
-  var ok=fail===0;
-  lines.push({t:ok?'pass':'fail',tx:ok?'✓  All checks passed  ('+pass+'/'+pass+')':'✗  '+fail+' check(s) failed  ('+pass+'/'+(pass+fail)+' passed)'});
-  setR(ok?'pass':'fail',ok?'✓  UI matches Figma design':'✗  Mismatches found',lines);
-  var prev=document.getElementById('ssPreview'),wrap=document.getElementById('ssResultWrap'),rImg=document.getElementById('ssResultImg');
-  if(prev.src&&prev.classList.contains('vis')){rImg.src=prev.src;wrap.style.display='block';}else{wrap.style.display='none';}
-}
-function setR(status,hdr,lines){
-  var h=document.getElementById('resultHead'),b=document.getElementById('resultBody');
-  h.className='result-head '+status;h.innerHTML=hdr;
-  b.innerHTML=lines.map(function(l){var cls={pass:'l-pass',fail:'l-fail',info:'l-info',head:'l-head'}[l.t]||'';return '<span class="'+cls+'">'+esc(l.tx)+'</span>';}).join('\n');
-}
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// UI Diff Pro is now loaded via iframe preview above. Old embedded diff engine removed to prevent stale preview and stale bookmarklets.
 </script>
 <footer class="site-footer">
   <div class="sf-grid">
@@ -543,7 +520,7 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About Me</a>
       <a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Connect</div>
@@ -560,7 +537,7 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
       <a href="https://aviorh-world.github.io/QAME/">Home</a>
       <a href="https://aviorh-world.github.io/QAME/about.html">About</a>
       <a href="https://aviorh-world.github.io/QAME/projects.html">Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a><a href="https://aviorh-world.github.io/QAME/cv-he.html">קו"ח</a>
     </div>
   </div>
 </footer>
