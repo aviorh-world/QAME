@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ענן יחידות שכר עידוד - בית חולים</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --primary-blue: #1e3a8a;
+            --lab-teal: #0d9488;
+            --para-neutral: #64748b; /* Neutral slate-blue for paramedical */
+            --text-dark: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Assistant', sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 1280px;
+            height: 720px;
+            background: white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            border-right: 6px solid var(--primary-blue);
+            padding-right: 20px;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            color: var(--primary-blue);
+            font-weight: 800;
+        }
+
+        .header p {
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .cloud-container {
+            flex-grow: 1;
+            position: relative;
+            margin-top: 20px;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 30px 30px;
+            border-radius: 12px;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            gap: 10px;
+            cursor: default;
+        }
+
+        .bubble:hover {
+            transform: scale(1.08) !important;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        /* Regular units style */
+        .bubble.regular {
+            background-color: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            color: var(--primary-blue);
+        }
+
+        .bubble.regular i {
+            color: #64748b;
+        }
+
+        /* Labs style - Teal */
+        .bubble.lab {
+            background-color: var(--lab-teal);
+            border: 2px solid #0f766e;
+            color: white;
+        }
+
+        .bubble.lab i {
+            color: #ccfbf1;
+        }
+
+        /* Paramedical style - Neutral Slate Blue */
+        .bubble.para {
+            background-color: var(--para-neutral);
+            border: 2px solid #475569;
+            color: white;
+        }
+
+        .bubble.para i {
+            color: #cbd5e1;
+        }
+
+        .bubble span {
+            font-weight: 600;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+
+        .footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 15px;
+        }
+
+        .footer .count {
+            background: var(--primary-blue);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .footer .legend {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot.teal { background-color: var(--lab-teal); }
+        .dot.neutral { background-color: var(--para-neutral); }
+        .dot.gray { background-color: #cbd5e1; }
+
+    </style>
+</head>
+<body>
+
+<div class="slide">
+    <div class="header">
+        <h1>היקף פריסת מערך שכר עידוד</h1>
+        <p>ארגון אשכולות מקצועיים ותפעוליים - מבט רב-מערכתי</p>
+    </div>
+
+    <div class="cloud-container" id="cloud">
+        <!-- Bubbles generated via JS -->
+    </div>
+
+    <div class="footer">
+        <div class="count" id="totalCountDisplay">סה"כ יחידות תפקוד</div>
+        <div class="legend">
+            <div class="legend-item"><span class="dot teal"></span> מערך המעבדות</div>
+            <div class="legend-item"><span class="dot neutral"></span> מקצועות הבריאות (פארא-רפואי)</div>
+            <div class="legend-item"><span class="dot gray"></span> יחידות תפעול, מנהלה ופקידות</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const items = [
+        // Labs (Teal) - Right Cluster (12 units)
+        { name: "כימית", type: "lab", icon: "fa-flask", zone: "right" },
+        { name: "דחופה", type: "lab", icon: "fa-clock-rotate-left", zone: "right" },
+        { name: "המטולוגית", type: "lab", icon: "fa-droplet", zone: "right" },
+        { name: "פתולוגית", type: "lab", icon: "fa-microscope", zone: "right" },
+        { name: "מיקרוביולוגית", type: "lab", icon: "fa-bacteria", zone: "right" },
+        { name: "גנטית", type: "lab", icon: "fa-dna", zone: "right" },
+        { name: "בנק הדם", type: "lab", icon: "fa-vial-circle-check", zone: "right" },
+        { name: "מח עצם", type: "lab", icon: "fa-bone", zone: "right" },
+        { name: "איזוטופים", type: "lab", icon: "fa-atom", zone: "right" },
+        { name: "אנדוקרינית", type: "lab", icon: "fa-person-rays", zone: "right" },
+        { name: "אימונולוגית", type: "lab", icon: "fa-shield-virus", zone: "right" },
+        { name: "גסטרו", type: "lab", icon: "fa-stomach", zone: "right" },
+        
+        // Para-medical (Neutral) - Left Cluster (4 units)
+        { name: "פיזיותרפיה", type: "para", icon: "fa-person-walking-with-cane", zone: "left" },
+        { name: "קלינאות תקשורת", type: "para", icon: "fa-comment-medical", zone: "left" },
+        { name: "ריפוי בעיסוק", type: "para", icon: "fa-handshake-angle", zone: "left" },
+        { name: "תזונה", type: "para", icon: "fa-apple-whole", zone: "left" },
+
+        // Regular (White/Gray) - Global/Center (Updated with more admin units)
+        { name: "מכבסה", type: "regular", icon: "fa-shirt", zone: "global" },
+        { name: "מחסן", type: "regular", icon: "fa-boxes-stacked", zone: "global" },
+        { name: "שינוע", type: "regular", icon: "fa-truck-ramp-box", zone: "global" },
+        { name: "אספקה סטרילית", type: "regular", icon: "fa-hands-bubbles", zone: "global" },
+        { name: "אפסנאות", type: "regular", icon: "fa-warehouse", zone: "global" },
+        { name: "מטבח", type: "regular", icon: "fa-utensils", zone: "global" },
+        { name: "אחזקה", type: "regular", icon: "fa-wrench", zone: "global" },
+        { name: "קבלת חולים", type: "regular", icon: "fa-user-plus", zone: "global" },
+        { name: "מרפאות חוץ", type: "regular", icon: "fa-hospital-user", zone: "global" },
+        { name: "בית מרקחת", type: "regular", icon: "fa-pills", zone: "global" },
+        { name: "משאבי אנוש", type: "regular", icon: "fa-users-gear", zone: "global" },
+        { name: "כספים", type: "regular", icon: "fa-calculator", zone: "global" },
+        { name: "תחבורה", type: "regular", icon: "fa-bus", zone: "global" },
+        { name: "מחשוב", type: "regular", icon: "fa-laptop-code", zone: "global" },
+        { name: "ביטחון", type: "regular", icon: "fa-shield-halved", zone: "global" },
+        { name: "גן וחצר", type: "regular", icon: "fa-tree", zone: "global" },
+        { name: "משק", type: "regular", icon: "fa-broom", zone: "global" },
+        
+        // New Admin units replacing old "Mizkirut"
+        { name: "מיון פנימי", type: "regular", icon: "fa-hospital-user", zone: "global" },
+        { name: "מזכירות סיעוד", type: "regular", icon: "fa-user-nurse", zone: "global" },
+        { name: "מזכירות רנטגן", type: "regular", icon: "fa-x-ray", zone: "global" },
+        { name: "פקידות כללית", type: "regular", icon: "fa-pen-to-square", zone: "global" },
+        { name: "רשומות רפואיות", type: "regular", icon: "fa-folder-open", zone: "global" },
+        { name: "מזכירות מחלקתיות", type: "regular", icon: "fa-building-user", zone: "global" }
+    ];
+
+    const container = document.getElementById('cloud');
+    const containerWidth = 1180;
+    const containerHeight = 520;
+    const totalCountDisplay = document.getElementById('totalCountDisplay');
+
+    function renderCloud() {
+        const usedPositions = [];
+        totalCountDisplay.innerText = `סה"כ ${items.length} יחידות תפקוד פעילות`;
+
+        items.forEach((item) => {
+            const bubble = document.createElement('div');
+            bubble.className = `bubble ${item.type}`;
+            
+            const scale = 0.85 + Math.random() * 0.3;
+            bubble.style.transform = `scale(${scale})`;
+
+            bubble.innerHTML = `
+                <i class="fa-solid ${item.icon}"></i>
+                <span>${item.name}</span>
+            `;
+
+            let x, y, overlap;
+            let attempts = 0;
+            
+            do {
+                overlap = false;
+                
+                if (item.zone === "right") {
+                    x = (containerWidth * 0.58) + Math.random() * (containerWidth * 0.38);
+                    y = Math.random() * (containerHeight - 60);
+                } else if (item.zone === "left") {
+                    x = (containerWidth * 0.02) + Math.random() * (containerWidth * 0.32);
+                    y = (containerHeight * 0.15) + Math.random() * (containerHeight * 0.7);
+                } else {
+                    x = (containerWidth * 0.1) + Math.random() * (containerWidth * 0.8);
+                    y = Math.random() * (containerHeight - 60);
+                }
+                
+                for (let pos of usedPositions) {
+                    const dist = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+                    if (dist < 75) { 
+                        overlap = true;
+                        break;
+                    }
+                }
+                attempts++;
+            } while (overlap && attempts < 250);
+
+            usedPositions.push({ x, y });
+            bubble.style.left = `${x}px`;
+            bubble.style.top = `${y}px`;
+
+            container.appendChild(bubble);
+        });
+    }
+
+    window.onload = renderCloud;
+</script>
+
+</body>
+</html>
