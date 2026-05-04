@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>לוח משמרות צבאי – מאי עד יולי 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Assistant', Arial, sans-serif;
+      background: #eef2f7;
+      color: #1e293b;
+      direction: rtl;
+      padding: 28px 18px 48px;
+    }
+
+    /* ---- Screen-only ---- */
+    .screen-only {}
+
+    .page-title {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    .page-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+
+    .print-btn-wrap { text-align: center; margin-bottom: 22px; }
+    .print-btn {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 11px 32px;
+      font-size: 15px;
+      font-family: 'Assistant', sans-serif;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 6px rgba(30,58,138,0.3);
+    }
+    .print-btn:hover { background: #1d4ed8; }
+
+    /* ---- Legend ---- */
+    .legend {
+      max-width: 980px;
+      margin: 0 auto 24px;
+      background: white;
+      border-radius: 12px;
+      padding: 14px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    }
+    .legend-title {
+      font-weight: 800;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+
+    /* ---- Month Section ---- */
+    .month-section {
+      max-width: 980px;
+      margin: 0 auto 36px;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+    }
+
+    .month-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: white;
+      padding: 15px 24px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    /* ---- Calendar Grid ---- */
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    .day-header {
+      background: #f1f5f9;
+      text-align: center;
+      padding: 9px 4px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      border-bottom: 2px solid #cbd5e1;
+      border-top: 1px solid #e2e8f0;
+      border-left: 1px solid #e2e8f0;
+    }
+    .day-header:first-child { border-right: 1px solid #e2e8f0; }
+    .day-header.shabbat { color: #be185d; background: #fff1f2; }
+
+    .day-cell {
+      min-height: 115px;
+      padding: 7px 7px 5px;
+      border-bottom: 1px solid #e2e8f0;
+      border-left: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+    .day-cell:first-of-type,
+    .day-cell.row-start { border-right: 1px solid #e2e8f0; }
+    .day-cell.empty { background: #f8fafc; }
+    .day-cell.shabbat-cell { background: #fffbfc; }
+    .day-cell.today-cell { background: #eff6ff; }
+
+    .day-number {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 5px;
+      color: #1e293b;
+      flex-shrink: 0;
+    }
+    .day-cell.shabbat-cell .day-number { color: #be185d; }
+    .today-dot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #1e3a8a;
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .shifts-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+    }
+
+    /* ---- Shift Badges ---- */
+    .shift-badge {
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .shag-boker        { background: #FEF3C7; color: #78350F; border: 1px solid #FCD34D; }
+    .shag-layla        { background: #1E3A8A; color: #BFDBFE; }
+    .shalaz-yom-blue   { background: #E0F2FE; color: #0C4A6E; border: 1px solid #38BDF8; }
+    .shalaz-yom-red    { background: #FFF1F2; color: #881337; border: 1px solid #FDA4AF; }
+    .shalaz-layla-blue { background: #2563EB; color: #FFFFFF; }
+    .shalaz-layla-red  { background: #DC2626; color: #FFFFFF; }
+
+    /* ---- Editable Note Area ---- */
+    .note-area {
+      margin-top: 5px;
+      min-height: 22px;
+      border-top: 1px dashed #d1d5db;
+      padding-top: 3px;
+      font-size: 10px;
+      font-family: 'Assistant', Arial, sans-serif;
+      color: #334155;
+      outline: none;
+      cursor: text;
+      border-radius: 2px;
+      line-height: 1.5;
+      flex-shrink: 0;
+    }
+    .note-area:empty::before {
+      content: 'הוסף הערה...';
+      color: #d1d5db;
+      pointer-events: none;
+      font-style: italic;
+    }
+    .note-area:focus {
+      background: #f0fdf4;
+      border-top-color: #86efac;
+    }
+
+    /* ---- PRINT ---- */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 8mm 10mm;
+      }
+
+      body {
+        background: white;
+        padding: 0;
+      }
+
+      .screen-only { display: none !important; }
+
+      .legend {
+        max-width: 100%;
+        box-shadow: none;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 6px;
+        border-radius: 6px;
+        padding: 8px 14px;
+        break-inside: avoid;
+      }
+
+      .month-section {
+        max-width: 100%;
+        box-shadow: none;
+        border: 1px solid #d1d5db;
+        margin: 0;
+        border-radius: 0;
+        break-after: page;
+      }
+      .month-section:last-child { break-after: auto; }
+
+      .month-header {
+        padding: 10px 18px;
+        font-size: 18px;
+        background: #1e3a8a !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .day-cell {
+        min-height: 72px;
+      }
+
+      .shift-badge {
+        font-size: 10px;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .shag-boker, .shag-layla, .shalaz-yom-blue,
+      .shalaz-yom-red, .shalaz-layla-blue, .shalaz-layla-red {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .day-cell.shabbat-cell, .day-cell.today-cell,
+      .day-cell.empty, .day-header.shabbat {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .note-area {
+        border-top: 1px solid #e2e8f0;
+        min-height: 20px;
+      }
+      .note-area:empty::before { content: ''; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="page-title screen-only">לוח משמרות צבאי</h1>
+  <p class="page-subtitle screen-only">מאי – יולי 2026 &nbsp;|&nbsp; לחץ על כל תא להוספת הערה ידנית</p>
+
+  <div class="print-btn-wrap screen-only">
+    <button class="print-btn" onclick="window.print()">🖨 הדפסה</button>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span style="font-weight:800;font-size:14px;color:#1e3a8a;margin-left:6px;">מקרא:</span>
+    <span class="shift-badge shag-boker">שג בוקר&nbsp; 07:00–15:00</span>
+    <span class="shift-badge shag-layla">שג לילה&nbsp; 23:00–07:00</span>
+    <span class="shift-badge shalaz-yom-blue">שלז יום כחולה&nbsp; 08:00–20:00</span>
+    <span class="shift-badge shalaz-yom-red">שלז יום אדומה&nbsp; 08:00–20:00</span>
+    <span class="shift-badge shalaz-layla-blue">שלז לילה כחולה&nbsp; 20:00–08:00</span>
+    <span class="shift-badge shalaz-layla-red">שלז לילה אדומה&nbsp; 20:00–08:00</span>
+  </div>
+
+  <div id="cal"></div>
+
+  <script>
+    /* ---------- Shift data ---------- */
+    const shifts = [
+      // ===== MAY 2026 =====
+      { date: "2026-05-05", type: "shalaz-yom-blue",   label: "שלז יום כחולה",   hours: "08:00–20:00" },
+      { date: "2026-05-06", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-05-07", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-05-09", type: "shalaz-layla-red",   label: "שלז לילה אדומה",  hours: "20:00–08:00" },
+      { date: "2026-05-10", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-05-11", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-05-15", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-05-17", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-05-22", type: "shalaz-layla-red",   label: "שלז לילה אדומה",  hours: "20:00–08:00" },
+      { date: "2026-05-23", type: "shalaz-layla-red",   label: "שלז לילה אדומה",  hours: "20:00–08:00" },
+      { date: "2026-05-26", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-05-26", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-05-28", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      // ===== JUNE 2026 =====
+      { date: "2026-06-03", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-06-04", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-06-05", type: "shalaz-layla-blue",  label: "שלז לילה כחולה",  hours: "20:00–08:00" },
+      { date: "2026-06-06", type: "shalaz-layla-blue",  label: "שלז לילה כחולה",  hours: "20:00–08:00" },
+      { date: "2026-06-09", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-06-09", type: "shag-layla",         label: "שג לילה",         hours: "23:00–07:00" },
+      { date: "2026-06-16", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-06-17", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-06-20", type: "shalaz-layla-blue",  label: "שלז לילה כחולה",  hours: "20:00–08:00" },
+      { date: "2026-06-23", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      { date: "2026-06-24", type: "shag-boker",         label: "שג בוקר",         hours: "07:00–15:00" },
+      // ===== JULY 2026 =====
+      { date: "2026-07-02", type: "shalaz-yom-blue",    label: "שלז יום כחולה",   hours: "08:00–20:00" },
+    ];
+
+    /* ---------- Build date → shifts lookup ---------- */
+    const byDate = {};
+    shifts.forEach(s => {
+      if (!byDate[s.date]) byDate[s.date] = [];
+      byDate[s.date].push(s);
+    });
+
+    /* ---------- Config ---------- */
+    const MONTHS = [
+      { year: 2026, month: 4, name: "מאי 2026" },   // JS month 4 = May
+      { year: 2026, month: 5, name: "יוני 2026" },  // JS month 5 = June
+      { year: 2026, month: 6, name: "יולי 2026" },  // JS month 6 = July
+    ];
+    const DOW_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+
+    /* Today as YYYY-MM-DD */
+    const _n = new Date();
+    const todayISO = _n.getFullYear() + "-"
+      + String(_n.getMonth() + 1).padStart(2, "0") + "-"
+      + String(_n.getDate()).padStart(2, "0");
+
+    /* ---------- Render ---------- */
+    const container = document.getElementById("cal");
+
+    MONTHS.forEach(({ year, month, name }) => {
+      const section = document.createElement("div");
+      section.className = "month-section";
+
+      /* Month header */
+      const hdr = document.createElement("div");
+      hdr.className = "month-header";
+      hdr.textContent = name;
+      section.appendChild(hdr);
+
+      /* Calendar grid */
+      const grid = document.createElement("div");
+      grid.className = "calendar-grid";
+
+      /* Day-of-week headers */
+      DOW_NAMES.forEach((d, i) => {
+        const th = document.createElement("div");
+        th.className = "day-header" + (i === 6 ? " shabbat" : "");
+        th.textContent = d;
+        grid.appendChild(th);
+      });
+
+      const firstDow    = new Date(year, month, 1).getDay();   // 0=Sun
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      /* Leading empty cells */
+      for (let i = 0; i < firstDow; i++) {
+        const e = document.createElement("div");
+        e.className = "day-cell empty";
+        grid.appendChild(e);
+      }
+
+      /* Day cells */
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateISO = year + "-"
+          + String(month + 1).padStart(2, "0") + "-"
+          + String(d).padStart(2, "0");
+        const dow  = new Date(year, month, d).getDay();
+        const isShabbat = dow === 6;
+        const isToday   = dateISO === todayISO;
+
+        const cell = document.createElement("div");
+        const cls  = ["day-cell"];
+        if (isShabbat) cls.push("shabbat-cell");
+        if (isToday)   cls.push("today-cell");
+        cell.className = cls.join(" ");
+
+        /* Day number */
+        const numEl = document.createElement("div");
+        numEl.className = "day-number";
+        if (isToday) {
+          const dot = document.createElement("span");
+          dot.className = "today-dot";
+          dot.textContent = d;
+          numEl.appendChild(dot);
+        } else {
+          numEl.textContent = d;
+        }
+        cell.appendChild(numEl);
+
+        /* Shifts */
+        const wrap = document.createElement("div");
+        wrap.className = "shifts-wrap";
+        if (byDate[dateISO]) {
+          byDate[dateISO].forEach(s => {
+            const badge = document.createElement("div");
+            badge.className = "shift-badge " + s.type;
+            badge.title = s.hours;
+            badge.textContent = s.label;
+            wrap.appendChild(badge);
+          });
+        }
+        cell.appendChild(wrap);
+
+        /* Editable note */
+        const note = document.createElement("div");
+        note.className   = "note-area";
+        note.contentEditable = "true";
+        note.spellcheck  = false;
+        cell.appendChild(note);
+
+        grid.appendChild(cell);
+      }
+
+      /* Trailing empty cells to complete last row */
+      const used = firstDow + daysInMonth;
+      const trail = used % 7 === 0 ? 0 : 7 - (used % 7);
+      for (let i = 0; i < trail; i++) {
+        const e = document.createElement("div");
+        e.className = "day-cell empty";
+        grid.appendChild(e);
+      }
+
+      section.appendChild(grid);
+      container.appendChild(section);
+    });
+  </script>
+</body>
+</html>
