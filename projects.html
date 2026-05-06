@@ -119,8 +119,6 @@ body.edit-mode .edit-wrap{display:block;}
 .save-banner{display:none;position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:500;background:var(--navy);color:var(--white);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:13px 26px;border-radius:100px;box-shadow:0 8px 32px rgba(0,0,0,0.22);align-items:center;gap:14px;white-space:nowrap;}
 .save-banner.on{display:flex;}
 .save-btn{background:var(--accent);color:var(--navy2);border:none;padding:7px 15px;border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;}
-
-.edit-topbar-btn:hover{color:var(--accent);border-color:var(--accent);}
 .lightbox{display:none;position:fixed;inset:0;z-index:2000;background:rgba(5,12,25,0.94);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;}
   .lightbox.open{display:flex;flex-direction:column;}
   .lb-toolbar{position:fixed;top:18px;right:18px;display:flex;gap:8px;z-index:2010;}
@@ -132,68 +130,8 @@ body.edit-mode .edit-wrap{display:block;}
   .lb-stage.zoomed:active{cursor:grabbing;}
   .lb-img{max-width:90vw;max-height:85vh;border-radius:6px;display:block;transition:transform .25s ease;transform-origin:center;user-select:none;-webkit-user-drag:none;}
   .lb-cap{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.6);text-align:center;letter-spacing:1px;padding:14px;}
-.diff-tool-section{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.diff-tool-header{background:var(--navy);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;}
-.diff-tool-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--white);letter-spacing:-0.3px;}
-.diff-tool-badge{font-size:11px;color:var(--accent);border:1px solid var(--accent);padding:4px 12px;border-radius:100px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
-.diff-tool-body{padding:32px;}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;}
-.step{background:var(--cream);border-radius:8px;padding:16px;}
-.step-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--sky);text-transform:uppercase;margin-bottom:7px;}
-.step-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;}
-.step ol{margin-left:16px;font-size:12px;color:var(--mid);line-height:1.9;}
-.bm-section{background:var(--cream);border-radius:10px;padding:20px 24px;margin-bottom:24px;}
-.bm-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px;}
-.bm-sub{font-size:12px;color:var(--mid);margin-bottom:14px;line-height:1.6;}
-.bm-row{display:flex;gap:10px;flex-wrap:wrap;}
-.bm-btn{display:inline-flex;align-items:center;gap:7px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:9px 18px;border-radius:8px;text-decoration:none;cursor:grab;}
-.bm-btn.ss{background:var(--sky);color:var(--white);}
-.bm-btn.ss:hover{background:#4a8aaf;}
-.bm-btn.jo{background:var(--navy);color:var(--white);}
-.bm-btn.jo:hover{background:var(--navy2);}
-.bm-hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--mid);letter-spacing:2px;text-transform:uppercase;margin-top:10px;}
-.bm-hint span{color:var(--accent);}
-.inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
-.input-panel{background:var(--white);border:2px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
-.input-panel.drag-over{border-color:var(--accent);background:rgba(232,169,82,0.04);}
-.input-label{background:var(--navy);color:var(--ice);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:11px 18px;display:flex;align-items:center;gap:8px;}
-.input-label .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
-.drop-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;gap:5px;border-bottom:1px dashed rgba(27,58,92,0.15);cursor:pointer;transition:background .2s;}
-.drop-zone:hover{background:rgba(27,58,92,0.03);}
-.drop-zone-icon{font-size:18px;}
-.drop-zone-label{font-size:10px;letter-spacing:2px;color:var(--mid);text-transform:uppercase;font-family:'DM Mono',monospace;}
-.drop-zone-label span{color:var(--sky);text-decoration:underline;}
-.file-hidden{display:none;}
-.file-badge{font-size:10px;color:#1a7a4a;margin-top:2px;display:none;font-family:'DM Mono',monospace;}
-textarea.diff-ta{width:100%;height:160px;border:none;outline:none;resize:vertical;font-family:'DM Mono',monospace;font-size:12px;padding:14px 18px;background:var(--white);color:var(--navy);line-height:1.6;}
-textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
-.ss-panel{background:var(--white);border:2px dashed var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px;transition:border-color .2s;}
-.ss-panel.drag-over{border-color:var(--sky);}
-.ss-panel-head{background:var(--sky);color:var(--white);font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:11px 18px;font-family:'DM Mono',monospace;}
-.ss-drop{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;gap:5px;cursor:pointer;min-height:70px;}
-.ss-drop:hover{background:rgba(90,155,192,0.04);}
-.ss-preview{display:none;max-width:100%;max-height:260px;object-fit:contain;border-top:1px solid var(--border);width:100%;}
-.ss-preview.vis{display:block;}
-.run-btn{display:block;width:100%;padding:15px;background:var(--navy);color:var(--white);border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:background .2s,transform .1s;margin-bottom:22px;}
-.run-btn:hover{background:var(--navy2);}
-.run-btn:active{transform:scale(0.99);}
-.result-panel{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none;}
-.result-panel.vis{display:block;}
-.result-head{padding:13px 22px;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:500;font-family:'DM Mono',monospace;}
-.result-head.pass{background:#edfaf3;color:#1a7a4a;}
-.result-head.fail{background:#fff0f0;color:#c62828;}
-.result-body{padding:18px 22px;font-size:13px;line-height:2;white-space:pre-wrap;color:var(--navy);font-family:'DM Mono',monospace;}
-.l-pass{color:#1a7a4a;}.l-fail{color:#c62828;font-weight:500;}.l-info{color:var(--mid);}.l-head{color:var(--navy);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
-.ss-result-wrap{padding:0 22px 18px;}
-.ss-result-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mid);margin-bottom:8px;font-family:'DM Mono',monospace;}
-.ss-result-img{max-width:100%;border-radius:6px;border:1px solid var(--border);}
 @media(max-width:768px){
   .ss-grid{grid-template-columns:1fr;}
-  .steps-grid{grid-template-columns:1fr;}
-  .inputs-grid{grid-template-columns:1fr;}
-  .edit-row{grid-template-columns:1fr;}
-  .bm-row{flex-direction:column;}
-  .diff-tool-header{flex-direction:column;align-items:flex-start;gap:10px;}
 }
   .wf-locked-msg{font-family:'DM Mono',monospace;font-size:12px;color:var(--mid);letter-spacing:1px;margin-bottom:16px;padding:10px 14px;background:rgba(232,169,82,0.08);border:1px solid rgba(232,169,82,0.2);border-radius:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .wf-unlock-btn{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:var(--navy2);border:none;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:600;transition:background .2s;white-space:nowrap;}
@@ -258,13 +196,54 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   </div>
   <div class="lb-cap" id="lbCap"></div>
 </div>
-</div>
 
 <main>
 
+<!-- UI DIFF TOOL -->
+<section class="section fade-in" id="uidiff" style="animation-delay:.1s">
+  <div class="s-label">01 / QA Tool</div>
+  <div class="s-title">UI Design Diff</div>
+  <div class="s-subtitle">
+    Advanced deterministic diff tool between Figma design and live browser implementation 
+    &nbsp;&middot;&nbsp; 
+    <a href="ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">
+      &#8599; Open full tool in new tab
+    </a>
+  </div>
+  
+  <div style="border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 32px rgba(27,58,92,0.08); background: white;">
+    <iframe 
+      src="ui-diff.html" 
+      style="width: 100%; height: 1220px; border: none; display: block;"
+      title="UI Diff Pro"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <p style="font-size:13px; color:var(--mid); margin-top:18px; text-align:center; line-height:1.5;">
+    ✅ The complete UI Diff Pro tool is embedded here.<br>
+    Drag Figma JSON + Browser JSON (from the bookmarklet) + optional screenshot.
+  </p>
+</section>
+
+<!-- QA EXTRACTOR PRO -->
+<section class="section fade-in" id="qaextractor" style="animation-delay:.12s">
+  <div class="s-label">02 / QA Tool</div>
+  <div class="s-title">QA Extractor Pro</div>
+  <div class="s-subtitle">Bookmarklet → JSON → Playwright &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open in new tab</a></div>
+    
+  <div style="margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(90,155,192,0.2);">
+    <iframe style="width:100%;height:500px;border:none;background:var(--navy);" src="https://aviorh-world.github.io/QAME/qa-extractor-pro.html"></iframe>
+  </div>
+    
+  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
+    Streamlines test automation setup. Drag bookmarklet to toolbar, click on any page to extract JSON, paste in tool, preview test steps in browser, then generate or download Playwright .spec.ts files. Integrates with npx playwright test for real execution.
+  </p>
+</section>
+
 <!-- JIFITI DOCUMENTATION -->
-<section class="section fade-in" id="docs">
-  <div class="s-label">01 / Documentation</div>
+<section class="section fade-in" id="docs" style="animation-delay:.14s">
+  <div class="s-label">03 / Documentation</div>
   <div class="s-title">Jifipedia Articles I Authored</div>
   <div class="s-subtitle">Sample of articles I wrote for the Jifiti internal knowledge base</div>
   <p style="font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:28px;max-width:680px;">During my time at Jifiti I wrote internal knowledge-base articles on Jifipedia (Confluence) &mdash; step-by-step QA procedures, integration validation flows, and system documentation shared across R&amp;D. Click any image to expand.</p>
@@ -293,13 +272,12 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
         <div class="ss-title">Jifiti Branding &ndash; Main Things to Know</div>
       </div>
     </div>
-    
   </div>
 </section>
 
 <!-- VIDEOS -->
-<section class="section fade-in" id="videos" style="animation-delay:.1s">
-  <div class="s-label">02 / Knowledge Sharing</div>
+<section class="section fade-in" id="videos" style="animation-delay:.16s">
+  <div class="s-label">04 / Knowledge Sharing</div>
   <div class="s-title">Instructional Videos</div>
   <div class="s-subtitle">Sample of instructional content I created for QA onboarding and knowledge sharing</div>
   <div class="video-grid">
@@ -344,10 +322,9 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   </div>
 </section>
 
-
 <!-- WORK SAMPLE FILES -->
-<section class="section fade-in" id="workfiles" style="animation-delay:.11s">
-  <div class="s-label">02.5 / Work Samples</div>
+<section class="section fade-in" id="workfiles" style="animation-delay:.18s">
+  <div class="s-label">05 / Work Samples</div>
   <div class="s-title">Sample Work Files</div>
   <p class="s-subtitle">A sample of QA documents, test plans, and test cases I&rsquo;ve created &mdash; password required to view.</p>
   <div class="wf-locked-msg" id="wfLockedMsg">
@@ -378,49 +355,9 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   </div>
 </section>
 
-<!-- UI DIFF TOOL - FULL VERSION (English) -->
-<section class="section fade-in" id="uidiff" style="animation-delay:.12s">
-  <div class="s-label">03 / QA Tool</div>
-  <div class="s-title">UI Design Diff</div>
-  <div class="s-subtitle">
-    Advanced deterministic diff tool between Figma design and live browser implementation 
-    &nbsp;&middot;&nbsp; 
-    <a href="ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">
-      &#8599; Open full tool in new tab
-    </a>
-  </div>
-  
-  <div style="border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 32px rgba(27,58,92,0.08); background: white;">
-    <iframe 
-      src="ui-diff.html" 
-      style="width: 100%; height: 1220px; border: none; display: block;"
-      title="UI Diff Pro"
-      allowfullscreen>
-    </iframe>
-  </div>
+</main>
 
-  <p style="font-size:13px; color:var(--mid); margin-top:18px; text-align:center; line-height:1.5;">
-    ✅ The complete UI Diff Pro tool is embedded here.<br>
-    Drag Figma JSON + Browser JSON (from the bookmarklet) + optional screenshot.
-  </p>
-</section>
-
-  <section class="section fade-in" id="qaextractor" style="animation-delay:.13s">
-    <div class="s-label">04 / QA Tool</div>
-    <div class="s-title">QA Extractor Pro</div>
-    <div class="s-subtitle">Bookmarklet → JSON → Playwright &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open in new tab</a></div>
-    
-    <div style="margin:20px 0;border-radius:12px;overflow:hidden;border:1px solid rgba(90,155,192,0.2);">
-      <iframe style="width:100%;height:500px;border:none;background:var(--navy);" src="https://aviorh-world.github.io/QAME/qa-extractor-pro.html"></iframe>
-    </div>
-    
-    <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
-      Streamlines test automation setup. Drag bookmarklet to toolbar, click on any page to extract JSON, paste in tool, preview test steps in browser, then generate or download Playwright .spec.ts files. Integrates with npx playwright test for real execution.
-    </p>
-  </section>
-
-
-</main><script>
+<script>
 // ── Lightbox with zoom ──
 var lbZoom = 1, lbPanX = 0, lbPanY = 0, lbDragStart = null;
 function openLb(src,cap){
@@ -471,7 +408,7 @@ document.addEventListener('keydown',function(e){
   if(e.key==='+'||e.key==='=')zoomIn();
   if(e.key==='-')zoomOut();
   if(e.key==='0')zoomReset();
-});});
+});
 
 // ── Password / Edit mode ──
 function openPw(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
@@ -508,68 +445,9 @@ function renderExtra(){
 }
 function removeVid(i){extraVideos.splice(i,1);renderExtra();}
 
-// ── Bookmarklets ──
-var BM_FULL='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");var ts=Date.now();dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+ts+".json");function loadScript(src,ok,fail){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s);}function cap(){try{html2canvas(document.body,{useCORS:true,backgroundColor:null,scale:devicePixelRatio}).then(function(c){c.toBlob(function(b){if(b)dl(b,"ui-screenshot-"+h+"-"+ts+".png");});});}catch(e){}}if(window.html2canvas){cap();}else{loadScript("https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js",cap,function(){});}})()'
-var BM_JSON='javascript:(function(){function dl(b,n){var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();}function vis(el){var r=el.getBoundingClientRect();return r.width>10&&r.height>10;}function ps(s){return{color:s.color,background:s.backgroundColor!=="rgba(0, 0, 0, 0)"?s.backgroundColor:undefined,fontFamily:s.fontFamily,fontSize:s.fontSize,fontWeight:s.fontWeight,lineHeight:s.lineHeight!=="normal"?s.lineHeight:undefined,padding:s.padding!=="0px"?s.padding:undefined,borderRadius:s.borderRadius!=="0px"?s.borderRadius:undefined};}var data={meta:{url:location.href,timestamp:new Date().toISOString()},elements:[]};document.querySelectorAll("h1,h2,h3,p,button,a[role=button],img").forEach(function(el){if(!vis(el))return;var s=getComputedStyle(el);var r=el.getBoundingClientRect();data.elements.push({tag:el.tagName.toLowerCase(),text:(el.textContent||"").trim().slice(0,120),rect:{x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)},styles:ps(s)});});var h=location.hostname.replace(/\\./g,"_");dl(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),"ui-computed-"+h+"-"+Date.now()+".json");})()'
-document.getElementById('bmFull').href=BM_FULL;
-document.getElementById('bmJson').href=BM_JSON;
-
-// ── Drag & Drop ──
-function setupDrop(dropId,panelId,taId,badgeId){
-  var drop=document.getElementById(dropId),panel=document.getElementById(panelId);
-  ['dragenter','dragover'].forEach(function(ev){drop.addEventListener(ev,function(e){e.preventDefault();panel.classList.add('drag-over');});});
-  ['dragleave','dragend'].forEach(function(ev){drop.addEventListener(ev,function(){panel.classList.remove('drag-over');});});
-  drop.addEventListener('drop',function(e){e.preventDefault();panel.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)readJson(f,taId,badgeId);});
-}
-setupDrop('figmaDrop','figmaPanel','figmaInput','figmaLoaded');
-setupDrop('computedDrop','computedPanel','computedInput','computedLoaded');
-function loadFile(inp,taId,badgeId){if(inp.files[0])readJson(inp.files[0],taId,badgeId);}
-function readJson(file,taId,badgeId){var r=new FileReader();r.onload=function(e){document.getElementById(taId).value=e.target.result;var b=document.getElementById(badgeId);b.style.display='block';b.textContent='✓ '+file.name;};r.readAsText(file);}
-var ssP=document.getElementById('ssPanel'),ssD=document.getElementById('ssDrop');
-['dragenter','dragover'].forEach(function(ev){ssD.addEventListener(ev,function(e){e.preventDefault();ssP.classList.add('drag-over');});});
-['dragleave','dragend'].forEach(function(ev){ssD.addEventListener(ev,function(){ssP.classList.remove('drag-over');});});
-ssD.addEventListener('drop',function(e){e.preventDefault();ssP.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadSs2(f);});
-function loadSs(inp){if(inp.files[0])loadSs2(inp.files[0]);}
-function loadSs2(file){var r=new FileReader();r.onload=function(e){var img=document.getElementById('ssPreview');img.src=e.target.result;img.classList.add('vis');ssD.style.display='none';};r.readAsDataURL(file);}
-
-// ── Diff engine ──
-function hex(rgb){if(!rgb)return null;if(rgb.startsWith('#'))return rgb.toUpperCase();var m=rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);if(!m)return rgb;return '#'+m.slice(1).map(function(v){return Number(v).toString(16).padStart(2,'0');}).join('').toUpperCase();}
-function px(v){return v==null?null:parseFloat(v);}
-function isPill(r,h){return r!=null&&h!=null&&r>=h/2;}
-function runDiff(){
-  var panel=document.getElementById('resultPanel');
-  panel.classList.add('vis');
-  var fig,comp;
-  try{fig=JSON.parse(document.getElementById('figmaInput').value.trim());comp=JSON.parse(document.getElementById('computedInput').value.trim());}
-  catch(e){setR('fail','&#9888; Parse Error',[{t:'fail',tx:'Invalid JSON: '+e.message}]);return;}
-  var lines=[],pass=0,fail=0;
-  var cta=comp.elements&&comp.elements.find(function(e){return e.text==='Go to The Hub';});
-  lines.push({t:'head',tx:'CTA Button — "Go to The Hub"'});
-  if(!cta){lines.push({t:'fail',tx:'✗  Element not found'});fail++;}
-  else{
-    var bg=hex(cta.styles&&cta.styles.background);
-    if(bg==='#002D2A'){lines.push({t:'pass',tx:'✓  Background  →  '+bg});pass++;}else{lines.push({t:'fail',tx:'✗  Background  →  got '+bg+'  expected #002D2A'});fail++;}
-    var fs=px(cta.styles&&cta.styles.fontSize);
-    if(fs===16){lines.push({t:'pass',tx:'✓  Font size   →  16px'});pass++;}else{lines.push({t:'fail',tx:'✗  Font size   →  got '+fs+'px  expected 16px'});fail++;}
-    var lh=px(cta.styles&&cta.styles.lineHeight);
-    if(lh===24){lines.push({t:'pass',tx:'✓  Line height →  24px'});pass++;}else{lines.push({t:'fail',tx:'✗  Line height →  got '+lh+'px  expected 24px'});fail++;}
-    var ra=px(cta.styles&&cta.styles.borderRadius),ht=cta.rect&&cta.rect.h;
-    if(isPill(ra,ht)){lines.push({t:'pass',tx:'✓  Border      →  pill ('+ra+'px / '+ht+'px)'});pass++;}else{lines.push({t:'fail',tx:'✗  Border      →  not pill (r='+ra+' h='+ht+')'});fail++;}
-  }
-  lines.push({t:'info',tx:''});lines.push({t:'info',tx:'─────────────────────────────'});
-  var ok=fail===0;
-  lines.push({t:ok?'pass':'fail',tx:ok?'✓  All checks passed  ('+pass+'/'+pass+')':'✗  '+fail+' check(s) failed  ('+pass+'/'+(pass+fail)+' passed)'});
-  setR(ok?'pass':'fail',ok?'✓  UI matches Figma design':'✗  Mismatches found',lines);
-  var prev=document.getElementById('ssPreview'),wrap=document.getElementById('ssResultWrap'),rImg=document.getElementById('ssResultImg');
-  if(prev.src&&prev.classList.contains('vis')){rImg.src=prev.src;wrap.style.display='block';}else{wrap.style.display='none';}
-}
-function setR(status,hdr,lines){
-  var h=document.getElementById('resultHead'),b=document.getElementById('resultBody');
-  h.className='result-head '+status;h.innerHTML=hdr;
-  b.innerHTML=lines.map(function(l){var cls={pass:'l-pass',fail:'l-fail',info:'l-info',head:'l-head'}[l.t]||'';return '<span class="'+cls+'">'+esc(l.tx)+'</span>';}).join('\n');
-}
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+// Note: All bookmarklet, drag-and-drop and diff-tool JS was removed because it belongs to the embedded tool pages and was causing errors on this page.
 </script>
+
 <footer class="site-footer">
   <div class="sf-grid">
     <div>
