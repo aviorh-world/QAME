@@ -378,73 +378,31 @@ textarea.diff-ta::placeholder{color:var(--mid);opacity:0.5;}
   </div>
 </section>
 
-<!-- UI DIFF TOOL -->
+<!-- UI DIFF TOOL - FULL VERSION (English) -->
 <section class="section fade-in" id="uidiff" style="animation-delay:.12s">
   <div class="s-label">03 / QA Tool</div>
   <div class="s-title">UI Design Diff</div>
-  <div class="s-subtitle">Sample of tools I've built to improve testing quality &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool</a></div>
-  <div class="diff-tool-section">
-    <div class="diff-tool-header">
-      <div class="diff-tool-title">UI Design Diff</div>
-      <div class="diff-tool-badge">No AI &middot; 100% Deterministic</div>
-    </div>
-    <div class="diff-tool-body">
-      <div class="steps-grid">
-        <div class="step"><div class="step-num">Step 01</div><div class="step-title">Export from Figma</div><ol><li>Open screen in Figma</li><li>Select the main Frame</li><li>Run <strong>"Figma to JSON"</strong> plugin</li><li>Drag the JSON file below</li></ol></div>
-        <div class="step"><div class="step-num">Step 02</div><div class="step-title">Export from Browser</div><ol><li>Drag bookmarklet to browser bar</li><li>Navigate to screen to test</li><li>Click it &mdash; JSON + screenshot download</li><li>Drag both files below</li></ol></div>
-        <div class="step"><div class="step-num">Step 03</div><div class="step-title">Run the Diff</div><ol><li>All files dropped? &#10003;</li><li>Click <strong>Run Deterministic Diff</strong></li><li>Review results inline</li></ol></div>
-      </div>
-      <div class="bm-section">
-        <div class="bm-title">&#128278; Browser Bookmarklets</div>
-        <div class="bm-sub">Drag to your bookmarks bar. Click on any page to extract computed JSON (and optionally a screenshot).</div>
-        <div class="bm-row">
-          <a class="bm-btn ss" id="bmFull" href="#">&#128247; JSON + Screenshot</a>
-          <a class="bm-btn jo" id="bmJson" href="#">{ } JSON Only</a>
-        </div>
-        <div class="bm-hint">&#8593; <span>Drag</span> to browser bookmarks bar &middot; then click on any page</div>
-      </div>
-      <div class="inputs-grid">
-        <div class="input-panel" id="figmaPanel">
-          <div class="input-label"><span class="dot"></span> Figma JSON</div>
-          <div class="drop-zone" id="figmaDrop" onclick="document.getElementById('figmaFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="figmaLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="figmaFile" onchange="loadFile(this,'figmaInput','figmaLoaded','figmaPanel')"/>
-          <textarea class="diff-ta" id="figmaInput" placeholder='{"name":"Screen","children":[]}'></textarea>
-        </div>
-        <div class="input-panel" id="computedPanel">
-          <div class="input-label"><span class="dot"></span> Computed JSON (Browser)</div>
-          <div class="drop-zone" id="computedDrop" onclick="document.getElementById('computedFile').click()">
-            <div class="drop-zone-icon">&#128194;</div>
-            <div class="drop-zone-label">Drop .json or <span>browse</span></div>
-            <div class="file-badge" id="computedLoaded">&#10003; File loaded</div>
-          </div>
-          <input type="file" accept=".json" class="file-hidden" id="computedFile" onchange="loadFile(this,'computedInput','computedLoaded','computedPanel')"/>
-          <textarea class="diff-ta" id="computedInput" placeholder='{"elements":[]}'></textarea>
-        </div>
-      </div>
-      <div class="ss-panel" id="ssPanel">
-        <div class="ss-panel-head">&#128247; Screenshot (optional)</div>
-        <div class="ss-drop" id="ssDrop" onclick="document.getElementById('ssFile').click()">
-          <div class="drop-zone-icon">&#128444;</div>
-          <div class="drop-zone-label" style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);">Drop image or <span style="color:var(--sky);text-decoration:underline;cursor:pointer">browse</span></div>
-        </div>
-        <input type="file" accept="image/*" class="file-hidden" id="ssFile" onchange="loadSs(this)"/>
-        <img class="ss-preview" id="ssPreview" alt=""/>
-      </div>
-      <button class="run-btn" onclick="runDiff()">&#9654; Run Deterministic Diff</button>
-      <div class="result-panel" id="resultPanel">
-        <div class="result-head" id="resultHead"></div>
-        <div class="result-body" id="resultBody"></div>
-        <div class="ss-result-wrap" id="ssResultWrap" style="display:none">
-          <div class="ss-result-title">Screenshot Reference</div>
-          <img class="ss-result-img" id="ssResultImg" alt=""/>
-        </div>
-      </div>
-    </div>
+  <div class="s-subtitle">
+    Advanced deterministic diff tool between Figma design and live browser implementation 
+    &nbsp;&middot;&nbsp; 
+    <a href="ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">
+      &#8599; Open full tool in new tab
+    </a>
   </div>
+  
+  <div style="border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 32px rgba(27,58,92,0.08); background: white;">
+    <iframe 
+      src="ui-diff.html" 
+      style="width: 100%; height: 1220px; border: none; display: block;"
+      title="UI Diff Pro"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <p style="font-size:13px; color:var(--mid); margin-top:18px; text-align:center; line-height:1.5;">
+    ✅ The complete UI Diff Pro tool is embedded here.<br>
+    Drag Figma JSON + Browser JSON (from the bookmarklet) + optional screenshot.
+  </p>
 </section>
 
   <section class="section fade-in" id="qaextractor" style="animation-delay:.13s">

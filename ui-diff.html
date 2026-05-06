@@ -1,64 +1,969 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>UI Diff Pro</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f6f3ee;--ink:#0b2f55;--muted:#66758a;--line:rgba(11,47,85,.14);--blue:#2563eb;--cyan:#0ea5e9;--orange:#f2a93b;--red:#cf2e2e;--green:#168a52;--yellow:#a16207;--shadow:0 12px 36px rgba(16,36,59,.08)}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top left,#fff8e8,#f6f3ee 38%,#edf6fb);font-family:Inter,sans-serif;color:var(--ink);font-size:15px}.wrap{max-width:1220px;margin:0 auto;padding:16px 22px 54px}.card{background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);overflow:hidden}.panel{padding:18px}.title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.title h2{font-size:17px;margin:0}.tag{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.12em;background:#f3f6fa;border:1px solid var(--line);border-radius:999px;padding:6px 9px;color:var(--muted)}.plugin{display:inline-flex;text-decoration:none;background:var(--orange);color:#10243b;font-weight:900;border-radius:11px;padding:7px 10px;font-size:12px;margin-left:8px}.bm-area{background:linear-gradient(135deg,#10243b,#123b64);border-radius:16px;padding:17px;text-align:center;color:white;margin-bottom:14px;border:1px dashed var(--orange)}.bm-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}.bm{display:inline-flex;text-decoration:none;background:var(--orange);color:#10243b;padding:10px 15px;border-radius:13px;font-weight:900}.bm.secondary{background:white;color:var(--ink)}.inputs{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:8px;margin-bottom:13px}.field.full{grid-column:1/-1}.field-head{display:flex;justify-content:space-between;align-items:center}.field label{font-weight:900;font-size:13px}.clean{border:1px solid var(--line);background:white;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;cursor:pointer}.clean:hover{background:#eef6ff;border-color:var(--blue)}.drop{border:1px dashed var(--line);border-radius:15px;background:#fbfdff;padding:14px;text-align:center;cursor:pointer}.drop:hover,.drop.drag{border-color:var(--blue);background:#f0f6ff}.drop strong{display:block}.drop span{font-size:12px;color:var(--muted)}textarea{width:100%;min-height:132px;border:1px solid var(--line);border-radius:15px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.55;resize:vertical;background:#fbfdff;color:#10243b}.file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}.run-row{display:grid;grid-template-columns:1fr auto;gap:10px}.run{border:0;border-radius:15px;background:linear-gradient(135deg,var(--blue),var(--cyan));color:white;font-weight:900;font-size:16px;padding:14px;cursor:pointer}.clear-all{border:1px solid var(--line);border-radius:15px;background:white;color:var(--ink);font-weight:900;padding:14px 16px;cursor:pointer}.status{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}.status div{border:1px solid var(--line);background:#fbfdff;border-radius:999px;padding:7px 10px;color:var(--muted);font-size:12px}.results{margin-top:18px;display:none}.results.visible{display:block}.res-head{display:flex;justify-content:space-between;gap:16px;padding:18px 22px;background:#fbfdff;border-bottom:1px solid var(--line)}.res-head h2{margin:0;font-size:22px}.res-head p{margin:5px 0 0;color:var(--muted);font-size:13px}.badge{border-radius:999px;padding:8px 12px;font-weight:900;align-self:start}.bad{background:#fff1f1;color:var(--red)}.warn{background:#fff8df;color:var(--yellow)}.ok{background:#ecfdf3;color:var(--green)}.score{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:14px 22px;background:var(--bg);border-bottom:1px solid var(--line)}.box{background:white;border:1px solid var(--line);border-radius:15px;padding:12px}.box small{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-size:10px}.box b{display:block;font-size:22px}.notice{margin:14px 22px 0;border-radius:15px;padding:12px 14px;line-height:1.5;background:#eef6ff;border:1px solid #bfdbfe;color:#1d4ed8}.toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line)}.toolbar button{border:1px solid var(--line);background:white;border-radius:12px;padding:8px 11px;font-weight:800;cursor:pointer;color:var(--ink)}.toolbar button.active{background:var(--ink);color:white}.toolbar .export{margin-left:auto;background:var(--orange);border-color:var(--orange);color:#10243b}.section{border-bottom:1px solid var(--line)}.section-title{display:flex;justify-content:space-between;padding:16px 22px;background:#fbfdff;cursor:pointer}.section-title h3{margin:0;font-size:16px}.section-title span{color:var(--muted);font-size:12px}.section-body{padding:16px 22px}.section.collapsed .section-body{display:none}.missing-list{display:grid;gap:8px}.missing-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:11px}.missing-card span{font-size:12px;color:var(--muted)}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:16px}.tbl{width:100%;border-collapse:collapse;min-width:1000px;font-size:13px}.tbl th{background:var(--ink);color:white;text-align:left;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;font-size:10px;padding:11px}.tbl td{border-bottom:1px solid var(--line);padding:11px;vertical-align:top;line-height:1.45}.pill{display:inline-flex;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;text-transform:uppercase}.pill.passed{background:#ecfdf3;color:var(--green)}.pill.failed{background:#fff1f1;color:var(--red)}.pill.warning{background:#fff8df;color:var(--yellow)}.pill.ignored{background:#eef2ff;color:#4338ca}.why{max-width:380px;color:#334155}.overlay-grid{display:grid;grid-template-columns:minmax(0,1fr)320px;gap:16px}.stage{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:auto;max-height:680px}.stage-inner{position:relative;display:inline-block;line-height:0;background:#fff}.stage img{display:block;max-width:100%;height:auto;background:#fff}.pin{position:absolute;min-width:22px;min-height:22px;border:3px solid var(--orange);background:rgba(242,169,59,.15);border-radius:999px;transform:translate(-50%,-50%)}.pin.failed{border-color:var(--red);background:rgba(207,46,46,.16)}.pin-label{position:absolute;left:50%;top:-26px;transform:translateX(-50%);border-radius:8px;background:var(--orange);color:#10243b;font-weight:900;font-size:11px;padding:5px 7px;white-space:nowrap;line-height:1}.pin.failed .pin-label{background:var(--red);color:white}.side{display:grid;gap:8px;align-content:start;max-height:680px;overflow:auto}.issue{border:1px solid var(--line);border-radius:14px;background:#fbfdff;padding:10px}.issue span{color:var(--muted);font-size:12px}.empty{border:1px dashed var(--line);border-radius:16px;background:#fbfdff;padding:18px;color:var(--muted)}@media(max-width:980px){.overlay-grid,.inputs{grid-template-columns:1fr}.status,.score{grid-template-columns:repeat(2,1fr)}.run-row{grid-template-columns:1fr}.toolbar .export{margin-left:0}.title{align-items:flex-start;gap:8px;flex-direction:column}}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --muted:#64748b;
+  --blue:#2563eb;
+  --blue-light:#eff6ff;
+  --green:#16a34a;
+  --green-light:#f0fdf4;
+  --red:#dc2626;
+  --red-light:#fef2f2;
+  --amber:#d97706;
+  --amber-light:#fffbeb;
+  --purple:#7c3aed;
+  --purple-light:#f5f3ff;
+  --shadow:0 1px 3px rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
+  --radius:10px;
+}
+body{background:var(--bg);font-family:Inter,sans-serif;color:var(--text);font-size:14px;line-height:1.5}
+
+/* ── Layout ── */
+.page{min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0}
+.topbar-logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:16px;letter-spacing:-.3px}
+.topbar-logo .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#60a5fa,#34d399)}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn-figma{display:inline-flex;align-items:center;gap:6px;background:#f59e0b;color:#1a1a1a;font-weight:700;font-size:12px;padding:6px 12px;border-radius:6px;text-decoration:none;transition:opacity .15s}
+.btn-figma:hover{opacity:.88}
+
+.main{max-width:1200px;margin:0 auto;padding:24px 20px 60px;width:100%;display:flex;flex-direction:column;gap:16px}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h2{font-size:15px;font-weight:700;color:var(--text)}
+.card-body{padding:20px}
+
+/* ── Bookmarklets ── */
+.bm-bar{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.bm-bar p{color:#94a3b8;font-size:13px;flex:1;min-width:200px}
+.bm-btn{display:inline-flex;align-items:center;gap:6px;text-decoration:none;padding:8px 14px;border-radius:6px;font-weight:700;font-size:13px;transition:opacity .15s;white-space:nowrap}
+.bm-btn:hover{opacity:.85}
+.bm-btn.primary{background:#f59e0b;color:#1a1a1a}
+.bm-btn.secondary{background:#334155;color:#f1f5f9;border:1px solid #475569}
+
+/* ── Inputs grid ── */
+.inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.input-field label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--text)}
+.input-field .field-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.btn-clean{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
+.btn-clean:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+
+.drop-zone{border:1.5px dashed var(--border);border-radius:8px;background:#fafbfc;padding:14px;text-align:center;cursor:pointer;transition:all .15s;min-height:52px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;margin-bottom:8px}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--blue);background:var(--blue-light)}
+.drop-zone .dz-title{font-weight:600;font-size:13px;color:var(--text)}
+.drop-zone .dz-sub{font-size:11px;color:var(--muted)}
+.drop-zone.loaded{border-color:var(--green);background:var(--green-light)}
+.drop-zone.loaded .dz-title{color:var(--green)}
+
+textarea{width:100%;min-height:110px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;resize:vertical;background:#fafbfc;color:var(--text);transition:border-color .15s}
+textarea:focus{outline:none;border-color:var(--blue);background:#fff}
+.file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+/* ── Screenshot input ── */
+.shot-field{margin-bottom:16px}
+
+/* ── Actions ── */
+.actions-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.btn-run{flex:1;background:linear-gradient(135deg,var(--blue),#0ea5e9);color:#fff;border:none;border-radius:8px;padding:12px 24px;font-weight:700;font-size:15px;cursor:pointer;transition:opacity .15s;letter-spacing:-.2px}
+.btn-run:hover{opacity:.92}
+.btn-clear{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px 16px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap}
+.btn-clear:hover{background:var(--bg);border-color:var(--muted)}
+
+/* ── Status bar ── */
+.status-bar{display:flex;gap:8px;flex-wrap:wrap}
+.status-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--bg);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--muted)}
+.status-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.status-chip.ok .dot{background:var(--green)}
+.status-chip.ok{border-color:#bbf7d0;background:var(--green-light);color:var(--green)}
+.status-chip.err .dot{background:var(--red)}
+
+/* ── Swap warning ── */
+.swap-banner{display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:16px}
+.swap-banner .icon{font-size:18px;flex-shrink:0;margin-top:-1px}
+.swap-banner p{font-size:13px;color:#92400e;line-height:1.5}
+.swap-banner strong{color:#78350f}
+
+/* ── Results header ── */
+.results-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.results-header .rh-left{flex:1}
+.results-header h2{font-size:20px;font-weight:800;letter-spacing:-.3px}
+.results-header .rh-sub{color:var(--muted);font-size:12px;margin-top:2px;max-width:600px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap}
+.badge.ok{background:var(--green-light);color:var(--green);border:1px solid #bbf7d0}
+.badge.bad{background:var(--red-light);color:var(--red);border:1px solid #fecaca}
+.badge.warn{background:var(--amber-light);color:var(--amber);border:1px solid #fde68a}
+
+/* ── Score grid ── */
+.score-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.score-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.score-box .sb-label{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;font-size:9px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}
+.score-box .sb-value{font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1}
+.score-box.passed{background:var(--green-light);border-color:#bbf7d0} .score-box.passed .sb-value{color:var(--green)}
+.score-box.failed{background:var(--red-light);border-color:#fecaca} .score-box.failed .sb-value{color:var(--red)}
+.score-box.warnings{background:var(--amber-light);border-color:#fde68a} .score-box.warnings .sb-value{color:var(--amber)}
+.score-box.ignored{background:var(--purple-light);border-color:#ddd6fe} .score-box.ignored .sb-value{color:var(--purple)}
+.score-box.matched .sb-value{color:var(--blue)}
+.score-box.figtext .sb-value{color:var(--muted)}
+
+/* ── Toolbar ── */
+.toolbar{padding:12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.filter-btns{display:flex;gap:4px;flex-wrap:wrap}
+.filter-btns button{border:1px solid var(--border);background:#fff;border-radius:6px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s}
+.filter-btns button:hover{background:var(--bg)}
+.filter-btns button.active{background:var(--text);color:#fff;border-color:var(--text)}
+.export-btns{display:flex;gap:6px;flex-wrap:wrap}
+.export-btns button{border:none;border-radius:6px;padding:6px 12px;font-weight:600;font-size:12px;cursor:pointer;transition:opacity .15s}
+.export-btns button:hover{opacity:.82}
+.btn-export-json{background:#334155;color:#fff}
+.btn-export-csv{background:#0f766e;color:#fff}
+.btn-export-xlsx{background:#15803d;color:#fff}
+
+/* ── Sections ── */
+.sec{border-top:1px solid var(--border)}
+.sec-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;cursor:pointer;background:#fff;transition:background .15s}
+.sec-header:hover{background:var(--bg)}
+.sec-header h3{font-size:14px;font-weight:700}
+.sec-header .sec-count{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:2px 10px}
+.sec-body{padding:0}
+.sec.collapsed .sec-body{display:none}
+
+/* ── Missing cards ── */
+.missing-list{padding:16px 20px;display:grid;gap:8px}
+.missing-card{border:1px solid #fecaca;border-radius:8px;background:#fff;padding:12px 14px;border-left:4px solid var(--red)}
+.missing-card .mc-text{font-weight:600;font-size:13px;margin-bottom:3px}
+.missing-card .mc-sub{font-size:12px;color:var(--muted)}
+.missing-card .mc-path{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:3px;opacity:.7}
+.empty-state{margin:20px;border:1.5px dashed var(--border);border-radius:8px;padding:24px;text-align:center;color:var(--muted);font-size:13px}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;min-width:900px}
+.tbl thead tr{background:var(--text)}
+.tbl th{color:#fff;text-align:left;padding:10px 14px;font-size:11px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:600;white-space:nowrap}
+.tbl td{border-bottom:1px solid var(--border);padding:10px 14px;vertical-align:top;line-height:1.45}
+.tbl tbody tr:hover{background:#fafbfc}
+.tbl tbody tr.hl{background:#fffbeb !important}
+.tbl .td-mono{font-family:'JetBrains Mono',monospace;font-size:11px}
+.tbl .td-path{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.tbl .td-why{max-width:300px;color:var(--muted);font-size:12px}
+
+.pill{display:inline-flex;align-items:center;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.pill.passed{background:var(--green-light);color:var(--green)}
+.pill.failed{background:var(--red-light);color:var(--red)}
+.pill.warning{background:var(--amber-light);color:var(--amber)}
+.pill.ignored{background:var(--purple-light);color:var(--purple)}
+
+/* ── Overlay ── */
+.overlay-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;padding:16px 20px}
+.stage{border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:700px;background:#f8fafc}
+.stage-inner{position:relative;display:inline-block;line-height:0}
+.stage img{display:block;max-width:100%;height:auto}
+.pin{position:absolute;border:2.5px solid var(--amber);background:rgba(251,191,36,.2);border-radius:6px;transform:translate(-50%,-50%);cursor:pointer;transition:background .15s}
+.pin:hover{background:rgba(251,191,36,.38)}
+.pin.failed{border-color:var(--red);background:rgba(220,38,38,.15)}
+.pin.failed:hover{background:rgba(220,38,38,.28)}
+.pin-label{position:absolute;left:50%;top:-24px;transform:translateX(-50%);background:var(--amber);color:#1a1a1a;font-weight:700;font-size:10px;padding:3px 7px;border-radius:5px;white-space:nowrap;line-height:1.2;pointer-events:none}
+.pin.failed .pin-label{background:var(--red);color:#fff}
+.overlay-side{display:flex;flex-direction:column;gap:8px;max-height:700px;overflow-y:auto}
+.issue-card{border:1px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px;cursor:pointer;transition:border-color .15s}
+.issue-card:hover{border-color:var(--blue)}
+.issue-card .ic-title{font-weight:600;font-size:13px;margin-bottom:2px}
+.issue-card .ic-sub{font-size:11px;color:var(--muted)}
+
+/* ── Responsive ── */
+@media(max-width:900px){
+  .inputs-grid{grid-template-columns:1fr}
+  .score-grid{grid-template-columns:repeat(3,1fr)}
+  .overlay-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .score-grid{grid-template-columns:repeat(2,1fr)}
+  .results-header{flex-direction:column;align-items:flex-start}
+}
 </style>
 </head>
-<body><div class="wrap">
-<section class="card panel"><div class="title"><h2>Inputs <a class="plugin" target="_blank" href="https://www.figma.com/community/plugin/1632536606077965981">Avior Figma plugin</a></h2><span class="tag">UI Diff Pro</span></div><div class="bm-area"><div>Drag to bookmarks bar, then click on tested page</div><div class="bm-row"><a class="bm" id="bmJson" href="javascript:(function()%7B%0Afunction%20dl(b,n)%7Bvar%20a=document.createElement(%27a%27);a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(function()%7BURL.revokeObjectURL(a.href)%7D,1500)%7D%0Afunction%20keep(v)%7Breturn%20v&&v!==%27normal%27&&v!==%27none%27&&v!==%270px%27&&v!==%27rgba(0,%200,%200,%200)%27?v:undefined%7D%0Afunction%20visible(e)%7Bvar%20r=e.getBoundingClientRect(),s=getComputedStyle(e);return%20r.width%3E2&&r.height%3E2&&s.display!==%27none%27&&s.visibility!==%27hidden%27&&Number(s.opacity)!==0%7D%0Afunction%20directText(e)%7Bvar%20out=%27%27;e.childNodes.forEach(function(n)%7Bif(n.nodeType===3)out+=n.textContent+%27%20%27%7D);return%20out.replace(/%5Cs+/g,%27%20%27).trim()%7D%0Afunction%20textOf(e)%7Bvar%20tag=e.tagName.toLowerCase();var%20val=(tag===%27input%27%7C%7Ctag===%27textarea%27%7C%7Ctag===%27select%27)?(e.value%7C%7C%27%27):%27%27;return(val%7C%7CdirectText(e)%7C%7Ce.getAttribute(%27aria-label%27)%7C%7Ce.getAttribute(%27placeholder%27)%7C%7Ce.alt%7C%7C%27%27).replace(/%5Cs+/g,%27%20%27).trim()%7D%0Afunction%20meaningful(e)%7Bvar%20tag=e.tagName.toLowerCase(),t=textOf(e);if(%5B%27script%27,%27style%27,%27meta%27,%27link%27,%27noscript%27%5D.indexOf(tag)%3E=0)return%20false;if(%5B%27button%27,%27a%27,%27label%27,%27input%27,%27textarea%27,%27select%27,%27img%27,%27svg%27%5D.indexOf(tag)%3E=0)return%20true;if(/%5Eh%5B1-6%5D%24/.test(tag)%7C%7C%5B%27p%27,%27li%27%5D.indexOf(tag)%3E=0)return%20true;if(e.getAttribute(%27role%27)%7C%7Ce.getAttribute(%27aria-label%27))return%20true;if(t&&t.length%3E1&&e.children.length%3C=1)return%20true;return%20false%7D%0Afunction%20styles(s)%7Breturn%7Bcolor:keep(s.color),background:keep(s.backgroundColor),fontFamily:keep(s.fontFamily),fontSize:keep(s.fontSize),fontWeight:keep(s.fontWeight),lineHeight:keep(s.lineHeight),letterSpacing:keep(s.letterSpacing),textAlign:keep(s.textAlign),borderRadius:keep(s.borderRadius),borderColor:keep(s.borderColor),borderWidth:keep(s.borderWidth)%7D%7D%0Avar%20root=document.documentElement,body=document.body,host=location.hostname.split(%27.%27).join(%27_%27),ts=Date.now();%0Avar%20data=%7Bmeta:%7Burl:location.href,title:document.title,timestamp:new%20Date().toISOString(),viewport:%7Bw:innerWidth,h:innerHeight%7D,page:%7Bw:Math.max(root.scrollWidth,body.scrollWidth,root.clientWidth),h:Math.max(root.scrollHeight,body.scrollHeight,root.clientHeight)%7D,dpr:devicePixelRatio,extractor:%27ui-diff-json-only-v11%27%7D,elements:%5B%5D%7D;%0Adocument.querySelectorAll(%27body%20%2A%27).forEach(function(e)%7Bif(!visible(e)%7C%7C!meaningful(e))return;var%20s=getComputedStyle(e),r=e.getBoundingClientRect(),tag=e.tagName.toLowerCase(),txt=textOf(e);data.elements.push(%7Btag:tag,id:e.id%7C%7C%27%27,classes:(typeof%20e.className===%27string%27?e.className:%27%27).slice(0,140),role:e.getAttribute(%27role%27)%7C%7C%27%27,ariaLabel:e.getAttribute(%27aria-label%27)%7C%7C%27%27,name:e.getAttribute(%27name%27)%7C%7C%27%27,type:e.getAttribute(%27type%27)%7C%7C%27%27,value:(tag===%27input%27%7C%7Ctag===%27textarea%27%7C%7Ctag===%27select%27)?(e.value%7C%7C%27%27):%27%27,placeholder:e.getAttribute(%27placeholder%27)%7C%7C%27%27,text:txt.slice(0,240),rect:%7Bx:Math.round(r.x+scrollX),y:Math.round(r.y+scrollY),w:Math.round(r.width),h:Math.round(r.height)%7D,styles:styles(s)%7D);%7D);%0Adl(new%20Blob(%5BJSON.stringify(data,null,2)%5D,%7Btype:%27application/json%27%7D),%27ui-json-only-%27+host+%27-%27+ts+%27.json%27);%0A%0A%7D)()">JSON Only</a><a class="bm secondary" id="bmShot" href="javascript:(function()%7B%0Afunction%20dl(b,n)%7Bvar%20a=document.createElement(%27a%27);a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(function()%7BURL.revokeObjectURL(a.href)%7D,1500)%7D%0Afunction%20keep(v)%7Breturn%20v&&v!==%27normal%27&&v!==%27none%27&&v!==%270px%27&&v!==%27rgba(0,%200,%200,%200)%27?v:undefined%7D%0Afunction%20visible(e)%7Bvar%20r=e.getBoundingClientRect(),s=getComputedStyle(e);return%20r.width%3E2&&r.height%3E2&&s.display!==%27none%27&&s.visibility!==%27hidden%27&&Number(s.opacity)!==0%7D%0Afunction%20directText(e)%7Bvar%20out=%27%27;e.childNodes.forEach(function(n)%7Bif(n.nodeType===3)out+=n.textContent+%27%20%27%7D);return%20out.replace(/%5Cs+/g,%27%20%27).trim()%7D%0Afunction%20textOf(e)%7Bvar%20tag=e.tagName.toLowerCase();var%20val=(tag===%27input%27%7C%7Ctag===%27textarea%27%7C%7Ctag===%27select%27)?(e.value%7C%7C%27%27):%27%27;return(val%7C%7CdirectText(e)%7C%7Ce.getAttribute(%27aria-label%27)%7C%7Ce.getAttribute(%27placeholder%27)%7C%7Ce.alt%7C%7C%27%27).replace(/%5Cs+/g,%27%20%27).trim()%7D%0Afunction%20meaningful(e)%7Bvar%20tag=e.tagName.toLowerCase(),t=textOf(e);if(%5B%27script%27,%27style%27,%27meta%27,%27link%27,%27noscript%27%5D.indexOf(tag)%3E=0)return%20false;if(%5B%27button%27,%27a%27,%27label%27,%27input%27,%27textarea%27,%27select%27,%27img%27,%27svg%27%5D.indexOf(tag)%3E=0)return%20true;if(/%5Eh%5B1-6%5D%24/.test(tag)%7C%7C%5B%27p%27,%27li%27%5D.indexOf(tag)%3E=0)return%20true;if(e.getAttribute(%27role%27)%7C%7Ce.getAttribute(%27aria-label%27))return%20true;if(t&&t.length%3E1&&e.children.length%3C=1)return%20true;return%20false%7D%0Afunction%20styles(s)%7Breturn%7Bcolor:keep(s.color),background:keep(s.backgroundColor),fontFamily:keep(s.fontFamily),fontSize:keep(s.fontSize),fontWeight:keep(s.fontWeight),lineHeight:keep(s.lineHeight),letterSpacing:keep(s.letterSpacing),textAlign:keep(s.textAlign),borderRadius:keep(s.borderRadius),borderColor:keep(s.borderColor),borderWidth:keep(s.borderWidth)%7D%7D%0Avar%20root=document.documentElement,body=document.body,host=location.hostname.split(%27.%27).join(%27_%27),ts=Date.now();%0Avar%20data=%7Bmeta:%7Burl:location.href,title:document.title,timestamp:new%20Date().toISOString(),viewport:%7Bw:innerWidth,h:innerHeight%7D,page:%7Bw:Math.max(root.scrollWidth,body.scrollWidth,root.clientWidth),h:Math.max(root.scrollHeight,body.scrollHeight,root.clientHeight)%7D,dpr:devicePixelRatio,extractor:%27ui-diff-json-only-v11%27%7D,elements:%5B%5D%7D;%0Adocument.querySelectorAll(%27body%20%2A%27).forEach(function(e)%7Bif(!visible(e)%7C%7C!meaningful(e))return;var%20s=getComputedStyle(e),r=e.getBoundingClientRect(),tag=e.tagName.toLowerCase(),txt=textOf(e);data.elements.push(%7Btag:tag,id:e.id%7C%7C%27%27,classes:(typeof%20e.className===%27string%27?e.className:%27%27).slice(0,140),role:e.getAttribute(%27role%27)%7C%7C%27%27,ariaLabel:e.getAttribute(%27aria-label%27)%7C%7C%27%27,name:e.getAttribute(%27name%27)%7C%7C%27%27,type:e.getAttribute(%27type%27)%7C%7C%27%27,value:(tag===%27input%27%7C%7Ctag===%27textarea%27%7C%7Ctag===%27select%27)?(e.value%7C%7C%27%27):%27%27,placeholder:e.getAttribute(%27placeholder%27)%7C%7C%27%27,text:txt.slice(0,240),rect:%7Bx:Math.round(r.x+scrollX),y:Math.round(r.y+scrollY),w:Math.round(r.width),h:Math.round(r.height)%7D,styles:styles(s)%7D);%7D);%0Adl(new%20Blob(%5BJSON.stringify(data,null,2)%5D,%7Btype:%27application/json%27%7D),%27ui-json-only-%27+host+%27-%27+ts+%27.json%27);%0A%0Afunction%20loadScript(src,ok,fail)%7Bvar%20s=document.createElement(%27script%27);s.src=src;s.onload=ok;s.onerror=fail;document.head.appendChild(s)%7D%0Afunction%20capture()%7Bhtml2canvas(document.body,%7BuseCORS:true,backgroundColor:%27#ffffff%27,scale:devicePixelRatio,windowWidth:document.documentElement.scrollWidth,windowHeight:document.documentElement.scrollHeight%7D).then(function(c)%7Bc.toBlob(function(b)%7Bif(b)dl(b,%27ui-shot-%27+host+%27-%27+ts+%27.png%27)%7D)%7D)%7D%0Aif(window.html2canvas)%7Bcapture()%7Delse%7BloadScript(%27https://cdn.jsdelivr.net/npm/html2canvas%401.4.1/dist/html2canvas.min.js%27,capture,function()%7Balert(%27Screenshot%20blocked.%20JSON%20is%20still%20valid.%27)%7D)%7D%0A%0A%7D)()">JSON + Screenshot</a></div></div>
-<div class="inputs"><div class="field"><div class="field-head"><label>Figma JSON</label><button type="button" class="clean" onclick="clearInput('fig')">Clean</button></div><div class="drop" id="figDrop"><strong>Drop Figma JSON</strong><span>or click to browse</span></div><input class="file-input" id="figFile" type="file" accept=".json,application/json"><textarea id="figInput" placeholder="Paste Figma JSON..."></textarea></div>
-<div class="field"><div class="field-head"><label>Browser JSON</label><button type="button" class="clean" onclick="clearInput('brow')">Clean</button></div><div class="drop" id="browDrop"><strong>Drop Browser JSON</strong><span>or click to browse</span></div><input class="file-input" id="browFile" type="file" accept=".json,application/json"><textarea id="browInput" placeholder="Paste Browser JSON..."></textarea></div>
-<div class="field full"><div class="field-head"><label>Screenshot optional</label><button type="button" class="clean" onclick="clearInput('shot')">Clean</button></div><div class="drop" id="shotDrop"><strong>Drop screenshot</strong><span>Used only for visual overlay</span></div><input class="file-input" id="shotFile" type="file" accept="image/*"></div></div>
-<div class="run-row"><button type="button" class="run" onclick="runDiff()">Run UI Diff</button><button type="button" class="clear-all" onclick="clearAll()">Clear All</button></div><div class="status"><div id="figStatus">Figma JSON: empty</div><div id="browStatus">Browser JSON: empty</div><div id="shotStatus">Screenshot: empty</div></div></section>
-<section class="results card" id="results"><div class="res-head"><div><h2 id="rTitle">Results</h2><p id="rSub">-</p></div><div id="rBadge" class="badge warn">Ready</div></div><div class="score" id="score"></div><div class="notice" id="notice">Dynamic data and hidden variants are marked as warnings/ignored, not critical failures.</div><div class="toolbar"><button type="button" class="active" data-f="all" onclick="setFilter('all')">All</button><button type="button" data-f="failed" onclick="setFilter('failed')">Failed</button><button type="button" data-f="warning" onclick="setFilter('warning')">Warnings</button><button type="button" data-f="passed" onclick="setFilter('passed')">Passed</button><button type="button" data-f="missing" onclick="setFilter('missing')">Missing</button><button type="button" class="export" onclick="exportCSV()">Export CSV</button><button type="button" class="export" onclick="exportJSON()">Export JSON</button></div><div id="sections"></div></section>
+<body>
+<div class="page">
+
+<!-- Top bar -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="dot"></div>
+    UI Diff Pro
+  </div>
+  <div class="topbar-right">
+    <a class="btn-figma" target="_blank" href="https://www.figma.com/community/plugin/1632536606077965981">
+      ✦ Avior Figma Plugin
+    </a>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ═══ INPUT CARD ═══ -->
+<div class="card">
+  <div class="card-header">
+    <h2>Inputs</h2>
+    <span style="font-size:12px;color:var(--muted)">Load Figma JSON + Browser JSON, then click Run Diff</span>
+  </div>
+  <div class="card-body">
+
+    <!-- Bookmarklets -->
+    <div class="bm-bar">
+      <p>Drag a bookmarklet to your browser bar, then click it on the page you want to test:</p>
+      <a class="bm-btn primary" id="bmShot"
+        href="javascript:(function()%7Bfunction%20dl(b%2Cn)%7Bvar%20a%3Ddocument.createElement('a')%3Ba.href%3DURL.createObjectURL(b)%3Ba.download%3Dn%3Bdocument.body.appendChild(a)%3Ba.click()%3Ba.remove()%3BsetTimeout(function()%7BURL.revokeObjectURL(a.href)%7D%2C1500)%7D%0Afunction%20keep(v)%7Breturn%20v%26%26v!%3D%3D'normal'%26%26v!%3D%3D'none'%26%26v!%3D%3D'0px'%26%26v!%3D%3D'rgba(0%2C%200%2C%200%2C%200)'%3Fv%3Aundefined%7D%0Afunction%20visible(e)%7Bvar%20r%3De.getBoundingClientRect()%2Cs%3DgetComputedStyle(e)%3Breturn%20r.width%3E2%26%26r.height%3E2%26%26s.display!%3D%3D'none'%26%26s.visibility!%3D%3D'hidden'%26%26Number(s.opacity)!%3D%3D0%7D%0Afunction%20directText(e)%7Bvar%20out%3D''%3Be.childNodes.forEach(function(n)%7Bif(n.nodeType%3D%3D%3D3)out%2B%3Dn.textContent%2B'%20'%7D)%3Breturn%20out.replace(%2F%5Cs%2B%2Fg%2C'%20').trim()%7D%0Afunction%20textOf(e)%7Bvar%20tag%3De.tagName.toLowerCase()%3Bvar%20val%3D(tag%3D%3D%3D'input'%7C%7Ctag%3D%3D%3D'textarea'%7C%7Ctag%3D%3D%3D'select')%3F(e.value%7C%7C'')%3A''%3Breturn(val%7C%7CdirectText(e)%7C%7Ce.getAttribute('aria-label')%7C%7Ce.getAttribute('placeholder')%7C%7Ce.alt%7C%7C'').replace(%2F%5Cs%2B%2Fg%2C'%20').trim()%7D%0Afunction%20meaningful(e)%7Bvar%20tag%3De.tagName.toLowerCase()%2Ct%3DtextOf(e)%3Bif(%5B'script'%2C'style'%2C'meta'%2C'link'%2C'noscript'%5D.indexOf(tag)%3E%3D0)return%20false%3Bif(%5B'button'%2C'a'%2C'label'%2C'input'%2C'textarea'%2C'select'%2C'img'%2C'svg'%5D.indexOf(tag)%3E%3D0)return%20true%3Bif(%2F%5Eh%5B1-6%5D%24%2F.test(tag)%7C%7C%5B'p'%2C'li'%5D.indexOf(tag)%3E%3D0)return%20true%3Bif(e.getAttribute('role')%7C%7Ce.getAttribute('aria-label'))return%20true%3Bif(t%26%26t.length%3E1%26%26e.children.length%3C%3D1)return%20true%3Breturn%20false%7D%0Afunction%20styles(s)%7Breturn%7Bcolor%3Akeep(s.color)%2Cbackground%3Akeep(s.backgroundColor)%2CfontFamily%3Akeep(s.fontFamily)%2CfontSize%3Akeep(s.fontSize)%2CfontWeight%3Akeep(s.fontWeight)%2ClineHeight%3Akeep(s.lineHeight)%2CletterSpacing%3Akeep(s.letterSpacing)%2CtextAlign%3Akeep(s.textAlign)%2CborderRadius%3Akeep(s.borderRadius)%2CborderColor%3Akeep(s.borderColor)%2CborderWidth%3Akeep(s.borderWidth)%7D%7D%0Avar%20root%3Ddocument.documentElement%2Cbody%3Ddocument.body%2Chost%3Dlocation.hostname.split('.').join('_')%2Cts%3DDate.now()%3B%0Avar%20data%3D%7Bmeta%3A%7Burl%3Alocation.href%2Ctitle%3Adocument.title%2Ctimestamp%3Anew%20Date().toISOString()%2Cviewport%3A%7Bw%3AinnerWidth%2Ch%3AinnerHeight%7D%2Cpage%3A%7Bw%3AMath.max(root.scrollWidth%2Cbody.scrollWidth%2Croot.clientWidth)%2Ch%3AMath.max(root.scrollHeight%2Cbody.scrollHeight%2Croot.clientHeight)%7D%2Cdpr%3AdevicePixelRatio%2Cextractor%3A'ui-diff-json-only-v12'%7D%2Celements%3A%5B%5D%7D%3B%0Adocument.querySelectorAll('body%20*').forEach(function(e)%7Bif(!visible(e)%7C%7C!meaningful(e))return%3Bvar%20s%3DgetComputedStyle(e)%2Cr%3De.getBoundingClientRect()%2Ctag%3De.tagName.toLowerCase()%2Ctxt%3DtextOf(e)%3Bdata.elements.push(%7Btag%3Atag%2Cid%3Ae.id%7C%7C''%2Cclasses%3A(typeof%20e.className%3D%3D%3D'string'%3Fe.className%3A'').slice(0%2C140)%2Crole%3Ae.getAttribute('role')%7C%7C''%2CariaLabel%3Ae.getAttribute('aria-label')%7C%7C''%2Cname%3Ae.getAttribute('name')%7C%7C''%2Ctype%3Ae.getAttribute('type')%7C%7C''%2Cvalue%3A(tag%3D%3D%3D'input'%7C%7Ctag%3D%3D%3D'textarea'%7C%7Ctag%3D%3D%3D'select')%3F(e.value%7C%7C'')%3A''%2Cplaceholder%3Ae.getAttribute('placeholder')%7C%7C''%2Ctext%3Atxt.slice(0%2C240)%2Crect%3A%7Bx%3AMath.round(r.x%2BscrollX)%2Cy%3AMath.round(r.y%2BscrollY)%2Cw%3AMath.round(r.width)%2Ch%3AMath.round(r.height)%7D%2Cstyles%3Astyles(s)%7D)%3B%7D)%3B%0Adl(new%20Blob(%5BJSON.stringify(data%2Cnull%2C2)%5D%2C%7Btype%3A'application%2Fjson'%7D)%2C'ui-json-only-'%2Bhost%2B'-'%2Bts%2B'.json')%3B%0Afunction%20loadScript(src%2Cok%2Cfail)%7Bvar%20s%3Ddocument.createElement('script')%3Bs.src%3Dsrc%3Bs.onload%3Dok%3Bs.onerror%3Dfail%3Bdocument.head.appendChild(s)%7D%0Afunction%20wait(ms)%7Breturn%20new%20Promise(function(r)%7BsetTimeout(r%2Cms)%7D)%7D%0Aasync%20function%20capture()%7Bif(document.fonts%26%26document.fonts.ready)%7Btry%7Bawait%20document.fonts.ready%7Dcatch(e)%7B%7D%7Dvar%20pageWidth%3DMath.max(root.scrollWidth%2Cbody.scrollWidth%2Croot.clientWidth%2CinnerWidth)%3Bvar%20pageHeight%3DMath.max(root.scrollHeight%2Cbody.scrollHeight%2Croot.clientHeight%2CinnerHeight)%3Bvar%20tileHeight%3DinnerHeight%3Bvar%20scale%3DMath.min(2%2CdevicePixelRatio%7C%7C1)%3Bvar%20out%3Ddocument.createElement('canvas')%3Bout.width%3DMath.round(pageWidth*scale)%3Bout.height%3DMath.round(pageHeight*scale)%3Bvar%20ctx%3Dout.getContext('2d')%3Bvar%20startX%3DscrollX%2CstartY%3DscrollY%3Bfor(var%20y%3D0%3By%3CpageHeight%3By%2B%3DtileHeight)%7BscrollTo(0%2Cy)%3Bawait%20wait(250)%3Bvar%20tile%3Dawait%20html2canvas(document.documentElement%2C%7BuseCORS%3Atrue%2CbackgroundColor%3A'%23ffffff'%2Cscale%3Ascale%2Cwidth%3ApageWidth%2Cheight%3AMath.min(tileHeight%2CpageHeight-y)%2Cx%3A0%2Cy%3Ay%2CscrollX%3A0%2CscrollY%3A0%2CwindowWidth%3ApageWidth%2CwindowHeight%3AinnerHeight%2CremoveContainer%3Atrue%2Conclone%3Afunction(doc)%7Bvar%20style%3Ddoc.createElement('style')%3Bstyle.textContent%3D'*%7Banimation%3Anone%20!important%3Btransition%3Anone%20!important%3Bcaret-color%3Atransparent%20!important%3B%7D'%3Bdoc.head.appendChild(style)%3BArray.prototype.forEach.call(doc.querySelectorAll('*')%2Cfunction(el)%7Bvar%20s%3Ddoc.defaultView.getComputedStyle(el)%3Bif(s.position%3D%3D%3D'fixed'%7C%7Cs.position%3D%3D%3D'sticky')%7Bel.style.position%3D'absolute'%3Bel.style.top%3D(el.offsetTop%7C%7C0)%2B'px'%3Bel.style.left%3D(el.offsetLeft%7C%7C0)%2B'px'%3Bel.style.right%3D'auto'%3Bel.style.bottom%3D'auto'%3B%7D%7D)%3B%7D%7D)%3Bctx.drawImage(tile%2C0%2CMath.round(y*scale))%7DscrollTo(startX%2CstartY)%3Bout.toBlob(function(b)%7Bif(b)dl(b%2C'ui-shot-'%2Bhost%2B'-'%2Bts%2B'.png')%7D%2C'image%2Fpng')%7D%0Aif(window.html2canvas)%7Bcapture()%7Delse%7BloadScript('https%3A%2F%2Fcdn.jsdelivr.net%2Fnpm%2Fhtml2canvas%401.4.1%2Fdist%2Fhtml2canvas.min.js'%2Ccapture%2Cfunction()%7Balert('Screenshot%20blocked.%20JSON%20is%20still%20valid.')%7D)%7D%0A%7D)()">
+        📷 JSON + Screenshot
+      </a>
+      <a class="bm-btn secondary" id="bmJson"
+        href="javascript:(function()%7Bfunction%20dl(b%2Cn)%7Bvar%20a%3Ddocument.createElement('a')%3Ba.href%3DURL.createObjectURL(b)%3Ba.download%3Dn%3Bdocument.body.appendChild(a)%3Ba.click()%3Ba.remove()%3BsetTimeout(function()%7BURL.revokeObjectURL(a.href)%7D%2C1500)%7D%0Afunction%20keep(v)%7Breturn%20v%26%26v!%3D%3D'normal'%26%26v!%3D%3D'none'%26%26v!%3D%3D'0px'%26%26v!%3D%3D'rgba(0%2C%200%2C%200%2C%200)'%3Fv%3Aundefined%7D%0Afunction%20visible(e)%7Bvar%20r%3De.getBoundingClientRect()%2Cs%3DgetComputedStyle(e)%3Breturn%20r.width%3E2%26%26r.height%3E2%26%26s.display!%3D%3D'none'%26%26s.visibility!%3D%3D'hidden'%26%26Number(s.opacity)!%3D%3D0%7D%0Afunction%20directText(e)%7Bvar%20out%3D''%3Be.childNodes.forEach(function(n)%7Bif(n.nodeType%3D%3D%3D3)out%2B%3Dn.textContent%2B'%20'%7D)%3Breturn%20out.replace(%2F%5Cs%2B%2Fg%2C'%20').trim()%7D%0Afunction%20textOf(e)%7Bvar%20tag%3De.tagName.toLowerCase()%3Bvar%20val%3D(tag%3D%3D%3D'input'%7C%7Ctag%3D%3D%3D'textarea'%7C%7Ctag%3D%3D%3D'select')%3F(e.value%7C%7C'')%3A''%3Breturn(val%7C%7CdirectText(e)%7C%7Ce.getAttribute('aria-label')%7C%7Ce.getAttribute('placeholder')%7C%7Ce.alt%7C%7C'').replace(%2F%5Cs%2B%2Fg%2C'%20').trim()%7D%0Afunction%20meaningful(e)%7Bvar%20tag%3De.tagName.toLowerCase()%2Ct%3DtextOf(e)%3Bif(%5B'script'%2C'style'%2C'meta'%2C'link'%2C'noscript'%5D.indexOf(tag)%3E%3D0)return%20false%3Bif(%5B'button'%2C'a'%2C'label'%2C'input'%2C'textarea'%2C'select'%2C'img'%2C'svg'%5D.indexOf(tag)%3E%3D0)return%20true%3Bif(%2F%5Eh%5B1-6%5D%24%2F.test(tag)%7C%7C%5B'p'%2C'li'%5D.indexOf(tag)%3E%3D0)return%20true%3Bif(e.getAttribute('role')%7C%7Ce.getAttribute('aria-label'))return%20true%3Bif(t%26%26t.length%3E1%26%26e.children.length%3C%3D1)return%20true%3Breturn%20false%7D%0Afunction%20styles(s)%7Breturn%7Bcolor%3Akeep(s.color)%2Cbackground%3Akeep(s.backgroundColor)%2CfontFamily%3Akeep(s.fontFamily)%2CfontSize%3Akeep(s.fontSize)%2CfontWeight%3Akeep(s.fontWeight)%2ClineHeight%3Akeep(s.lineHeight)%2CletterSpacing%3Akeep(s.letterSpacing)%2CtextAlign%3Akeep(s.textAlign)%2CborderRadius%3Akeep(s.borderRadius)%2CborderColor%3Akeep(s.borderColor)%2CborderWidth%3Akeep(s.borderWidth)%7D%7D%0Avar%20root%3Ddocument.documentElement%2Cbody%3Ddocument.body%2Chost%3Dlocation.hostname.split('.').join('_')%2Cts%3DDate.now()%3B%0Avar%20data%3D%7Bmeta%3A%7Burl%3Alocation.href%2Ctitle%3Adocument.title%2Ctimestamp%3Anew%20Date().toISOString()%2Cviewport%3A%7Bw%3AinnerWidth%2Ch%3AinnerHeight%7D%2Cpage%3A%7Bw%3AMath.max(root.scrollWidth%2Cbody.scrollWidth%2Croot.clientWidth)%2Ch%3AMath.max(root.scrollHeight%2Cbody.scrollHeight%2Croot.clientHeight)%7D%2Cdpr%3AdevicePixelRatio%2Cextractor%3A'ui-diff-json-only-v12'%7D%2Celements%3A%5B%5D%7D%3B%0Adocument.querySelectorAll('body%20*').forEach(function(e)%7Bif(!visible(e)%7C%7C!meaningful(e))return%3Bvar%20s%3DgetComputedStyle(e)%2Cr%3De.getBoundingClientRect()%2Ctag%3De.tagName.toLowerCase()%2Ctxt%3DtextOf(e)%3Bdata.elements.push(%7Btag%3Atag%2Cid%3Ae.id%7C%7C''%2Cclasses%3A(typeof%20e.className%3D%3D%3D'string'%3Fe.className%3A'').slice(0%2C140)%2Crole%3Ae.getAttribute('role')%7C%7C''%2CariaLabel%3Ae.getAttribute('aria-label')%7C%7C''%2Cname%3Ae.getAttribute('name')%7C%7C''%2Ctype%3Ae.getAttribute('type')%7C%7C''%2Cvalue%3A(tag%3D%3D%3D'input'%7C%7Ctag%3D%3D%3D'textarea'%7C%7Ctag%3D%3D%3D'select')%3F(e.value%7C%7C'')%3A''%2Cplaceholder%3Ae.getAttribute('placeholder')%7C%7C''%2Ctext%3Atxt.slice(0%2C240)%2Crect%3A%7Bx%3AMath.round(r.x%2BscrollX)%2Cy%3AMath.round(r.y%2BscrollY)%2Cw%3AMath.round(r.width)%2Ch%3AMath.round(r.height)%7D%2Cstyles%3Astyles(s)%7D)%3B%7D)%3B%0Adl(new%20Blob(%5BJSON.stringify(data%2Cnull%2C2)%5D%2C%7Btype%3A'application%2Fjson'%7D)%2C'ui-json-only-'%2Bhost%2B'-'%2Bts%2B'.json')%3B%0A%7D)()">
+        { } JSON Only
+      </a>
+    </div>
+
+    <!-- JSON Inputs -->
+    <div class="inputs-grid">
+      <!-- Figma JSON -->
+      <div class="input-field">
+        <div class="field-head">
+          <label>Figma JSON <span style="color:var(--muted);font-weight:400">(exported from the Figma plugin)</span></label>
+          <button type="button" class="btn-clean" onclick="clearInput('fig')">Clear</button>
+        </div>
+        <div class="drop-zone" id="figDrop">
+          <div class="dz-title">Drop Figma JSON here</div>
+          <div class="dz-sub">or click to browse</div>
+        </div>
+        <input class="file-input" id="figFile" type="file" accept=".json,application/json">
+        <textarea id="figInput" placeholder='Paste Figma JSON here...&#10;&#10;It should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'></textarea>
+      </div>
+
+      <!-- Browser JSON -->
+      <div class="input-field">
+        <div class="field-head">
+          <label>Browser JSON <span style="color:var(--muted);font-weight:400">(from the bookmarklet above)</span></label>
+          <button type="button" class="btn-clean" onclick="clearInput('brow')">Clear</button>
+        </div>
+        <div class="drop-zone" id="browDrop">
+          <div class="dz-title">Drop Browser JSON here</div>
+          <div class="dz-sub">or click to browse</div>
+        </div>
+        <input class="file-input" id="browFile" type="file" accept=".json,application/json">
+        <textarea id="browInput" placeholder='Paste Browser JSON here...&#10;&#10;It should look like: {"meta":{"url":"..."},"elements":[...]}'></textarea>
+      </div>
+    </div>
+
+    <!-- Screenshot -->
+    <div class="shot-field">
+      <div class="field-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <label style="font-weight:600;font-size:13px">Screenshot <span style="color:var(--muted);font-weight:400">(optional — enables visual overlay)</span></label>
+        <button type="button" class="btn-clean" onclick="clearInput('shot')">Clear</button>
+      </div>
+      <div class="drop-zone" id="shotDrop">
+        <div class="dz-title">Drop screenshot PNG here</div>
+        <div class="dz-sub">Generated by the "JSON + Screenshot" bookmarklet</div>
+      </div>
+      <input class="file-input" id="shotFile" type="file" accept="image/*">
+    </div>
+
+    <!-- Actions -->
+    <div class="actions-row">
+      <button class="btn-run" onclick="runDiff()">▶ Run Diff</button>
+      <button class="btn-clear" onclick="clearAll()">Clear All</button>
+    </div>
+
+    <!-- Status -->
+    <div class="status-bar">
+      <div class="status-chip" id="figStatus"><div class="dot"></div>Figma JSON: empty</div>
+      <div class="status-chip" id="browStatus"><div class="dot"></div>Browser JSON: empty</div>
+      <div class="status-chip" id="shotStatus"><div class="dot"></div>Screenshot: empty</div>
+    </div>
+
+  </div>
 </div>
+
+<!-- ═══ RESULTS CARD ═══ -->
+<div class="card" id="results" style="display:none">
+
+  <!-- Auto-swap warning -->
+  <div class="swap-banner" id="swapBanner" style="display:none;margin:16px 20px 0">
+    <div class="icon">⚠️</div>
+    <p><strong>Files were auto-swapped.</strong> The Figma JSON was detected in the Browser field and vice versa — the diff engine corrected this automatically. For best results, load each file into its matching field.</p>
+  </div>
+
+  <!-- Results header -->
+  <div class="results-header">
+    <div class="rh-left">
+      <h2 id="rTitle">Results</h2>
+      <div class="rh-sub" id="rSub"></div>
+    </div>
+    <div id="rBadge" class="badge ok">Passed</div>
+  </div>
+
+  <!-- Score boxes -->
+  <div class="score-grid" id="score"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="filter-btns">
+      <button data-f="all" onclick="setFilter('all')" class="active">All</button>
+      <button data-f="passed" onclick="setFilter('passed')">✓ Passed</button>
+      <button data-f="failed" onclick="setFilter('failed')">✗ Failed</button>
+      <button data-f="warning" onclick="setFilter('warning')">⚠ Warnings</button>
+      <button data-f="missing" onclick="setFilter('missing')">Missing</button>
+      <button data-f="ignored" onclick="setFilter('ignored')">Ignored</button>
+    </div>
+    <div class="export-btns">
+      <button class="btn-export-json" onclick="exportJSON()">Export JSON</button>
+      <button class="btn-export-csv" onclick="exportCSV()">Export CSV</button>
+      <button class="btn-export-xlsx" onclick="exportExcel()">📊 Export Excel</button>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <div id="sections"></div>
+
+</div>
+</main>
+</div>
+
 <script>
-const CFG={matchMin:52,fontTol:1};
-let S={report:null,filter:'all',shot:null,overlayPage:null};
-function byId(id){return document.getElementById(id)}
-function wire(dropId,fileId,textareaId,isImage){const drop=byId(dropId),file=byId(fileId);drop.addEventListener('click',function(){file.click()});['dragenter','dragover'].forEach(function(evt){drop.addEventListener(evt,function(e){e.preventDefault();e.stopPropagation();drop.classList.add('drag')})});['dragleave','dragend'].forEach(function(evt){drop.addEventListener(evt,function(e){e.preventDefault();e.stopPropagation();drop.classList.remove('drag')})});drop.addEventListener('drop',function(e){e.preventDefault();e.stopPropagation();drop.classList.remove('drag');if(e.dataTransfer.files&&e.dataTransfer.files[0])readFile(e.dataTransfer.files[0],textareaId,isImage,drop,file)});file.addEventListener('change',function(){if(file.files&&file.files[0])readFile(file.files[0],textareaId,isImage,drop,file)})}
-function readFile(file,textareaId,isImage,drop,fileInput){const reader=new FileReader();reader.onload=function(e){if(isImage){S.shot=e.target.result;drop.innerHTML='<strong>✓ '+esc(file.name)+'</strong><span>Screenshot loaded</span>';byId('shotStatus').textContent='Screenshot: loaded'}else{byId(textareaId).value=e.target.result;drop.innerHTML='<strong>✓ '+esc(file.name)+'</strong><span>Loaded</span>';updateStatus(textareaId)}};if(isImage)reader.readAsDataURL(file);else reader.readAsText(file)}
-wire('figDrop','figFile','figInput',false);wire('browDrop','browFile','browInput',false);wire('shotDrop','shotFile','',true);
-function updateStatus(id){try{let obj=JSON.parse(byId(id).value||'{}');if(id==='figInput'){let c=obj.summary?.textNodes??obj.summary?.texts??'unknown';byId('figStatus').textContent='Figma JSON: loaded · text nodes: '+c}else{byId('browStatus').textContent='Browser JSON: loaded · elements: '+((obj.elements||[]).length)}}catch(e){if(id==='figInput')byId('figStatus').textContent='Figma JSON: invalid/empty';else byId('browStatus').textContent='Browser JSON: invalid/empty'}}
-byId('figInput').addEventListener('input',function(){updateStatus('figInput')});byId('browInput').addEventListener('input',function(){updateStatus('browInput')});
-function clearInput(which){if(which==='fig'){byId('figInput').value='';byId('figFile').value='';byId('figDrop').innerHTML='<strong>Drop Figma JSON</strong><span>or click to browse</span>';byId('figStatus').textContent='Figma JSON: empty'}if(which==='brow'){byId('browInput').value='';byId('browFile').value='';byId('browDrop').innerHTML='<strong>Drop Browser JSON</strong><span>or click to browse</span>';byId('browStatus').textContent='Browser JSON: empty'}if(which==='shot'){S.shot=null;byId('shotFile').value='';byId('shotDrop').innerHTML='<strong>Drop screenshot</strong><span>Used only for visual overlay</span>';byId('shotStatus').textContent='Screenshot: empty'}}
-function clearAll(){clearInput('fig');clearInput('brow');clearInput('shot');S.report=null;byId('results').classList.remove('visible');byId('sections').innerHTML='';byId('score').innerHTML='';byId('rTitle').textContent='Results';byId('rSub').textContent='-'}
-function norm(s){return String(s||'').replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim().toLowerCase()}function px(v){return v==null?null:parseFloat(v)}
-function colorHex(v){if(!v)return null;v=String(v).trim();if(v.startsWith('#'))return v.length===9?v.slice(0,7).toUpperCase():v.toUpperCase();let m=v.match(/(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)/);return m?'#'+m.slice(1).map(x=>Math.round(+x).toString(16).padStart(2,'0')).join('').toUpperCase():null}
-function same(a,b){return !!(a&&b&&a.toUpperCase()===b.toUpperCase())}
-function amountTokens(s){return String(s||'').match(/\$\s*[0-9,]+(?:\.\d+)?/g)||[]}function amountShape(s){return norm(s).replace(/\$\s*[0-9,]+(?:\.\d+)?/g,'$amount')}function amountMismatch(a,b){let A=amountTokens(a),B=amountTokens(b);return A.length&&B.length&&A[0]!==B[0]&&amountShape(a)===amountShape(b)}
-function ignorePlaceholder(t){return /\$\s*X|X,XXX|\{\{|\bplaceholder\b/i.test(String(t||''))}function dynamicOffer(t,path){return /Offers|Financing offers|APR Label|Collapsed|Expanded/.test(path||'') && (/^\$[0-9,.]+\/?(?:mo)?$/i.test(String(t||'').trim()) || /^\d+\s+months$/i.test(String(t||'').trim()))}
-function visibleExpanded(brows){return brows.some(e=>/total payments/i.test(e.text||''))}
-function detect(f){if(f.document)return f.document;if(f.root)return f.root;if(f.structure)return f.structure;if(f.nodes){let x=Object.values(f.nodes).find(n=>n&&n.document);return x?x.document:f}return f}
-function rootBox(root){let b=root.absoluteBoundingBox||root.absoluteRenderBounds||{x:0,y:0,width:0,height:0};return {x:b.x||0,y:b.y||0,w:b.width||b.w||0,h:b.height||b.h||0}}
-function walk(n,out,base,path=''){if(!n||typeof n!=='object')return;let p=path?path+' / '+(n.name||''):(n.name||''),bb=n.absoluteBoundingBox||n.absoluteRenderBounds||null;let text='';if(typeof n.text==='string')text=n.text;else if(n.text&&n.text.characters)text=n.text.characters;else if(n.typography&&n.typography.characters)text=n.typography.characters;else text=n.characters||n.content||'';let typo=n.typography||n.text||{};let fill=n.fillHex||n.mainFillColor||n.textColor||n.backgroundColor||null;let item={name:n.name||'',type:n.type||'',path:p,text:String(text||'').trim(),x:bb?(bb.x-base.x):null,y:bb?(bb.y-base.y):null,w:bb?(bb.width||bb.w):n.size?.width||n.size?.w||null,h:bb?(bb.height||bb.h):n.size?.height||n.size?.h||null,fontSize:typo.fontSize||n.fontSize||null,color:n.type==='TEXT'?fill:null};if(item.text||item.fontSize||item.color||item.w||item.h)out.push(item);(n.children||[]).forEach(c=>walk(c,out,base,p))}
-function sim(a,b){a=norm(a);b=norm(b);if(!a||!b)return 0;if(a===b)return 120;if(amountMismatch(a,b))return 105;if(a.includes(b)||b.includes(a))return Math.min(96,60+Math.min(a.length,b.length));let A=new Set(a.split(' ')),B=new Set(b.split(' ')),i=0;A.forEach(x=>{if(B.has(x))i++});return Math.round(i/Math.max(A.size,B.size)*70)}
-function contextBonus(fig,b){let p=fig.path||'', cls=b.classes||'', tag=b.tag||'';let bonus=0;if(/Placeholder|Main component|Fields/.test(p)&&tag==='input')bonus+=65;if(/Slider|Frame 18/.test(p)&&/label-field/.test(cls))bonus+=45;if(/APR Label|months/.test(p)&&/label-months/.test(cls))bonus+=45;if(/Offers|Financing/.test(p)&&(/offer-item|tae|months|label-months/.test(cls)||tag==='offer-item'))bonus+=20;return bonus}
-function positionPenalty(fig,b){if(fig.x==null||fig.y==null||!b.rect)return 0;let dx=Math.abs((fig.x||0)-(b.rect.x||0)),dy=Math.abs((fig.y||0)-(b.rect.y||0));return Math.min(45,(dx+dy)/18)}
-function match(fig,brows,used){let best=null,score=-999;brows.forEach((b,i)=>{if(used.has(i))return;let s=sim(fig.text,b.text||b.value||b.ariaLabel||b.id);if(s<35)return;s+=contextBonus(fig,b);s-=positionPenalty(fig,b);if(s>score){score=s;best={b,i,score:s,amountMismatch:amountMismatch(fig.text,b.text||b.value||'')}}});return best&&best.score>=CFG.matchMin?best:null}
-function why(row){if(row.check==='State mismatch')return 'Figma and browser show different dynamic data. Do not compare typography/color for this element until the state/data is aligned.';if(row.check==='Ignored dynamic placeholder')return 'This is a dynamic placeholder in Figma and should not be compared as fixed UI text.';if(row.check==='Hidden variant ignored')return 'This Figma node belongs to a variant/state that is not visible in the browser capture.';if(row.check==='Dynamic offer data')return 'Offer amount/term changes with scenario data. Validate only when Figma and browser use the same offer data.';if(row.check==='Text presence')return 'Figma contains “'+row.element+'”, but Browser JSON did not include matching visible text. Check page state, viewport/breakpoint, language, and rerun JSON + Screenshot.';if(row.check==='Element match')return 'Figma text was matched to a browser element with '+row.diff+' confidence.';if(row.status==='failed')return 'Expected '+row.expected+', but browser returned '+row.actual+'. Treat as mismatch if state is correct.';if(row.status==='warning')return 'Likely state/data/responsive related. Validate visually before opening a bug.';return 'Value matches within tolerance.'}
-function add(r,row){row.id=r.checks.length+1;row.why=row.why||why(row);r.checks.push(row)}
-function runDiff(){byId('results').classList.add('visible');let f,b;try{f=JSON.parse(byId('figInput').value.trim());b=JSON.parse(byId('browInput').value.trim())}catch(e){alert('Invalid JSON: '+e.message);return}let root=detect(f),base=rootBox(root),figEls=[];walk(root,figEls,base);let textEls=figEls.filter(x=>x.text);let brows=(b.elements||[]).filter(x=>x&&x.rect);let expandedVisible=visibleExpanded(brows);let r={checks:[],coverage:{figNodes:figEls.length,figText:textEls.length,browser:brows.length,matched:0,missing:0,ignored:0,warnings:0},meta:b.meta||{},page:b.meta?.page||null};let used=new Set();textEls.forEach(fig=>{let label=fig.text.slice(0,90);if(ignorePlaceholder(fig.text)){r.coverage.ignored++;add(r,{element:label,type:fig.type||'TEXT',check:'Ignored dynamic placeholder',expected:'Ignore dynamic placeholder',actual:'Ignored',diff:'n/a',tolerance:'n/a',status:'ignored',severity:'Info',figmaPath:fig.path,rect:null});return}if(/\/ Expanded(\/|$)/.test(fig.path)&&!expandedVisible){r.coverage.ignored++;add(r,{element:label,type:fig.type||'TEXT',check:'Hidden variant ignored',expected:'Expanded state visible',actual:'Expanded state not captured',diff:'n/a',tolerance:'n/a',status:'ignored',severity:'Info',figmaPath:fig.path,rect:null});return}let m=match(fig,brows,used);if(!m){if(dynamicOffer(fig.text,fig.path)){r.coverage.warnings++;add(r,{element:label,type:fig.type||'TEXT',check:'Dynamic offer data',expected:'Same offer data/state',actual:'Different or not visible in browser capture',diff:'n/a',tolerance:'n/a',status:'warning',severity:'Low',figmaPath:fig.path,rect:null});return}r.coverage.missing++;add(r,{element:label,type:fig.type||'TEXT',check:'Text presence',expected:'Text should appear in browser JSON',actual:'No matching visible text found',diff:'n/a',tolerance:'n/a',status:'failed',severity:'Critical',figmaPath:fig.path,rect:null});return}used.add(m.i);let actualText=m.b.text||m.b.value||m.b.ariaLabel||'<'+m.b.tag+'>';if(m.amountMismatch){r.coverage.warnings++;add(r,{element:label,type:fig.type||m.b.tag,check:'State mismatch',expected:fig.text,actual:actualText,diff:'dynamic amount differs',tolerance:'state must match',status:'warning',severity:'High',figmaPath:fig.path,rect:m.b.rect});return}r.coverage.matched++;add(r,{element:label,type:fig.type||m.b.tag,check:'Element match',expected:fig.text,actual:actualText,diff:Math.round(m.score)+'%',tolerance:'≥'+CFG.matchMin+'%',status:'passed',severity:'Info',rect:m.b.rect});if(fig.fontSize){let a=px(m.b.styles?.fontSize),d=a==null?null:Math.abs(a-fig.fontSize);add(r,{element:label,type:'Typography',check:'Font size',expected:fig.fontSize+'px',actual:a==null?'n/a':a+'px',diff:d==null?'n/a':d+'px',tolerance:'±'+CFG.fontTol+'px',status:d!=null&&d<=CFG.fontTol?'passed':'failed',severity:'Medium',rect:m.b.rect})}if(fig.color){let a=colorHex(m.b.styles?.color),ok=same(fig.color,a);add(r,{element:label,type:'Color',check:'Text color',expected:fig.color,actual:a||'n/a',diff:ok?'0':'mismatch',tolerance:'exact',status:ok?'passed':'failed',severity:'High',rect:m.b.rect})}});finish(r)}
-function finish(r){S.report=r;let pass=r.checks.filter(x=>x.status==='passed').length,fail=r.checks.filter(x=>x.status==='failed').length,warn=r.checks.filter(x=>x.status==='warning').length,ignored=r.checks.filter(x=>x.status==='ignored').length,total=r.checks.length;byId('rTitle').textContent=fail?'Mismatches found':warn?'Review warnings':'UI matches';byId('rSub').textContent=(r.meta.title||'-')+' · '+(r.meta.url||'');byId('rBadge').className='badge '+(fail?'bad':warn?'warn':'ok');byId('rBadge').textContent=fail?fail+' failed':warn?warn+' warnings':'Passed';byId('score').innerHTML=box('Passed',pass)+box('Failed',fail)+box('Warnings',warn)+box('Ignored',ignored)+box('Figma text',r.coverage.figText)+box('Matched',r.coverage.matched);renderSections()}
-function box(k,v){return '<div class="box"><small>'+esc(k)+'</small><b>'+esc(v)+'</b></div>'}
-function currentRows(){let f=S.filter;return S.report.checks.filter(x=>f==='all'||(f==='missing'&&x.check==='Text presence')||x.status===f)}
-function setFilter(f){S.filter=f;document.querySelectorAll('.toolbar button').forEach(b=>b.classList.toggle('active',b.dataset.f===f));renderSections()}
-function sec(t,s,b,c){return '<div class="section '+(c?'collapsed':'')+'"><div class="section-title" onclick="this.parentElement.classList.toggle(\'collapsed\')"><h3>'+esc(t)+'</h3><span>'+esc(s)+'</span></div><div class="section-body">'+b+'</div></div>'}
-function renderSections(){byId('sections').innerHTML=missingHtml()+tableHtml()+overlayHtml()}
-function missingHtml(){let rows=S.report.checks.filter(x=>x.check==='Text presence');if(!rows.length)return sec('Missing fixed text','0','<div class="empty">No missing fixed Figma text elements.</div>',true);let h='<div class="missing-list">'+rows.slice(0,30).map(x=>'<div class="missing-card"><b>'+esc(x.element)+'</b><span>'+esc(x.why)+'</span><br><span>Figma path: '+esc(x.figmaPath||'')+'</span></div>').join('')+'</div>';return sec('Missing fixed Figma text in browser JSON',rows.length+' missing',h,false)}
-function tableHtml(){let rows=currentRows();let h='<div class="table-wrap"><table class="tbl"><thead><tr><th>#</th><th>Element</th><th>Check</th><th>Expected</th><th>Actual</th><th>Status</th><th>What this means</th><th>Figma path</th></tr></thead><tbody>';rows.forEach(x=>h+='<tr><td>'+x.id+'</td><td>'+esc(x.element)+'</td><td>'+esc(x.check)+'</td><td>'+esc(x.expected)+'</td><td>'+esc(x.actual)+'</td><td><span class="pill '+x.status+'">'+x.status+'</span></td><td class="why">'+esc(x.why)+'</td><td>'+esc(x.figmaPath||'')+'</td></tr>');return sec('QA checks',rows.length+' visible',h+'</tbody></table></div>',false)}
-function overlayHtml(){if(!S.shot)return sec('Visual overlay','optional','<div class="empty">Upload the screenshot generated with JSON + Screenshot.</div>',true);let issues=S.report.checks.filter(x=>x.rect&&(x.status==='failed'||x.status==='warning'));let map=new Map();issues.forEach(x=>{let key=[x.rect.x,x.rect.y,x.rect.w,x.rect.h,x.element].join('|');if(!map.has(key))map.set(key,{...x,checks:[x.check]});else map.get(key).checks.push(x.check)});let marks=[...map.values()].slice(0,50);if(!marks.length)return sec('Visual overlay','0 marked','<div class="empty">No failed/warning checks with browser coordinates. Missing or ignored items are listed above instead.</div>',true);let page=S.report.page||S.report.meta.page||estimatePage();S.overlayPage=page;let pins=marks.map((m,i)=>{let r=m.rect;let cx=r.x+r.w/2,cy=r.y+r.h/2;return '<div class="pin '+m.status+'" data-x="'+cx+'" data-y="'+cy+'" data-w="'+r.w+'" data-h="'+r.h+'"><div class="pin-label">#'+(i+1)+' '+m.status+'</div></div>'}).join('');let list='<div class="side">'+marks.map((m,i)=>'<div class="issue"><b>#'+(i+1)+' '+esc(m.element)+'</b><br><span>'+esc(m.checks.join(', '))+'</span></div>').join('')+'</div>';setTimeout(positionOverlayPins,0);return sec('Visual overlay',marks.length+' grouped marks','<div class="overlay-grid"><div class="stage"><div class="stage-inner" id="stageInner"><img id="overlayImg" onload="positionOverlayPins()" src="'+S.shot+'" alt="screenshot">'+pins+'</div></div>'+list+'</div>',false)}
-function positionOverlayPins(){let img=byId('overlayImg'),inner=byId('stageInner');if(!img||!inner||!S.overlayPage)return;let w=img.clientWidth,h=img.clientHeight;if(!w||!h)return;inner.style.width=w+'px';inner.style.height=h+'px';let sx=w/S.overlayPage.w,sy=h/S.overlayPage.h;document.querySelectorAll('.pin').forEach(function(p){let x=parseFloat(p.dataset.x)||0,y=parseFloat(p.dataset.y)||0,pw=Math.max(22,(parseFloat(p.dataset.w)||0)*sx),ph=Math.max(22,(parseFloat(p.dataset.h)||0)*sy);p.style.left=(x*sx)+'px';p.style.top=(y*sy)+'px';p.style.width=pw+'px';p.style.height=ph+'px'})}
-window.addEventListener('resize',positionOverlayPins);
-function estimatePage(){let maxX=1,maxY=1;(S.report.checks||[]).forEach(x=>{if(x.rect){maxX=Math.max(maxX,x.rect.x+x.rect.w);maxY=Math.max(maxY,x.rect.y+x.rect.h)}});return{w:maxX,h:maxY}}
-function exportCSV(){let h=['id','element','check','expected','actual','status','severity','why','figmaPath'];let csv=[h.join(',')].concat(S.report.checks.map(r=>h.map(k=>'"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');download(new Blob([csv],{type:'text/csv'}),'ui-diff-report.csv')}
-function exportJSON(){download(new Blob([JSON.stringify(S.report,null,2)],{type:'application/json'}),'ui-diff-report.json')}
-function download(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+const S = { report: null, shot: null, filter: 'all', overlayPage: null };
+const byId = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ═══════════════════════════════════════════════════════
+//  JSON TYPE DETECTION
+// ═══════════════════════════════════════════════════════
+function detectKind(obj) {
+  if (!obj || typeof obj !== 'object') return null;
+  if (obj.document && obj.metadata && obj.metadata.exporter) return 'figma';
+  if (obj.document && obj.document.type) return 'figma';
+  if (Array.isArray(obj.elements) && obj.meta && obj.meta.url) return 'browser';
+  if (Array.isArray(obj.elements) && obj.meta) return 'browser';
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════
+function norm(s) { return String(s || '').replace(/[‘’‚‛`´]/g, "’").replace(/\s+/g, ' ').trim().toLowerCase(); }
+function px(v) { return v == null ? null : parseFloat(v); }
+function colorHex(v) {
+  if (!v) return null;
+  v = String(v).trim();
+  if (v.startsWith('#')) return (v.length === 9 ? v.slice(0,7) : v).toUpperCase();
+  const m = v.match(/(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)/);
+  return m ? '#' + m.slice(1).map(x => Math.round(+x).toString(16).padStart(2,'0')).join('').toUpperCase() : null;
+}
+function sameColor(a,b) { return !!(a && b && a.toUpperCase() === b.toUpperCase()); }
+function amountTokens(s) { return String(s||'').match(/\$\s*[0-9,]+(?:\.\d+)?/g) || []; }
+function amountShape(s) { return norm(s).replace(/\$\s*[0-9,]+(?:\.\d+)?/g,'$amount'); }
+function amountMismatch(a,b) {
+  const A = amountTokens(a), B = amountTokens(b);
+  return A.length && B.length && A[0] !== B[0] && amountShape(a) === amountShape(b);
+}
+function ignorePlaceholder(t) { return /\$\s*X|X,XXX|\{\{|\bplaceholder\b/i.test(String(t||'')); }
+function dynamicOffer(t, path) {
+  return /Offers|Financing offers|APR Label|Collapsed|Expanded/.test(path||'') &&
+    (/^\$[0-9,.]+\/?(?:mo)?$/i.test(String(t||'').trim()) || /^\d+\s+months$/i.test(String(t||'').trim()));
+}
+function isSliderLabel(fig, brow) {
+  const p = String(fig.path||'').toLowerCase();
+  const cls = String(brow?.classes||'').toLowerCase();
+  return /label-field|min|max|slider|range/i.test(p+' '+cls);
+}
+function isDynamicTotal(text, path) {
+  const t = String(text||'').trim();
+  const p = String(path||'').toLowerCase();
+  return /total payments|total cost|total amount|grand total/i.test(t) ||
+    /\$\s*X,XXX|\$X,XXX|XX,XXX|\{\{.*total|\$[\d,]+\.XX/i.test(t) ||
+    /total payments|offer summary|collapsed|expanded|financing offers/i.test(p);
+}
+function hasExpandedVisible(brows) { return brows.some(e => /total payments/i.test(e.text||'')); }
+
+// ═══════════════════════════════════════════════════════
+//  FIGMA JSON PARSING
+// ═══════════════════════════════════════════════════════
+function detectRoot(f) {
+  if (f.document) return f.document;
+  if (f.root) return f.root;
+  if (f.structure) return f.structure;
+  if (f.nodes) { const x = Object.values(f.nodes).find(n => n && n.document); return x ? x.document : f; }
+  return f;
+}
+function rootBox(root) {
+  const b = root.absoluteBoundingBox || root.absoluteRenderBounds || {x:0,y:0,width:0,height:0};
+  return { x: b.x||0, y: b.y||0, w: b.width||b.w||0, h: b.height||b.h||0 };
+}
+function walk(n, out, base, path='') {
+  if (!n || typeof n !== 'object') return;
+  const p = path ? path+' / '+(n.name||'') : (n.name||'');
+  const bb = n.absoluteBoundingBox || n.absoluteRenderBounds || null;
+
+  // Extract text content
+  let text = '';
+  if (typeof n.text === 'string') text = n.text;
+  else if (n.text && n.text.characters) text = n.text.characters;
+  else if (n.typography && n.typography.characters) text = n.typography.characters;
+  else text = n.characters || n.content || '';
+
+  const typo = n.typography || (typeof n.text === 'object' ? n.text : null) || {};
+  const fill = n.fillHex || n.mainFillColor || n.textColor || n.backgroundColor || null;
+
+  const item = {
+    name: n.name||'',
+    type: n.type||'',
+    path: p,
+    text: String(text||'').trim(),
+    x: bb ? (bb.x - base.x) : null,
+    y: bb ? (bb.y - base.y) : null,
+    w: bb ? (bb.width||bb.w) : (n.size?.width||null),
+    h: bb ? (bb.height||bb.h) : (n.size?.height||null),
+    fontSize: typo.fontSize || n.fontSize || null,
+    color: n.type === 'TEXT' ? fill : null
+  };
+
+  if (item.text || item.fontSize || item.color || item.w || item.h) out.push(item);
+  (n.children || []).forEach(c => walk(c, out, base, p));
+}
+
+// ═══════════════════════════════════════════════════════
+//  MATCHING
+// ═══════════════════════════════════════════════════════
+function sim(a, b) {
+  a = norm(a); b = norm(b);
+  if (!a || !b) return 0;
+  if (a === b) return 120;
+  if (amountMismatch(a, b)) return 105;
+  if (a.includes(b) || b.includes(a)) return Math.min(96, 60 + Math.min(a.length, b.length));
+  const A = new Set(a.split(' ')), B = new Set(b.split(' '));
+  let common = 0;
+  A.forEach(x => { if (B.has(x) && x.length > 1) common++; });
+  return Math.round(common / Math.max(A.size, B.size) * 70);
+}
+function contextBonus(fig, b) {
+  const p = fig.path||'', cls = b.classes||'', tag = b.tag||'';
+  let bonus = 0;
+  if (/Placeholder|Main component|Fields/.test(p) && tag==='input') bonus += 65;
+  if (/Slider|Frame 18/.test(p) && /label-field/.test(cls)) bonus += 45;
+  if (/APR Label|months/.test(p) && /label-months/.test(cls)) bonus += 45;
+  if (/Offers|Financing/.test(p) && (/offer-item|tae|months|label-months/.test(cls) || tag==='offer-item')) bonus += 20;
+  return bonus;
+}
+function posPenalty(fig, b) {
+  if (fig.x == null || fig.y == null || !b.rect) return 0;
+  const dx = Math.abs((fig.x||0)-(b.rect.x||0)), dy = Math.abs((fig.y||0)-(b.rect.y||0));
+  return Math.min(45, (dx+dy)/18);
+}
+function isAmountOnlyText(s) {
+  return /^\$\s*[0-9,]+(?:\.\d+)?$/.test(String(s||'').trim());
+}
+function hasMeaningfulTextMismatch(figText, browserText) {
+  const a = norm(figText), b = norm(browserText);
+  if (!a || !b || a === b) return false;
+  if (amountMismatch(a, b)) return true;
+  if (isAmountOnlyText(a) || isAmountOnlyText(b)) return false;
+  const A = new Set(a.split(' ').filter(Boolean));
+  const B = new Set(b.split(' ').filter(Boolean));
+  let common = 0;
+  A.forEach(x => { if (B.has(x) && x.length > 1) common++; });
+  return common < Math.min(3, Math.max(1, Math.min(A.size, B.size)));
+}
+function shouldCheckVisuals(fig, browserNode, score, actualText) {
+  if (!browserNode) return false;
+  if (score == null || score < 60) return false;
+  if (hasMeaningfulTextMismatch(fig.text, actualText)) return false;
+  return true;
+}
+function findMatch(fig, brows, used) {
+  let best = null, bestScore = -999;
+  brows.forEach((b, i) => {
+    if (used.has(i)) return;
+    const candidate = b.text || b.value || b.ariaLabel || b.id || '';
+    let s = sim(fig.text, candidate);
+    if (s < 30) return;
+    s += contextBonus(fig, b);
+    s -= posPenalty(fig, b);
+    if (s > bestScore) { bestScore = s; best = { b, i, score: s, amountMismatch: amountMismatch(fig.text, candidate) }; }
+  });
+  return best && best.score >= 35 ? best : null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  WHY / DESCRIPTIONS
+// ═══════════════════════════════════════════════════════
+function makeWhy(row) {
+  if (row.check === 'State mismatch') return 'Same template, different amount/data — check that Figma and browser use the same scenario.';
+  if (row.check === 'Ignored dynamic placeholder') return 'Dynamic placeholder in Figma ($X, {{...}}) — not expected to match literal browser text.';
+  if (row.check === 'Hidden variant ignored') return 'This node is inside an Expanded variant not visible in the current browser capture.';
+  if (row.check === 'Dynamic offer data') return 'Offer amount / term is scenario-specific. Verify the Figma design state matches the browser scenario.';
+  if (row.check === 'Dynamic total payments') return 'Visible only after an offer is selected (Expanded state). Ensure browser capture matches Figma state.';
+  if (row.check === 'Text presence') return '"' + row.element.slice(0,60) + '" appears in Figma but was not found in Browser JSON as visible text.';
+  if (row.check.startsWith('Element match')) return 'Matched with ' + row.diff + ' confidence score.';
+  if (row.status === 'failed') return 'Expected ' + row.expected + ' but browser had ' + row.actual + '.';
+  if (row.status === 'warning') return 'Possible state, data, or responsive difference.';
+  return 'Matches within tolerance.';
+}
+function addCheck(r, row) { row.id = r.checks.length + 1; if (!row.why) row.why = makeWhy(row); r.checks.push(row); }
+
+// ═══════════════════════════════════════════════════════
+//  RUN DIFF
+// ═══════════════════════════════════════════════════════
+function runDiff() {
+  let fRaw, bRaw;
+  try {
+    fRaw = JSON.parse(byId('figInput').value.trim());
+    bRaw = JSON.parse(byId('browInput').value.trim());
+  } catch(e) {
+    alert('Invalid JSON: ' + e.message);
+    return;
+  }
+
+  // Auto-detect and correct if files are swapped
+  const fKind = detectKind(fRaw);
+  const bKind = detectKind(bRaw);
+  let f = fRaw, b = bRaw, swapped = false;
+
+  if (fKind === 'browser' && bKind === 'figma') {
+    f = bRaw; b = fRaw; swapped = true;
+  } else if (fKind === null && bKind === 'figma') {
+    f = bRaw; b = fRaw; swapped = true;
+  } else if (fKind === null && bKind === null) {
+    // Unknown types, try to infer from structure
+    if (fRaw.elements && bRaw.document) { f = bRaw; b = fRaw; swapped = true; }
+  }
+
+  byId('swapBanner').style.display = swapped ? 'flex' : 'none';
+
+  // Parse Figma
+  const root = detectRoot(f);
+  const base = rootBox(root);
+  const figEls = [];
+  walk(root, figEls, base);
+  const textEls = figEls.filter(x => x.text);
+
+  // Parse Browser
+  const brows = (b.elements || []).filter(x => x && x.rect);
+  const expandedVisible = hasExpandedVisible(brows);
+
+  const r = {
+    checks: [],
+    coverage: { figNodes: figEls.length, figText: textEls.length, browser: brows.length, matched: 0, missing: 0, ignored: 0, warnings: 0 },
+    meta: b.meta || {},
+    page: b.meta?.page || null,
+    swapped
+  };
+  const used = new Set();
+
+  textEls.forEach(fig => {
+    const label = fig.text.slice(0, 90);
+
+    // Ignore dynamic placeholders
+    if (ignorePlaceholder(fig.text)) {
+      r.coverage.ignored++;
+      addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Ignored dynamic placeholder', expected: 'Dynamic — skip', actual: 'Ignored', diff: 'n/a', tolerance: 'n/a', status: 'ignored', severity: 'Info', figmaPath: fig.path, rect: null });
+      return;
+    }
+
+    // Ignore unexpanded variants
+    if (/\/ Expanded(\/|$)/.test(fig.path) && !expandedVisible) {
+      r.coverage.ignored++;
+      addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Hidden variant ignored', expected: 'Expanded state visible', actual: 'Not captured', diff: 'n/a', tolerance: 'n/a', status: 'ignored', severity: 'Info', figmaPath: fig.path, rect: null });
+      return;
+    }
+
+    // Dynamic total payments
+    if (isDynamicTotal(fig.text, fig.path)) {
+      r.coverage.warnings++;
+      addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Dynamic total payments', expected: fig.text, actual: 'Visible only after offer selection', diff: 'n/a', tolerance: 'state dependent', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: null });
+      return;
+    }
+
+    const m = findMatch(fig, brows, used);
+
+    if (!m) {
+      if (dynamicOffer(fig.text, fig.path)) {
+        r.coverage.warnings++;
+        addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Dynamic offer data', expected: 'Same offer state', actual: 'Different or not visible', diff: 'n/a', tolerance: 'n/a', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: null });
+        return;
+      }
+      r.coverage.missing++;
+      addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Text presence', expected: 'Visible in browser', actual: 'Not found', diff: 'n/a', tolerance: 'n/a', status: 'failed', severity: 'Critical', figmaPath: fig.path, rect: null });
+      return;
+    }
+
+    used.add(m.i);
+    const actualText = m.b.text || m.b.value || m.b.ariaLabel || '<'+m.b.tag+'>';
+
+    if (m.amountMismatch) {
+      if (isSliderLabel(fig, m.b)) {
+        r.coverage.matched++;
+        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+      } else {
+        r.coverage.warnings++;
+        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'State mismatch', expected: fig.text, actual: actualText, diff: 'amount differs', tolerance: 'must match state', status: 'warning', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
+        return;
+      }
+    } else {
+      r.coverage.matched++;
+      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+    }
+
+    const visualChecksAllowed = shouldCheckVisuals(fig, m.b, m.score, actualText);
+
+    if (!visualChecksAllowed && (fig.fontSize || fig.color)) {
+      r.coverage.warnings++;
+      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
+    }
+
+    // Font size check
+    if (fig.fontSize && visualChecksAllowed) {
+      const a = px(m.b.styles?.fontSize);
+      const d = a == null ? null : Math.abs(a - fig.fontSize);
+      addCheck(r, { element: label, type: 'Typography', check: 'Font size', expected: fig.fontSize+'px', actual: a==null ? 'n/a' : a+'px', diff: d==null ? 'n/a' : d+'px', tolerance: '±2px', status: d!=null && d<=2 ? 'passed' : 'failed', severity: 'Medium', figmaPath: fig.path, rect: m.b.rect });
+    }
+
+    // Color check
+    if (fig.color && visualChecksAllowed) {
+      const a = colorHex(m.b.styles?.color);
+      const ok = sameColor(fig.color, a);
+      addCheck(r, { element: label, type: 'Color', check: 'Text color', expected: fig.color, actual: a||'n/a', diff: ok ? '✓' : 'mismatch', tolerance: 'exact', status: ok ? 'passed' : 'failed', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
+    }
+  });
+
+  renderResults(r);
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════
+function renderResults(r) {
+  S.report = r;
+  const pass = r.checks.filter(x => x.status==='passed').length;
+  const fail = r.checks.filter(x => x.status==='failed').length;
+  const warn = r.checks.filter(x => x.status==='warning').length;
+  const ign  = r.checks.filter(x => x.status==='ignored').length;
+
+  byId('results').style.display = 'block';
+  byId('rTitle').textContent = fail ? 'Mismatches found' : warn ? 'Review warnings' : 'UI matches ✓';
+  byId('rSub').textContent = (r.meta.title||'-') + (r.meta.url ? ' · ' + r.meta.url : '');
+  const badge = byId('rBadge');
+  badge.className = 'badge ' + (fail ? 'bad' : warn ? 'warn' : 'ok');
+  badge.textContent = fail ? fail + ' Failed' : warn ? warn + ' Warnings' : 'All Passed';
+
+  byId('score').innerHTML =
+    scoreBox('Passed',     pass,                'passed') +
+    scoreBox('Failed',     fail,                'failed') +
+    scoreBox('Warnings',   warn,                'warnings') +
+    scoreBox('Ignored',    ign,                 'ignored') +
+    scoreBox('Matched',    r.coverage.matched, 'matched') +
+    scoreBox('Figma Text', r.coverage.figText, 'figtext');
+
+  renderSections();
+}
+
+function scoreBox(label, val, cls) {
+  return `<div class="score-box ${cls}"><span class="sb-label">${esc(label)}</span><div class="sb-value">${esc(val)}</div></div>`;
+}
+
+function currentRows() {
+  const f = S.filter;
+  return S.report.checks.filter(x =>
+    f === 'all' || (f === 'missing' && x.check === 'Text presence') || x.status === f
+  );
+}
+
+function setFilter(f) {
+  S.filter = f;
+  document.querySelectorAll('.filter-btns button').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+  renderSections();
+}
+
+function renderSections() {
+  byId('sections').innerHTML = renderMissing() + renderTable() + renderOverlay();
+}
+
+// Missing section
+function renderMissing() {
+  const rows = S.report.checks.filter(x => x.check === 'Text presence');
+  if (!rows.length) return section('Missing Figma Text in Browser', '0 missing', `<div class="empty-state">No missing fixed text elements — all Figma text nodes were found in the browser.</div>`, true);
+  const body = `<div class="missing-list">${rows.slice(0,40).map(x =>
+    `<div class="missing-card">
+      <div class="mc-text">${esc(x.element)}</div>
+      <div class="mc-sub">${esc(x.why)}</div>
+      <div class="mc-path">${esc(x.figmaPath||'')}</div>
+    </div>`
+  ).join('')}</div>`;
+  return section('Missing Figma Text in Browser', rows.length + ' missing', body, false);
+}
+
+// Main table
+function renderTable() {
+  const rows = currentRows();
+  if (!rows.length) return section('QA Checks', '0 results', `<div class="empty-state">No results match the current filter.</div>`, false);
+  const thead = `<tr>
+    <th style="width:36px">#</th>
+    <th style="min-width:140px">Element</th>
+    <th style="width:130px">Check</th>
+    <th style="min-width:110px">Expected</th>
+    <th style="min-width:110px">Actual</th>
+    <th style="width:90px">Status</th>
+    <th style="min-width:180px">What this means</th>
+    <th>Figma path</th>
+  </tr>`;
+  const tbody = rows.map(x => `<tr id="check-row-${x.id}">
+    <td style="color:var(--muted)">${x.id}</td>
+    <td>${esc(x.element)}</td>
+    <td class="td-mono">${esc(x.check)}</td>
+    <td class="td-mono">${esc(x.expected)}</td>
+    <td class="td-mono">${esc(x.actual)}</td>
+    <td><span class="pill ${x.status}">${x.status}</span></td>
+    <td class="td-why">${esc(x.why)}</td>
+    <td class="td-path">${esc(x.figmaPath||'')}</td>
+  </tr>`).join('');
+  const body = `<div class="table-wrap"><table class="tbl"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
+  return section('QA Checks', rows.length + ' rows', body, false);
+}
+
+// Visual overlay
+function renderOverlay() {
+  if (!S.shot) return section('Visual Overlay', 'optional', `<div class="empty-state">Upload the screenshot generated by the "JSON + Screenshot" bookmarklet to see a visual overlay.</div>`, true);
+  const issues = S.report.checks.filter(x => x.rect && (x.status==='failed'||x.status==='warning'));
+  if (!issues.length) return section('Visual Overlay', '0 marks', `<div class="empty-state">No failed or warning checks with browser coordinates to mark.</div>`, true);
+
+  const map = new Map();
+  issues.forEach(x => {
+    const key = [x.rect.x,x.rect.y,x.rect.w,x.rect.h,x.element].join('|');
+    if (!map.has(key)) map.set(key, {...x, checks:[x.check], rowId:x.id});
+    else map.get(key).checks.push(x.check);
+  });
+  const marks = [...map.values()].slice(0,60);
+  const page = S.report.page || estimatePage();
+  S.overlayPage = page;
+
+  const pins = marks.map(m => {
+    const r = m.rect, cx = r.x+r.w/2, cy = r.y+r.h/2;
+    return `<div class="pin ${m.status}" data-x="${cx}" data-y="${cy}" data-w="${r.w}" data-h="${r.h}" onclick="scrollToCheck(${m.rowId})">
+      <div class="pin-label">#${m.rowId}</div>
+    </div>`;
+  }).join('');
+
+  const sideCards = marks.map(m =>
+    `<div class="issue-card" onclick="scrollToCheck(${m.rowId})">
+      <div class="ic-title">#${m.rowId} ${esc(m.element.slice(0,40))}</div>
+      <div class="ic-sub">${esc(m.checks.join(', '))}</div>
+    </div>`
+  ).join('');
+
+  setTimeout(positionPins, 0);
+
+  const body = `<div class="overlay-grid">
+    <div class="stage">
+      <div class="stage-inner" id="stageInner">
+        <img id="overlayImg" onload="positionPins()" src="${S.shot}" alt="screenshot">
+        ${pins}
+      </div>
+    </div>
+    <div class="overlay-side">${sideCards}</div>
+  </div>`;
+  return section('Visual Overlay', marks.length + ' marks', body, false);
+}
+
+function positionPins() {
+  const img = byId('overlayImg'), inner = byId('stageInner');
+  if (!img || !inner || !S.overlayPage) return;
+  const w = img.clientWidth, h = img.clientHeight;
+  if (!w || !h) return;
+  inner.style.width = w+'px'; inner.style.height = h+'px';
+  const sx = w/S.overlayPage.w, sy = h/S.overlayPage.h;
+  document.querySelectorAll('.pin').forEach(p => {
+    const x = parseFloat(p.dataset.x)||0, y = parseFloat(p.dataset.y)||0;
+    const pw = Math.max(20,(parseFloat(p.dataset.w)||0)*sx);
+    const ph = Math.max(20,(parseFloat(p.dataset.h)||0)*sy);
+    p.style.left = (x*sx)+'px'; p.style.top = (y*sy)+'px';
+    p.style.width = pw+'px'; p.style.height = ph+'px';
+  });
+}
+
+function estimatePage() {
+  let maxX = 800, maxY = 1000;
+  (S.report.checks||[]).forEach(x => {
+    if (x.rect) { maxX = Math.max(maxX, x.rect.x+x.rect.w); maxY = Math.max(maxY, x.rect.y+x.rect.h); }
+  });
+  return {w:maxX, h:maxY};
+}
+
+function scrollToCheck(id) {
+  const row = byId('check-row-'+id);
+  if (row) {
+    row.scrollIntoView({behavior:'smooth',block:'center'});
+    row.classList.add('hl');
+    setTimeout(() => row.classList.remove('hl'), 1800);
+  }
+}
+
+function section(title, count, body, collapsed) {
+  return `<div class="sec ${collapsed?'collapsed':''}">
+    <div class="sec-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <h3>${esc(title)}</h3>
+      <span class="sec-count">${esc(count)}</span>
+    </div>
+    <div class="sec-body">${body}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════════════
+function exportCSV() {
+  const h = ['id','element','check','expected','actual','status','severity','why','figmaPath'];
+  const csv = [h.join(',')].concat(S.report.checks.map(r => h.map(k => '"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  download(new Blob([csv],{type:'text/csv'}),'ui-diff-report.csv');
+}
+function exportExcel() {
+  const h = ['id','element','check','expected','actual','status','severity','why','figmaPath'];
+  const csv = [h.join(',')].concat(S.report.checks.map(r => h.map(k => '"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
+  download(new Blob(["﻿"+csv],{type:'text/csv;charset=utf-8;'}),'ui-diff-report.xls');
+}
+function exportJSON() {
+  download(new Blob([JSON.stringify(S.report,null,2)],{type:'application/json'}),'ui-diff-report.json');
+}
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  FILE HANDLING
+// ═══════════════════════════════════════════════════════
+function wire(dropId, fileId, textareaId, isImage) {
+  const drop = byId(dropId), file = byId(fileId);
+  drop.addEventListener('click', () => file.click());
+  drop.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('drag'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation(); drop.classList.remove('drag');
+    if (e.dataTransfer.files?.[0]) readFile(e.dataTransfer.files[0], textareaId, isImage, drop);
+  });
+  file.addEventListener('change', () => {
+    if (file.files?.[0]) readFile(file.files[0], textareaId, isImage, drop);
+  });
+}
+
+function readFile(file, textareaId, isImage, drop) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (isImage) {
+      S.shot = e.target.result;
+      drop.innerHTML = `<div class="dz-title">✓ ${esc(file.name)}</div><div class="dz-sub">Screenshot loaded</div>`;
+      drop.classList.add('loaded');
+      setChip('shotStatus', 'Screenshot: loaded', true);
+    } else {
+      byId(textareaId).value = e.target.result;
+      drop.innerHTML = `<div class="dz-title">✓ ${esc(file.name)}</div><div class="dz-sub">Loaded</div>`;
+      drop.classList.add('loaded');
+      updateStatus(textareaId);
+    }
+  };
+  if (isImage) reader.readAsDataURL(file);
+  else reader.readAsText(file);
+}
+
+function updateStatus(id) {
+  try {
+    const obj = JSON.parse(byId(id).value||'{}');
+    if (id === 'figInput') {
+      const kind = detectKind(obj);
+      if (kind === 'browser') {
+        setChip('figStatus', '⚠ Figma field has Browser JSON — will auto-correct', false);
+      } else {
+        const c = obj.summary?.textNodes ?? obj.summary?.texts ?? '?';
+        setChip('figStatus', 'Figma JSON: loaded · ' + c + ' text nodes', true);
+      }
+    } else {
+      const kind = detectKind(obj);
+      if (kind === 'figma') {
+        setChip('browStatus', '⚠ Browser field has Figma JSON — will auto-correct', false);
+      } else {
+        setChip('browStatus', 'Browser JSON: loaded · ' + (obj.elements||[]).length + ' elements', true);
+      }
+    }
+  } catch(e) {
+    const chip = id === 'figInput' ? 'figStatus' : 'browStatus';
+    setChip(chip, (id==='figInput'?'Figma':'Browser') + ' JSON: invalid — check format', false);
+  }
+}
+
+function setChip(id, text, ok) {
+  const el = byId(id);
+  el.childNodes[1] ? el.childNodes[1].textContent = text : el.textContent = text;
+  el.className = 'status-chip' + (ok ? ' ok' : '');
+  // Reconstruct to keep dot
+  el.innerHTML = `<div class="dot"></div>${esc(text)}`;
+}
+
+function clearInput(which) {
+  if (which === 'fig') {
+    byId('figInput').value = ''; byId('figFile').value = '';
+    resetDrop('figDrop', 'Drop Figma JSON here', 'or click to browse');
+    setChip('figStatus', 'Figma JSON: empty', false);
+  }
+  if (which === 'brow') {
+    byId('browInput').value = ''; byId('browFile').value = '';
+    resetDrop('browDrop', 'Drop Browser JSON here', 'or click to browse');
+    setChip('browStatus', 'Browser JSON: empty', false);
+  }
+  if (which === 'shot') {
+    S.shot = null; byId('shotFile').value = '';
+    resetDrop('shotDrop', 'Drop screenshot PNG here', 'Generated by the "JSON + Screenshot" bookmarklet');
+    setChip('shotStatus', 'Screenshot: empty', false);
+  }
+}
+
+function resetDrop(id, title, sub) {
+  const d = byId(id);
+  d.innerHTML = `<div class="dz-title">${esc(title)}</div><div class="dz-sub">${esc(sub)}</div>`;
+  d.classList.remove('loaded','drag');
+}
+
+function clearAll() {
+  clearInput('fig'); clearInput('brow'); clearInput('shot');
+  S.report = null; S.shot = null;
+  byId('results').style.display = 'none';
+  byId('sections').innerHTML = '';
+  byId('score').innerHTML = '';
+  byId('swapBanner').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+window.onload = function() {
+  wire('figDrop',  'figFile',  'figInput',  false);
+  wire('browDrop', 'browFile', 'browInput', false);
+  wire('shotDrop', 'shotFile', '',          true);
+  byId('figInput').addEventListener('input',  () => updateStatus('figInput'));
+  byId('browInput').addEventListener('input', () => updateStatus('browInput'));
+};
 </script>
-</body></html>
+</body>
+</html>
