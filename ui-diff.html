@@ -171,15 +171,18 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 .stage{border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:700px;background:#f8fafc}
 .stage-inner{position:relative;display:inline-block;line-height:0}
 .stage img{display:block;max-width:100%;height:auto}
-.pin{position:absolute;border:2.5px solid var(--amber);background:rgba(251,191,36,.2);border-radius:6px;transform:translate(-50%,-50%);cursor:pointer;transition:background .15s}
-.pin:hover{background:rgba(251,191,36,.38)}
+.pin{position:absolute;border:2.5px solid var(--amber);background:rgba(251,191,36,.2);border-radius:6px;transform:translate(-50%,-50%);cursor:pointer;transition:all .15s;box-shadow:0 0 0 2px transparent}
+.pin:hover{background:rgba(251,191,36,.5);box-shadow:0 0 12px rgba(251,191,36,.6);z-index:100}
 .pin.failed{border-color:var(--red);background:rgba(220,38,38,.15)}
-.pin.failed:hover{background:rgba(220,38,38,.28)}
+.pin.failed:hover{background:rgba(220,38,38,.4);box-shadow:0 0 12px rgba(220,38,38,.7)}
+.pin.active{background:rgba(251,191,36,.6);box-shadow:0 0 16px rgba(251,191,36,.8);z-index:101}
+.pin.failed.active{background:rgba(220,38,38,.5);box-shadow:0 0 16px rgba(220,38,38,.9)}
 .pin-label{position:absolute;left:50%;top:-24px;transform:translateX(-50%);background:var(--amber);color:#1a1a1a;font-weight:700;font-size:10px;padding:3px 7px;border-radius:5px;white-space:nowrap;line-height:1.2;pointer-events:none}
 .pin.failed .pin-label{background:var(--red);color:#fff}
 .overlay-side{display:flex;flex-direction:column;gap:8px;max-height:700px;overflow-y:auto}
-.issue-card{border:1px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px;cursor:pointer;transition:border-color .15s}
-.issue-card:hover{border-color:var(--blue)}
+.issue-card{border:2px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px;cursor:pointer;transition:all .15s}
+.issue-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.15)}
+.issue-card.active{border-color:var(--blue);background:var(--blue-light);box-shadow:0 2px 12px rgba(37,99,235,.25)}
 .issue-card .ic-title{font-weight:600;font-size:13px;margin-bottom:2px}
 .issue-card .ic-sub{font-size:11px;color:var(--muted)}
 
@@ -212,6 +215,27 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 </header>
 
 <main class="main">
+
+<!-- ═══ INSTRUCTIONS ═══ -->
+<div class="instructions-header" onclick="toggleInstructions()" style="display:flex; align-items:center; cursor:pointer; padding:12px; background:#f8fafc; border-left:3px solid #cbd5e1; margin-bottom:16px; border-radius:6px;">
+  <span id="instructionsArrow" style="display:inline-block; transition:transform 0.3s; margin-right:8px;">▶</span>
+  <span style="font-weight:700; font-size:15px; color:#0f172a">📹 How to use this tool</span>
+</div>
+<div id="instructionsContent" style="display:none; padding:16px; background:#f8fafc; border-left:3px solid #cbd5e1; margin-bottom:16px; border-radius:6px;">
+  <div style="margin-bottom:16px;">
+    <div style="font-weight:600; color:#0f172a; margin-bottom:8px;">Tutorial Video</div>
+    <iframe width="100%" height="280" src="https://drive.google.com/file/d/1uGcnWws30-xa2fnFyzXvzzsw39ZJKPgj/preview" frameborder="0" allow="autoplay" style="border-radius:6px; border:1px solid #cbd5e1;"></iframe>
+  </div>
+  <div style="padding-top:12px; border-top:1px solid #cbd5e1;">
+    <ol style="margin:8px 0; padding-left:20px; color:#334155; font-size:13px; line-height:1.6;">
+      <li style="margin:6px 0;">Drag a <strong>bookmarklet</strong> to your browser bar (above)</li>
+      <li style="margin:6px 0;">Open a webpage and click the bookmarklet to capture JSON</li>
+      <li style="margin:6px 0;">Export <strong>Figma JSON</strong> from the UI Diff plugin</li>
+      <li style="margin:6px 0;">Paste both JSONs below and click <strong>Run Diff</strong></li>
+      <li style="margin:6px 0;">Review differences and export results</li>
+    </ol>
+  </div>
+</div>
 
 <!-- ═══ INPUT CARD ═══ -->
 <div class="card">
@@ -262,6 +286,27 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
         </div>
         <input class="file-input" id="browFile" type="file" accept=".json,application/json">
         <textarea id="browInput" placeholder='Paste Browser JSON here...&#10;&#10;It should look like: {"meta":{"url":"..."},"elements":[...]}'></textarea>
+      </div>
+    </div>
+
+    <!-- Figma Path Input -->
+    <div style="margin-bottom:16px; padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
+      <div class="field-head">
+        <label style="font-weight:600; color:#166534;">🔗 Figma Path (Optional)</label>
+        <button type="button" class="btn-clean" onclick="clearInput('figmaPath')" style="font-size:11px;">Clear</button>
+      </div>
+      <div style="margin-top:8px; margin-bottom:8px;">
+        <input id="figmaPathInput" type="text" placeholder="Paste Figma URL here... e.g., https://www.figma.com/design/tar1cUhJxCl1isVOsDJBu0/FECI-Flow?node-id=13610-66202&t=IteQWLLApFWM8dyC-0" style="width:100%; border:1px solid #bbf7d0; border-radius:6px; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; background:#fff; color:var(--text);">
+      </div>
+      <div id="figmaPathOutput" style="display:none; padding:12px; background:#fff; border-radius:6px; border:1px solid #bbf7d0;">
+        <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">Extracted Figma Link:</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <a id="figmaPathLink" href="#" target="_blank" style="flex:1; color:#2563eb; text-decoration:none; font-weight:600; padding:8px 12px; background:#eff6ff; border-radius:6px; border:1px solid #bfdbfe; display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Link will appear here</a>
+          <button type="button" class="btn-clean" onclick="copyFigmaLink()" style="white-space:nowrap;">Copy</button>
+        </div>
+      </div>
+      <div style="font-size:11px; color:#15803d; margin-top:8px; line-height:1.5;">
+        ℹ️ Paste a Figma design URL to extract and link to the specific component node. The node ID will be automatically detected.
       </div>
     </div>
 
@@ -371,7 +416,19 @@ function colorHex(v) {
   const m = v.match(/(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)/);
   return m ? '#' + m.slice(1).map(x => Math.round(+x).toString(16).padStart(2,'0')).join('').toUpperCase() : null;
 }
-function sameColor(a,b) { return !!(a && b && a.toUpperCase() === b.toUpperCase()); }
+function sameColor(a,b) {
+  if (!a || !b) return false;
+  const aUpper = a.toUpperCase(), bUpper = b.toUpperCase();
+  if (aUpper === bUpper) return true;
+  // Allow small color differences (±5 per RGB channel, ~2% tolerance)
+  const aMatch = aUpper.match(/#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/);
+  const bMatch = bUpper.match(/#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/);
+  if (!aMatch || !bMatch) return false;
+  const [aR, aG, aB] = [parseInt(aMatch[1],16), parseInt(aMatch[2],16), parseInt(aMatch[3],16)];
+  const [bR, bG, bB] = [parseInt(bMatch[1],16), parseInt(bMatch[2],16), parseInt(bMatch[3],16)];
+  const tolerance = 5;
+  return Math.abs(aR-bR) <= tolerance && Math.abs(aG-bG) <= tolerance && Math.abs(aB-bB) <= tolerance;
+}
 function amountTokens(s) { return String(s||'').match(/\$\s*[0-9,]+(?:\.\d+)?/g) || []; }
 function amountShape(s) { return norm(s).replace(/\$\s*[0-9,]+(?:\.\d+)?/g,'$amount'); }
 function amountMismatch(a,b) {
@@ -491,21 +548,415 @@ function shouldCheckVisuals(fig, browserNode, score, actualText) {
   if (hasMeaningfulTextMismatch(fig.text, actualText)) return false;
   return true;
 }
-function findMatch(fig, brows, used) {
-  let best = null, bestScore = -999;
-  brows.forEach((b, i) => {
-    if (used.has(i)) return;
-    const candidate = b.text || b.value || b.ariaLabel || b.id || '';
-    let s = sim(fig.text, candidate);
-    if (s < 30) return;
-    s += contextBonus(fig, b);
-    s -= posPenalty(fig, b);
-    if (s > bestScore) { bestScore = s; best = { b, i, score: s, amountMismatch: amountMismatch(fig.text, candidate) }; }
-  });
-  return best && best.score >= 35 ? best : null;
+
+function isCheckboxValueMatch(browserNode, actualText) {
+  // Reject matches where browser is checkbox/radio input with value="on"
+  // but Figma has actual text content
+  return (browserNode.tag === 'input' &&
+          (browserNode.type === 'checkbox' || browserNode.type === 'radio') &&
+          actualText === 'on');
 }
 
-// ═══════════════════════════════════════════════════════
+function hasSignificantLengthMismatch(figText, browserText) {
+  // Reject matches where text lengths differ dramatically (suggests wrong element)
+  const figLen = (figText || '').length;
+  const browLen = (browserText || '').length;
+  const ratio = Math.max(figLen, browLen) / Math.max(1, Math.min(figLen, browLen));
+  return ratio > 3.5; // If one is 3.5x longer, likely wrong match
+}
+
+function hasYearMismatch(a, b) {
+  // Detect year mismatches like "2024" vs "2026"
+  const yearPattern = /\b(19|20)\d{2}\b/g;
+  const yearsA = (a || '').match(yearPattern) || [];
+  const yearsB = (b || '').match(yearPattern) || [];
+  if (yearsA.length > 0 && yearsB.length > 0) {
+    return yearsA[0] !== yearsB[0];
+  }
+  return false;
+}
+function findMatch(fig, brows, used) {
+  let best = null, bestScore = -999;
+  const searchingFor = fig.text.slice(0, 50);
+  const isDebug =
+    searchingFor.toLowerCase().includes('verifica') ||
+    searchingFor.toLowerCase().includes('conservación');
+
+  if (isDebug) {
+    console.log(`\n🔍 SEARCHING FOR: "${fig.text}"`);
+    console.log(`   Total candidates available: ${brows.length}`);
+    console.log(`   Already used: ${used.size}`);
+  }
+
+  // Guard for tiny Figma texts that only match as substrings (e.g. "EN")
+  function shouldSkipSubstring(figText, candidateText) {
+    const cleanFigma = (figText || '').trim();
+    const cleanCandidate = (candidateText || '').trim();
+
+    if (!cleanFigma || !cleanCandidate) return false;
+
+    const wordCount = cleanFigma.split(/\s+/).length;
+    const charCount = cleanFigma.replace(/\s+/g, '').length;
+
+    const isSubstringMatch = cleanCandidate
+      .toLowerCase()
+      .includes(cleanFigma.toLowerCase());
+
+    // Block short strings (1–2 words, <10 chars) that only appear as substring
+    return isSubstringMatch && wordCount < 3 && charCount < 10;
+  }
+
+  let evaluatedCount = 0;
+  brows.forEach((b, i) => {
+    if (used.has(i)) {
+      if (isDebug) console.log(`   [${i}] SKIPPED (already used)`);
+      return;
+    }
+
+    evaluatedCount++;
+    const candidate = b.text || b.value || b.ariaLabel || b.id || '';
+
+    // Apply guard before similarity to prevent "EN" stealing the H1
+    if (shouldSkipSubstring(fig.text, candidate)) {
+      if (isDebug) {
+        console.log(
+          `   [${i}] "${(b.tag || '?')}${b.id ? '#' + b.id : ''}" text="${candidate.slice(0,40)}" → sim: (blocked tiny substring match)`
+        );
+      }
+      return;
+    }
+
+    let s = sim(fig.text, candidate);
+
+    if (isDebug) {
+      console.log(
+        `   [${i}] "${(b.tag || '?')}${b.id ? '#' + b.id : ''}" text="${candidate.slice(0,40)}" → sim: ${s}`
+      );
+    }
+
+    if (s < 30) {
+      if (isDebug) console.log(`        ↳ Below threshold (30), skipped`);
+      return;
+    }
+
+    // VALIDATION: Reject checkbox value "on" matching real text
+    if (isCheckboxValueMatch(b, candidate)) {
+      if (isDebug) console.log(`        ↳ REJECTED: Input checkbox value "on" shouldn't match label text`);
+      return;
+    }
+
+    // VALIDATION: Reject matches with EXTREME length differences (more than 4x)
+    // But allow moderate differences (used for tooltips, descriptions matching shorter labels)
+    const figLen = (fig.text || '').length;
+    const browLen = (candidate || '').length;
+    const lengthRatio = Math.max(figLen, browLen) / Math.max(1, Math.min(figLen, browLen));
+    if (lengthRatio > 5) { // Only reject if one is 5x longer (very extreme)
+      if (isDebug) console.log(`        ↳ REJECTED: Text length mismatch too extreme (fig:${figLen}ch vs brow:${browLen}ch, ratio:${lengthRatio.toFixed(1)}x)`);
+      return;
+    }
+
+    // VALIDATION: Year/date differences are allowed - will be caught by text mismatch check below
+    // No need to hard-reject, just flag later
+    if (hasYearMismatch(fig.text, candidate)) {
+      if (isDebug) console.log(`        ↳ NOTE: Year/date mismatch (will affect visual checks)`);
+      // Don't return - allow the match but flag as warning
+    }
+
+    const bonus = contextBonus(fig, b);
+    const penalty = posPenalty(fig, b);
+    s += bonus;
+    s -= penalty;
+
+    if (isDebug) {
+      console.log(`        ↳ Final: ${s} (bonus: +${bonus}, penalty: -${penalty})`);
+    }
+
+    if (s > bestScore) {
+      bestScore = s;
+      best = {
+        b,
+        i,
+        score: s,
+        amountMismatch: amountMismatch(fig.text, candidate)
+      };
+    }
+  });
+
+  if (isDebug) {
+    console.log(`   Evaluated: ${evaluatedCount} candidates`);
+    if (best) {
+      console.log(`   ✓ MATCH: [${best.i}] "${best.b.text}" (score: ${best.score})`);
+    } else {
+      console.log(`   ✗ NO MATCH (bestScore: ${bestScore}, threshold: 35)`);
+    }
+  }
+
+  return best && best.score >= 35 ? best : null;
+}
+// ═══════════════════════════════════════════════════════════════════════════
+//  ADDITIONAL DETECTORS - Catch design consistency issues
+// ═══════════════════════════════════════════════════════════════════════════
+
+// 🎨 DETECTOR #1: Color Consistency Issues
+function detectColorMismatches(brows, r) {
+  const colorByClass = new Map();
+  const issues = [];
+  
+  brows.forEach(b => {
+    if (!b.styles || !b.styles.color || !b.classes) return;
+    
+    const classKey = String(b.classes).split(' ')[0];
+    const color = colorHex(b.styles.color);
+    
+    if (!colorByClass.has(classKey)) {
+      colorByClass.set(classKey, color);
+    } else if (colorByClass.get(classKey) !== color) {
+      issues.push({
+        element: (b.text||b.id||'').slice(0,60),
+        type: b.tag||'element',
+        check: '🎨 Color Inconsistency',
+        expected: colorByClass.get(classKey),
+        actual: color,
+        diff: 'color mismatch',
+        tolerance: 'exact',
+        status: 'failed',
+        severity: 'High',
+        figmaPath: 'CLASS: ' + classKey,
+        rect: b.rect,
+        why: 'Same CSS class "'+classKey+'" has different colors across elements'
+      });
+    }
+  });
+  
+  return issues;
+}
+
+// 📏 DETECTOR #2: Spacing & Alignment Issues
+function detectSpacingIssues(brows, r) {
+  const typePositions = new Map();
+  const tolerance = 4; // pixels
+  const issues = [];
+  
+  brows.forEach(b => {
+    if (!b.rect || !b.tag) return;
+    
+    const key = b.tag + '.' + (String(b.classes||'').split(' ')[0] || 'default');
+    if (!typePositions.has(key)) typePositions.set(key, []);
+    typePositions.get(key).push(b);
+  });
+  
+  typePositions.forEach((elements, key) => {
+    if (elements.length < 2) return;
+    
+    // Check Y-axis consistency
+    const yValues = elements.map(e => e.rect.y).sort((a,b) => a-b);
+    const avgY = yValues.reduce((a,b) => a+b, 0) / yValues.length;
+    
+    elements.forEach(e => {
+      if (Math.abs(e.rect.y - avgY) > tolerance) {
+        issues.push({
+          element: (e.text||'').slice(0,60),
+          type: 'Spacing',
+          check: '📏 Vertical Alignment Variance',
+          expected: 'Y: '+Math.round(avgY)+'px',
+          actual: 'Y: '+e.rect.y+'px',
+          diff: Math.abs(e.rect.y - avgY).toFixed(1)+'px',
+          tolerance: '±'+tolerance+'px',
+          status: 'warning',
+          severity: 'Medium',
+          figmaPath: 'TYPE: '+key,
+          rect: e.rect,
+          why: 'Similar elements have inconsistent vertical positioning'
+        });
+      }
+    });
+    
+    // Check gaps between consecutive elements
+    const sorted = [...elements].sort((a,b) => a.rect.y - b.rect.y);
+    for (let i = 1; i < sorted.length; i++) {
+      const gap = sorted[i].rect.y - (sorted[i-1].rect.y + sorted[i-1].rect.h);
+      if (i > 1) {
+        const prevGap = sorted[i-1].rect.y - (sorted[i-2].rect.y + sorted[i-2].rect.h);
+        if (Math.abs(gap - prevGap) > tolerance) {
+          issues.push({
+            element: (sorted[i].text||'').slice(0,60),
+            type: 'Spacing',
+            check: '📏 Margin Gap Variance',
+            expected: 'Consistent: '+prevGap.toFixed(0)+'px',
+            actual: 'Gap: '+gap.toFixed(0)+'px',
+            diff: Math.abs(gap-prevGap).toFixed(1)+'px',
+            tolerance: '±'+tolerance+'px',
+            status: 'warning',
+            severity: 'High',
+            figmaPath: 'TYPE: '+key,
+            rect: sorted[i].rect,
+            why: 'Margins between similar elements are inconsistent'
+          });
+        }
+      }
+    }
+  });
+  
+  return issues;
+}
+
+// 🔤 DETECTOR #3: Typography Consistency
+function detectTypographyIssues(brows, r) {
+  const typogByClass = new Map();
+  const issues = [];
+  
+  brows.forEach(b => {
+    if (!b.styles || !b.classes) return;
+    
+    const classKey = String(b.classes).split(' ')[0];
+    const typo = {
+      fontSize: b.styles.fontSize,
+      fontWeight: b.styles.fontWeight,
+      color: b.styles.color
+    };
+    
+    if (!typogByClass.has(classKey)) {
+      typogByClass.set(classKey, [typo]);
+    } else {
+      typogByClass.get(classKey).push(typo);
+    }
+  });
+  
+  typogByClass.forEach((typogs, classKey) => {
+    const fontSizes = new Set(typogs.map(t => t.fontSize).filter(Boolean));
+    const fontWeights = new Set(typogs.map(t => t.fontWeight).filter(Boolean));
+    const colors = new Set(typogs.map(t => colorHex(t.color)).filter(Boolean));
+    
+    if (fontSizes.size > 1 && typogs.length > 1) {
+      issues.push({
+        element: '',
+        type: 'Typography',
+        check: '🔤 Font Size Mismatch',
+        expected: 'Consistent size',
+        actual: [...fontSizes].join(', '),
+        diff: fontSizes.size + ' variants',
+        tolerance: '1 size per class',
+        status: 'failed',
+        severity: 'High',
+        figmaPath: 'CLASS: '+classKey,
+        rect: null,
+        why: 'Class "'+classKey+'" has '+fontSizes.size+' different font sizes'
+      });
+    }
+    
+    if (fontWeights.size > 1 && typogs.length > 1) {
+      issues.push({
+        element: '',
+        type: 'Typography',
+        check: '🔤 Font Weight Mismatch',
+        expected: 'Consistent weight',
+        actual: [...fontWeights].join(', '),
+        diff: fontWeights.size + ' variants',
+        tolerance: '1 weight per class',
+        status: 'warning',
+        severity: 'Medium',
+        figmaPath: 'CLASS: '+classKey,
+        rect: null,
+        why: 'Class "'+classKey+'" has inconsistent font weights'
+      });
+    }
+  });
+  
+  return issues;
+}
+
+// ↔️ DETECTOR #4: Horizontal Alignment
+function detectAlignmentIssues(brows, r) {
+  const elementsByType = new Map();
+  const issues = [];
+  
+  brows.forEach(b => {
+    if (!b.rect) return;
+    const type = (b.tag||'') + '.' + (String(b.classes||'').split(' ')[0] || 'default');
+    if (!elementsByType.has(type)) elementsByType.set(type, []);
+    elementsByType.get(type).push(b);
+  });
+  
+  elementsByType.forEach((elements, type) => {
+    if (elements.length < 2) return;
+    
+    const xValues = elements.map(e => e.rect.x).sort((a,b) => a-b);
+    const xRange = Math.max(...xValues) - Math.min(...xValues);
+    
+    if (xRange > 5) {
+      const avgX = xValues.reduce((a,b) => a+b, 0) / xValues.length;
+      
+      elements.forEach(e => {
+        if (Math.abs(e.rect.x - avgX) > 5) {
+          issues.push({
+            element: (e.text||'').slice(0,60),
+            type: 'Alignment',
+            check: '↔️ Horizontal Misalignment',
+            expected: 'X: '+Math.round(avgX)+'px',
+            actual: 'X: '+e.rect.x+'px',
+            diff: xRange+'px spread',
+            tolerance: '±5px',
+            status: 'warning',
+            severity: 'Medium',
+            figmaPath: 'TYPE: '+type,
+            rect: e.rect,
+            why: 'Similar elements not horizontally aligned (X varies by '+xRange+'px)'
+          });
+        }
+      });
+    }
+  });
+  
+  return issues;
+}
+
+// 📐 DETECTOR #5: Width & Size Anomalies
+function detectPositionAnomalies(brows, r) {
+  const singletonElements = new Map();
+  const issues = [];
+  
+  brows.forEach(b => {
+    if (!b.rect) return;
+    const classKey = String(b.classes||'').split(' ')[0];
+    if (!classKey) return;
+    
+    if (!singletonElements.has(classKey)) {
+      singletonElements.set(classKey, []);
+    }
+    singletonElements.get(classKey).push(b);
+  });
+  
+  singletonElements.forEach((elements, classKey) => {
+    if (elements.length < 2) return;
+    
+    const widths = elements.map(e => e.rect.w);
+    const avgWidth = widths.reduce((a,b) => a+b, 0) / widths.length;
+    
+    elements.forEach(e => {
+      if (Math.abs(e.rect.w - avgWidth) > 10) {
+        issues.push({
+          element: (e.text||'').slice(0,60),
+          type: 'Layout',
+          check: '📐 Width Anomaly',
+          expected: 'Width: '+Math.round(avgWidth)+'px',
+          actual: 'Width: '+e.rect.w+'px',
+          diff: Math.abs(e.rect.w-avgWidth).toFixed(0)+'px',
+          tolerance: '±10px',
+          status: 'warning',
+          severity: 'Low',
+          figmaPath: 'CLASS: '+classKey,
+          rect: e.rect,
+          why: 'Element width differs from similar elements (avg '+Math.round(avgWidth)+'px)'
+        });
+      }
+    });
+  });
+  
+  return issues;
+}
+
+
+
 //  WHY / DESCRIPTIONS
 // ═══════════════════════════════════════════════════════
 function makeWhy(row) {
@@ -559,8 +1010,46 @@ function runDiff() {
   const textEls = figEls.filter(x => x.text);
 
   // Parse Browser
-  const brows = (b.elements || []).filter(x => x && x.rect);
+  const allElements = b.elements || [];
+  const brows = allElements.filter(x => x && x.rect);
   const expandedVisible = hasExpandedVisible(brows);
+
+  // Diagnostic logging for missing elements
+  console.log(`\n${'═'.repeat(70)}`);
+  console.log(`📊 BROWSER JSON LOADING DIAGNOSTICS`);
+  console.log(`${'═'.repeat(70)}`);
+  console.log(`  Total elements in JSON: ${allElements.length}`);
+  console.log(`  Elements with rect property: ${brows.length}`);
+
+  const withoutRect = allElements.filter(x => x && !x.rect);
+  if (withoutRect.length > 0) {
+    console.log(`  ⚠️  Elements WITHOUT rect: ${withoutRect.length}`);
+    withoutRect.slice(0, 5).forEach((el, i) => {
+      console.log(`    [${i}] ${el.tag || 'no-tag'} "${(el.text || el.value || el.id || 'no-text').slice(0, 40)}"`);
+    });
+  }
+
+  // Show all 24 elements for reference
+  console.log(`\n  📋 ALL BROWSER ELEMENTS (in matching order):`);
+  brows.forEach((el, i) => {
+    console.log(`    [${i}] <${el.tag||'?'}${el.id ? '#'+el.id : ''}> rect(${el.rect?.x},${el.rect?.y})+[${el.rect?.w}x${el.rect?.h}] text="${(el.text || el.value || el.ariaLabel || '(no text)').slice(0, 45)}"`);
+  });
+
+  // Log "Verifica" and "conservación" entries if present
+  const verificaMatches = brows.filter(el =>
+    (el.text || '').toLowerCase().includes('verifica') ||
+    (el.text || '').toLowerCase().includes('conservación')
+  );
+  if (verificaMatches.length > 0) {
+    console.log(`\n  🔍 Found ${verificaMatches.length} element(s) with "verifica" or "conservación":`);
+    verificaMatches.forEach((el, idx) => {
+      const elIndex = brows.indexOf(el);
+      console.log(`    [${elIndex}] <${el.tag}> "${(el.text || el.value || '').slice(0, 60)}"`);
+    });
+  } else {
+    console.log(`\n  🔍 NO elements contain "verifica" or "conservación"`);
+  }
+  console.log(`${'═'.repeat(70)}\n`);
 
   const r = {
     checks: [],
@@ -611,10 +1100,16 @@ function runDiff() {
     used.add(m.i);
     const actualText = m.b.text || m.b.value || m.b.ariaLabel || '<'+m.b.tag+'>';
 
+    // Log when element [4] is being consumed
+    if (m.i === 4) {
+      console.log(`\n⚠️ CRITICAL: Element [4] <h1> "Verifica tu identidad" is being MATCHED TO:\n   Figma text: "${fig.text}"\n   Match score: ${m.score}`);
+    }
+
     if (m.amountMismatch) {
       if (isSliderLabel(fig, m.b)) {
         r.coverage.matched++;
-        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+        const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
+        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: scorePercent+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
       } else {
         r.coverage.warnings++;
         addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'State mismatch', expected: fig.text, actual: actualText, diff: 'amount differs', tolerance: 'must match state', status: 'warning', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
@@ -622,14 +1117,16 @@ function runDiff() {
       }
     } else {
       r.coverage.matched++;
-      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+      const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
+      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: scorePercent+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
     }
 
     const visualChecksAllowed = shouldCheckVisuals(fig, m.b, m.score, actualText);
 
     if (!visualChecksAllowed && (fig.fontSize || fig.color)) {
       r.coverage.warnings++;
-      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
+      const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
+      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: scorePercent+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
     }
 
     // Font size check
@@ -645,6 +1142,26 @@ function runDiff() {
       const ok = sameColor(fig.color, a);
       addCheck(r, { element: label, type: 'Color', check: 'Text color', expected: fig.color, actual: a||'n/a', diff: ok ? '✓' : 'mismatch', tolerance: 'exact', status: ok ? 'passed' : 'failed', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
     }
+  });
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  //  RUN ADDITIONAL DETECTORS
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  const additionalIssues = [
+    ...detectColorMismatches(brows, r),
+    ...detectSpacingIssues(brows, r),
+    ...detectTypographyIssues(brows, r),
+    ...detectAlignmentIssues(brows, r),
+    ...detectPositionAnomalies(brows, r)
+  ];
+  
+  // Add all additional issues to report
+  additionalIssues.forEach(issue => {
+    if (issue.status === 'failed') r.coverage.missing++;
+    else if (issue.status === 'warning') r.coverage.warnings++;
+    addCheck(r, issue);
   });
 
   renderResults(r);
@@ -710,7 +1227,7 @@ function renderMissing() {
       <div class="mc-path">${esc(x.figmaPath||'')}</div>
     </div>`
   ).join('')}</div>`;
-  return section('Missing Figma Text in Browser', rows.length + ' missing', body, false);
+  return section('Missing Figma Text in Browser', rows.length + ' missing', body, true);
 }
 
 // Main table
@@ -810,12 +1327,24 @@ function estimatePage() {
 }
 
 function scrollToCheck(id) {
+  // Clear previous highlights
+  document.querySelectorAll('.hl, .pin.active, .issue-card.active').forEach(el => {
+    el.classList.remove('hl', 'active');
+  });
+
+  // Highlight the table row
   const row = byId('check-row-'+id);
   if (row) {
     row.scrollIntoView({behavior:'smooth',block:'center'});
     row.classList.add('hl');
     setTimeout(() => row.classList.remove('hl'), 1800);
   }
+
+  // Highlight corresponding pin(s) in overlay
+  document.querySelectorAll(`.pin[onclick*="${id}"], .issue-card[onclick*="${id}"]`).forEach(el => {
+    el.classList.add('active');
+    setTimeout(() => el.classList.remove('active'), 1800);
+  });
 }
 
 function section(title, count, body, collapsed) {
@@ -937,6 +1466,90 @@ function clearInput(which) {
     resetDrop('shotDrop', 'Drop screenshot PNG here', 'Generated by the "JSON + Screenshot" bookmarklet');
     setChip('shotStatus', 'Screenshot: empty', false);
   }
+  if (which === 'figmaPath') {
+    byId('figmaPathInput').value = '';
+    byId('figmaPathOutput').style.display = 'none';
+  }
+}
+
+function extractFigmaNodeId(url) {
+  // Extract node-id from Figma URL patterns:
+  // https://www.figma.com/design/{fileKey}/{pageName}?node-id={nodeId}
+  // https://www.figma.com/design/{fileKey}?node-id={nodeId}
+  // Also supports old format: node-id={nodeId}&t=...
+  try {
+    const nodeMatch = url.match(/[?&]node-id=([^&]+)/);
+    if (nodeMatch) {
+      // node-id can be formatted as "123-456" or "123:456"
+      let nodeId = decodeURIComponent(nodeMatch[1]);
+      // Normalize to colon format if dashes are used
+      nodeId = nodeId.replace(/-(?![\da-f])/g, ':'); // Replace dashes but keep hex colors
+      return nodeId;
+    }
+  } catch (e) {
+    console.error('Error extracting node ID:', e);
+  }
+  return null;
+}
+
+function extractFileKey(url) {
+  // Extract file key from Figma URL
+  // https://www.figma.com/design/{fileKey}/...
+  try {
+    const match = url.match(/figma\.com\/(?:design|file)\/([^/?]+)/);
+    if (match) {
+      return match[1];
+    }
+  } catch (e) {
+    console.error('Error extracting file key:', e);
+  }
+  return null;
+}
+
+function processFigmaPath() {
+  const input = byId('figmaPathInput');
+  const url = input.value.trim();
+
+  if (!url) {
+    byId('figmaPathOutput').style.display = 'none';
+    return;
+  }
+
+  const nodeId = extractFigmaNodeId(url);
+  const fileKey = extractFileKey(url);
+
+  if (!nodeId || !fileKey) {
+    byId('figmaPathOutput').innerHTML = '<div style="color:#dc2626; font-size:12px;">❌ Invalid Figma URL. Please paste a valid design URL with node-id parameter.</div>';
+    byId('figmaPathOutput').style.display = 'block';
+    return;
+  }
+
+  // Build a clean Figma link to the specific node
+  const figmaLink = `https://www.figma.com/design/${fileKey}?node-id=${nodeId}`;
+
+  byId('figmaPathLink').href = figmaLink;
+  byId('figmaPathLink').textContent = figmaLink;
+  byId('figmaPathLink').title = figmaLink;
+  byId('figmaPathOutput').style.display = 'block';
+
+  // Store for potential future use
+  S.figmaPath = figmaLink;
+}
+
+function copyFigmaLink() {
+  const link = byId('figmaPathLink').href;
+  if (link && link !== '#') {
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = event.target;
+      const orig = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => {
+        btn.textContent = orig;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  }
 }
 
 function resetDrop(id, title, sub) {
@@ -954,6 +1567,18 @@ function clearAll() {
   byId('swapBanner').style.display = 'none';
 }
 
+function toggleInstructions() {
+  const content = byId('instructionsContent');
+  const arrow = byId('instructionsArrow');
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    arrow.style.transform = 'rotate(90deg)';
+  } else {
+    content.style.display = 'none';
+    arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
@@ -963,6 +1588,10 @@ window.onload = function() {
   wire('shotDrop', 'shotFile', '',          true);
   byId('figInput').addEventListener('input',  () => updateStatus('figInput'));
   byId('browInput').addEventListener('input', () => updateStatus('browInput'));
+  byId('figmaPathInput').addEventListener('input', processFigmaPath);
+  byId('figmaPathInput').addEventListener('paste', () => {
+    setTimeout(processFigmaPath, 10);
+  });
 };
 </script>
 </body>
