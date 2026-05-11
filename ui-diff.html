@@ -171,18 +171,15 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 .stage{border:1px solid var(--border);border-radius:8px;overflow:auto;max-height:700px;background:#f8fafc}
 .stage-inner{position:relative;display:inline-block;line-height:0}
 .stage img{display:block;max-width:100%;height:auto}
-.pin{position:absolute;border:2.5px solid var(--amber);background:rgba(251,191,36,.2);border-radius:6px;transform:translate(-50%,-50%);cursor:pointer;transition:all .15s;box-shadow:0 0 0 2px transparent}
-.pin:hover{background:rgba(251,191,36,.5);box-shadow:0 0 12px rgba(251,191,36,.6);z-index:100}
+.pin{position:absolute;border:2.5px solid var(--amber);background:rgba(251,191,36,.2);border-radius:6px;transform:translate(-50%,-50%);cursor:pointer;transition:background .15s}
+.pin:hover{background:rgba(251,191,36,.38)}
 .pin.failed{border-color:var(--red);background:rgba(220,38,38,.15)}
-.pin.failed:hover{background:rgba(220,38,38,.4);box-shadow:0 0 12px rgba(220,38,38,.7)}
-.pin.active{background:rgba(251,191,36,.6);box-shadow:0 0 16px rgba(251,191,36,.8);z-index:101}
-.pin.failed.active{background:rgba(220,38,38,.5);box-shadow:0 0 16px rgba(220,38,38,.9)}
+.pin.failed:hover{background:rgba(220,38,38,.28)}
 .pin-label{position:absolute;left:50%;top:-24px;transform:translateX(-50%);background:var(--amber);color:#1a1a1a;font-weight:700;font-size:10px;padding:3px 7px;border-radius:5px;white-space:nowrap;line-height:1.2;pointer-events:none}
 .pin.failed .pin-label{background:var(--red);color:#fff}
 .overlay-side{display:flex;flex-direction:column;gap:8px;max-height:700px;overflow-y:auto}
-.issue-card{border:2px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px;cursor:pointer;transition:all .15s}
-.issue-card:hover{border-color:var(--blue);box-shadow:0 2px 8px rgba(37,99,235,.15)}
-.issue-card.active{border-color:var(--blue);background:var(--blue-light);box-shadow:0 2px 12px rgba(37,99,235,.25)}
+.issue-card{border:1px solid var(--border);border-radius:8px;background:#fff;padding:10px 12px;cursor:pointer;transition:border-color .15s}
+.issue-card:hover{border-color:var(--blue)}
 .issue-card .ic-title{font-weight:600;font-size:13px;margin-bottom:2px}
 .issue-card .ic-sub{font-size:11px;color:var(--muted)}
 
@@ -231,8 +228,9 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
       <li style="margin:6px 0;">Drag a <strong>bookmarklet</strong> to your browser bar (above)</li>
       <li style="margin:6px 0;">Open a webpage and click the bookmarklet to capture JSON</li>
       <li style="margin:6px 0;">Export <strong>Figma JSON</strong> from the UI Diff plugin</li>
-      <li style="margin:6px 0;">Paste both JSONs below and click <strong>Run Diff</strong></li>
-      <li style="margin:6px 0;">Review differences and export results</li>
+      <li style="margin:6px 0;">Paste your Figma design URL (optional - enables clickable paths)</li>
+      <li style="margin:6px 0;">Paste both JSONs and click <strong>Run Diff</strong></li>
+      <li style="margin:6px 0;">Click any path in results to open that element in Figma</li>
     </ol>
   </div>
 </div>
@@ -289,27 +287,6 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
       </div>
     </div>
 
-    <!-- Figma Path Input -->
-    <div style="margin-bottom:16px; padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;">
-      <div class="field-head">
-        <label style="font-weight:600; color:#166534;">🔗 Figma Path (Optional)</label>
-        <button type="button" class="btn-clean" onclick="clearInput('figmaPath')" style="font-size:11px;">Clear</button>
-      </div>
-      <div style="margin-top:8px; margin-bottom:8px;">
-        <input id="figmaPathInput" type="text" placeholder="Paste Figma URL here... e.g., https://www.figma.com/design/tar1cUhJxCl1isVOsDJBu0/FECI-Flow?node-id=13610-66202&t=IteQWLLApFWM8dyC-0" style="width:100%; border:1px solid #bbf7d0; border-radius:6px; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; background:#fff; color:var(--text);">
-      </div>
-      <div id="figmaPathOutput" style="display:none; padding:12px; background:#fff; border-radius:6px; border:1px solid #bbf7d0;">
-        <div style="font-size:12px; color:var(--muted); margin-bottom:6px;">Extracted Figma Link:</div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <a id="figmaPathLink" href="#" target="_blank" style="flex:1; color:#2563eb; text-decoration:none; font-weight:600; padding:8px 12px; background:#eff6ff; border-radius:6px; border:1px solid #bfdbfe; display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Link will appear here</a>
-          <button type="button" class="btn-clean" onclick="copyFigmaLink()" style="white-space:nowrap;">Copy</button>
-        </div>
-      </div>
-      <div style="font-size:11px; color:#15803d; margin-top:8px; line-height:1.5;">
-        ℹ️ Paste a Figma design URL to extract and link to the specific component node. The node ID will be automatically detected.
-      </div>
-    </div>
-
     <!-- Screenshot -->
     <div class="shot-field">
       <div class="field-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -321,6 +298,20 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
         <div class="dz-sub">Generated by the "JSON + Screenshot" bookmarklet</div>
       </div>
       <input class="file-input" id="shotFile" type="file" accept="image/*">
+    </div>
+
+    <!-- Figma Design URL -->
+    <div id="figmaUrlContainer" style="margin-bottom:16px; padding:16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; transition:all 0.2s;">
+      <div class="field-head">
+        <label style="font-weight:600; color:#166534;">🔗 Figma Design URL (Optional)</label>
+        <button type="button" class="btn-clean" onclick="clearInput('figmaUrl')" style="font-size:11px;">Clear</button>
+      </div>
+      <div style="margin-top:8px; margin-bottom:8px;">
+        <input id="figmaUrlInput" type="text" placeholder="Paste Figma design URL... e.g., https://www.figma.com/design/tar1cUhJxCl1isVOsDJBu0/FECI-Flow?node-id=..." style="width:100%; border:1px solid #bbf7d0; border-radius:6px; padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:11.5px; background:#fff; color:var(--text); transition:all 0.2s;">
+      </div>
+      <div id="figmaUrlStatus" style="font-size:11px; color:#15803d; min-height:16px;">
+        ℹ️ Paste your Figma design URL to make all paths in the results clickable and open in Figma.
+      </div>
     </div>
 
     <!-- Actions -->
@@ -388,7 +379,7 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
-const S = { report: null, shot: null, filter: 'all', overlayPage: null };
+const S = { report: null, shot: null, filter: 'all', overlayPage: null, figmaUrl: null, pathToNodeId: {} };
 const byId = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -416,19 +407,7 @@ function colorHex(v) {
   const m = v.match(/(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?),\s*(\d+(?:\.\d+)?)/);
   return m ? '#' + m.slice(1).map(x => Math.round(+x).toString(16).padStart(2,'0')).join('').toUpperCase() : null;
 }
-function sameColor(a,b) {
-  if (!a || !b) return false;
-  const aUpper = a.toUpperCase(), bUpper = b.toUpperCase();
-  if (aUpper === bUpper) return true;
-  // Allow small color differences (±5 per RGB channel, ~2% tolerance)
-  const aMatch = aUpper.match(/#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/);
-  const bMatch = bUpper.match(/#?([0-9A-F]{2})([0-9A-F]{2})([0-9A-F]{2})/);
-  if (!aMatch || !bMatch) return false;
-  const [aR, aG, aB] = [parseInt(aMatch[1],16), parseInt(aMatch[2],16), parseInt(aMatch[3],16)];
-  const [bR, bG, bB] = [parseInt(bMatch[1],16), parseInt(bMatch[2],16), parseInt(bMatch[3],16)];
-  const tolerance = 5;
-  return Math.abs(aR-bR) <= tolerance && Math.abs(aG-bG) <= tolerance && Math.abs(aB-bB) <= tolerance;
-}
+function sameColor(a,b) { return !!(a && b && a.toUpperCase() === b.toUpperCase()); }
 function amountTokens(s) { return String(s||'').match(/\$\s*[0-9,]+(?:\.\d+)?/g) || []; }
 function amountShape(s) { return norm(s).replace(/\$\s*[0-9,]+(?:\.\d+)?/g,'$amount'); }
 function amountMismatch(a,b) {
@@ -453,6 +432,85 @@ function isDynamicTotal(text, path) {
     /total payments|offer summary|collapsed|expanded|financing offers/i.test(p);
 }
 function hasExpandedVisible(brows) { return brows.some(e => /total payments/i.test(e.text||'')); }
+
+// ═══════════════════════════════════════════════════════
+//  UI INTERACTIONS
+// ═══════════════════════════════════════════════════════
+function toggleInstructions() {
+  const content = byId('instructionsContent');
+  const arrow = byId('instructionsArrow');
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  arrow.style.transform = isHidden ? 'rotate(90deg)' : 'rotate(0deg)';
+}
+
+// ═══════════════════════════════════════════════════════
+//  FIGMA URL HANDLING
+// ═══════════════════════════════════════════════════════
+function extractFileKeyFromUrl(url) {
+  try {
+    const match = url.match(/figma\.com\/(?:design|file)\/([^/?]+)/);
+    return match ? match[1] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function getFigmaLinkForPath(path) {
+  if (!S.figmaUrl || !path) return null;
+  const fileKey = extractFileKeyFromUrl(S.figmaUrl);
+  if (!fileKey) return null;
+  // Try to get node-id from path mapping
+  const nodeId = S.pathToNodeId[path];
+  if (nodeId) {
+    return `https://www.figma.com/design/${fileKey}?node-id=${nodeId}`;
+  }
+  // Fallback to base URL if no specific node-id
+  return S.figmaUrl.split('?')[0];
+}
+
+function processFigmaUrl() {
+  const input = byId('figmaUrlInput');
+  const container = byId('figmaUrlContainer');
+  const statusDiv = byId('figmaUrlStatus');
+  const url = input.value.trim();
+
+  if (!url) {
+    S.figmaUrl = null;
+    input.style.borderColor = '#bbf7d0';
+    input.style.backgroundColor = '#fff';
+    container.style.background = '#f0fdf4';
+    container.style.borderColor = '#bbf7d0';
+    statusDiv.innerHTML = 'ℹ️ Paste your Figma design URL to make all paths in the results clickable and open in Figma.';
+    statusDiv.style.color = '#15803d';
+    return;
+  }
+
+  const fileKey = extractFileKeyFromUrl(url);
+  if (fileKey) {
+    S.figmaUrl = url;
+    input.style.borderColor = '#16a34a';
+    input.style.backgroundColor = '#f0fdf4';
+    container.style.background = '#f0fdf4';
+    container.style.borderColor = '#16a34a';
+    statusDiv.innerHTML = '✓ Valid Figma URL loaded — paths in results are now clickable';
+    statusDiv.style.color = '#16a34a';
+    statusDiv.style.fontWeight = '600';
+    // Re-render the table if report exists to update links
+    if (S.report) {
+      renderSections();
+    }
+  } else {
+    S.figmaUrl = null;
+    input.style.borderColor = '#dc2626';
+    input.style.backgroundColor = '#fef2f2';
+    container.style.background = '#fef2f2';
+    container.style.borderColor = '#fecaca';
+    statusDiv.innerHTML = '✗ Invalid Figma URL — please check and try again';
+    statusDiv.style.color = '#dc2626';
+    statusDiv.style.fontWeight = '600';
+  }
+}
 
 // ═══════════════════════════════════════════════════════
 //  FIGMA JSON PARSING
@@ -493,10 +551,17 @@ function walk(n, out, base, path='') {
     w: bb ? (bb.width||bb.w) : (n.size?.width||null),
     h: bb ? (bb.height||bb.h) : (n.size?.height||null),
     fontSize: typo.fontSize || n.fontSize || null,
-    color: n.type === 'TEXT' ? fill : null
+    color: n.type === 'TEXT' ? fill : null,
+    nodeId: n.id || null
   };
 
-  if (item.text || item.fontSize || item.color || item.w || item.h) out.push(item);
+  if (item.text || item.fontSize || item.color || item.w || item.h) {
+    out.push(item);
+    // Store mapping of path to node-id for Figma linking
+    if (item.nodeId && p) {
+      S.pathToNodeId[p] = item.nodeId;
+    }
+  }
   (n.children || []).forEach(c => walk(c, out, base, p));
 }
 
@@ -548,151 +613,22 @@ function shouldCheckVisuals(fig, browserNode, score, actualText) {
   if (hasMeaningfulTextMismatch(fig.text, actualText)) return false;
   return true;
 }
-
-function isCheckboxValueMatch(browserNode, actualText) {
-  // Reject matches where browser is checkbox/radio input with value="on"
-  // but Figma has actual text content
-  return (browserNode.tag === 'input' &&
-          (browserNode.type === 'checkbox' || browserNode.type === 'radio') &&
-          actualText === 'on');
-}
-
-function hasSignificantLengthMismatch(figText, browserText) {
-  // Reject matches where text lengths differ dramatically (suggests wrong element)
-  const figLen = (figText || '').length;
-  const browLen = (browserText || '').length;
-  const ratio = Math.max(figLen, browLen) / Math.max(1, Math.min(figLen, browLen));
-  return ratio > 3.5; // If one is 3.5x longer, likely wrong match
-}
-
-function hasYearMismatch(a, b) {
-  // Detect year mismatches like "2024" vs "2026"
-  const yearPattern = /\b(19|20)\d{2}\b/g;
-  const yearsA = (a || '').match(yearPattern) || [];
-  const yearsB = (b || '').match(yearPattern) || [];
-  if (yearsA.length > 0 && yearsB.length > 0) {
-    return yearsA[0] !== yearsB[0];
-  }
-  return false;
-}
 function findMatch(fig, brows, used) {
   let best = null, bestScore = -999;
-  const searchingFor = fig.text.slice(0, 50);
-  const isDebug =
-    searchingFor.toLowerCase().includes('verifica') ||
-    searchingFor.toLowerCase().includes('conservación');
-
-  if (isDebug) {
-    console.log(`\n🔍 SEARCHING FOR: "${fig.text}"`);
-    console.log(`   Total candidates available: ${brows.length}`);
-    console.log(`   Already used: ${used.size}`);
-  }
-
-  // Guard for tiny Figma texts that only match as substrings (e.g. "EN")
-  function shouldSkipSubstring(figText, candidateText) {
-    const cleanFigma = (figText || '').trim();
-    const cleanCandidate = (candidateText || '').trim();
-
-    if (!cleanFigma || !cleanCandidate) return false;
-
-    const wordCount = cleanFigma.split(/\s+/).length;
-    const charCount = cleanFigma.replace(/\s+/g, '').length;
-
-    const isSubstringMatch = cleanCandidate
-      .toLowerCase()
-      .includes(cleanFigma.toLowerCase());
-
-    // Block short strings (1–2 words, <10 chars) that only appear as substring
-    return isSubstringMatch && wordCount < 3 && charCount < 10;
-  }
-
-  let evaluatedCount = 0;
   brows.forEach((b, i) => {
-    if (used.has(i)) {
-      if (isDebug) console.log(`   [${i}] SKIPPED (already used)`);
-      return;
-    }
-
-    evaluatedCount++;
+    if (used.has(i)) return;
     const candidate = b.text || b.value || b.ariaLabel || b.id || '';
-
-    // Apply guard before similarity to prevent "EN" stealing the H1
-    if (shouldSkipSubstring(fig.text, candidate)) {
-      if (isDebug) {
-        console.log(
-          `   [${i}] "${(b.tag || '?')}${b.id ? '#' + b.id : ''}" text="${candidate.slice(0,40)}" → sim: (blocked tiny substring match)`
-        );
-      }
-      return;
-    }
-
     let s = sim(fig.text, candidate);
-
-    if (isDebug) {
-      console.log(
-        `   [${i}] "${(b.tag || '?')}${b.id ? '#' + b.id : ''}" text="${candidate.slice(0,40)}" → sim: ${s}`
-      );
-    }
-
-    if (s < 30) {
-      if (isDebug) console.log(`        ↳ Below threshold (30), skipped`);
-      return;
-    }
-
-    // VALIDATION: Reject checkbox value "on" matching real text
-    if (isCheckboxValueMatch(b, candidate)) {
-      if (isDebug) console.log(`        ↳ REJECTED: Input checkbox value "on" shouldn't match label text`);
-      return;
-    }
-
-    // VALIDATION: Reject matches with EXTREME length differences (more than 4x)
-    // But allow moderate differences (used for tooltips, descriptions matching shorter labels)
-    const figLen = (fig.text || '').length;
-    const browLen = (candidate || '').length;
-    const lengthRatio = Math.max(figLen, browLen) / Math.max(1, Math.min(figLen, browLen));
-    if (lengthRatio > 5) { // Only reject if one is 5x longer (very extreme)
-      if (isDebug) console.log(`        ↳ REJECTED: Text length mismatch too extreme (fig:${figLen}ch vs brow:${browLen}ch, ratio:${lengthRatio.toFixed(1)}x)`);
-      return;
-    }
-
-    // VALIDATION: Year/date differences are allowed - will be caught by text mismatch check below
-    // No need to hard-reject, just flag later
-    if (hasYearMismatch(fig.text, candidate)) {
-      if (isDebug) console.log(`        ↳ NOTE: Year/date mismatch (will affect visual checks)`);
-      // Don't return - allow the match but flag as warning
-    }
-
-    const bonus = contextBonus(fig, b);
-    const penalty = posPenalty(fig, b);
-    s += bonus;
-    s -= penalty;
-
-    if (isDebug) {
-      console.log(`        ↳ Final: ${s} (bonus: +${bonus}, penalty: -${penalty})`);
-    }
-
-    if (s > bestScore) {
-      bestScore = s;
-      best = {
-        b,
-        i,
-        score: s,
-        amountMismatch: amountMismatch(fig.text, candidate)
-      };
-    }
+    if (s < 30) return;
+    s += contextBonus(fig, b);
+    s -= posPenalty(fig, b);
+    if (s > bestScore) { bestScore = s; best = { b, i, score: s, amountMismatch: amountMismatch(fig.text, candidate) }; }
   });
-
-  if (isDebug) {
-    console.log(`   Evaluated: ${evaluatedCount} candidates`);
-    if (best) {
-      console.log(`   ✓ MATCH: [${best.i}] "${best.b.text}" (score: ${best.score})`);
-    } else {
-      console.log(`   ✗ NO MATCH (bestScore: ${bestScore}, threshold: 35)`);
-    }
-  }
-
   return best && best.score >= 35 ? best : null;
 }
+
+// ═══════════════════════════════════════════════════════
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  ADDITIONAL DETECTORS - Catch design consistency issues
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1010,46 +946,8 @@ function runDiff() {
   const textEls = figEls.filter(x => x.text);
 
   // Parse Browser
-  const allElements = b.elements || [];
-  const brows = allElements.filter(x => x && x.rect);
+  const brows = (b.elements || []).filter(x => x && x.rect);
   const expandedVisible = hasExpandedVisible(brows);
-
-  // Diagnostic logging for missing elements
-  console.log(`\n${'═'.repeat(70)}`);
-  console.log(`📊 BROWSER JSON LOADING DIAGNOSTICS`);
-  console.log(`${'═'.repeat(70)}`);
-  console.log(`  Total elements in JSON: ${allElements.length}`);
-  console.log(`  Elements with rect property: ${brows.length}`);
-
-  const withoutRect = allElements.filter(x => x && !x.rect);
-  if (withoutRect.length > 0) {
-    console.log(`  ⚠️  Elements WITHOUT rect: ${withoutRect.length}`);
-    withoutRect.slice(0, 5).forEach((el, i) => {
-      console.log(`    [${i}] ${el.tag || 'no-tag'} "${(el.text || el.value || el.id || 'no-text').slice(0, 40)}"`);
-    });
-  }
-
-  // Show all 24 elements for reference
-  console.log(`\n  📋 ALL BROWSER ELEMENTS (in matching order):`);
-  brows.forEach((el, i) => {
-    console.log(`    [${i}] <${el.tag||'?'}${el.id ? '#'+el.id : ''}> rect(${el.rect?.x},${el.rect?.y})+[${el.rect?.w}x${el.rect?.h}] text="${(el.text || el.value || el.ariaLabel || '(no text)').slice(0, 45)}"`);
-  });
-
-  // Log "Verifica" and "conservación" entries if present
-  const verificaMatches = brows.filter(el =>
-    (el.text || '').toLowerCase().includes('verifica') ||
-    (el.text || '').toLowerCase().includes('conservación')
-  );
-  if (verificaMatches.length > 0) {
-    console.log(`\n  🔍 Found ${verificaMatches.length} element(s) with "verifica" or "conservación":`);
-    verificaMatches.forEach((el, idx) => {
-      const elIndex = brows.indexOf(el);
-      console.log(`    [${elIndex}] <${el.tag}> "${(el.text || el.value || '').slice(0, 60)}"`);
-    });
-  } else {
-    console.log(`\n  🔍 NO elements contain "verifica" or "conservación"`);
-  }
-  console.log(`${'═'.repeat(70)}\n`);
 
   const r = {
     checks: [],
@@ -1100,16 +998,10 @@ function runDiff() {
     used.add(m.i);
     const actualText = m.b.text || m.b.value || m.b.ariaLabel || '<'+m.b.tag+'>';
 
-    // Log when element [4] is being consumed
-    if (m.i === 4) {
-      console.log(`\n⚠️ CRITICAL: Element [4] <h1> "Verifica tu identidad" is being MATCHED TO:\n   Figma text: "${fig.text}"\n   Match score: ${m.score}`);
-    }
-
     if (m.amountMismatch) {
       if (isSliderLabel(fig, m.b)) {
         r.coverage.matched++;
-        const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
-        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: scorePercent+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
       } else {
         r.coverage.warnings++;
         addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'State mismatch', expected: fig.text, actual: actualText, diff: 'amount differs', tolerance: 'must match state', status: 'warning', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
@@ -1117,16 +1009,14 @@ function runDiff() {
       }
     } else {
       r.coverage.matched++;
-      const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
-      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: scorePercent+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
     }
 
     const visualChecksAllowed = shouldCheckVisuals(fig, m.b, m.score, actualText);
 
     if (!visualChecksAllowed && (fig.fontSize || fig.color)) {
       r.coverage.warnings++;
-      const scorePercent = Math.min(120, Math.round(m.score)); // Cap at 120 (max similarity)
-      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: scorePercent+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
+      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
     }
 
     // Font size check
@@ -1227,7 +1117,7 @@ function renderMissing() {
       <div class="mc-path">${esc(x.figmaPath||'')}</div>
     </div>`
   ).join('')}</div>`;
-  return section('Missing Figma Text in Browser', rows.length + ' missing', body, true);
+  return section('Missing Figma Text in Browser', rows.length + ' missing', body, false);
 }
 
 // Main table
@@ -1244,16 +1134,25 @@ function renderTable() {
     <th style="min-width:180px">What this means</th>
     <th>Figma path</th>
   </tr>`;
-  const tbody = rows.map(x => `<tr id="check-row-${x.id}">
-    <td style="color:var(--muted)">${x.id}</td>
-    <td>${esc(x.element)}</td>
-    <td class="td-mono">${esc(x.check)}</td>
-    <td class="td-mono">${esc(x.expected)}</td>
-    <td class="td-mono">${esc(x.actual)}</td>
-    <td><span class="pill ${x.status}">${x.status}</span></td>
-    <td class="td-why">${esc(x.why)}</td>
-    <td class="td-path">${esc(x.figmaPath||'')}</td>
-  </tr>`).join('');
+  const tbody = rows.map(x => {
+    let pathHtml = esc(x.figmaPath||'');
+    if (S.figmaUrl && x.figmaPath) {
+      const link = getFigmaLinkForPath(x.figmaPath);
+      if (link) {
+        pathHtml = `<a href="${esc(link)}" target="_blank" style="color:var(--blue);text-decoration:underline;cursor:pointer;">${esc(x.figmaPath)}</a>`;
+      }
+    }
+    return `<tr id="check-row-${x.id}">
+      <td style="color:var(--muted)">${x.id}</td>
+      <td>${esc(x.element)}</td>
+      <td class="td-mono">${esc(x.check)}</td>
+      <td class="td-mono">${esc(x.expected)}</td>
+      <td class="td-mono">${esc(x.actual)}</td>
+      <td><span class="pill ${x.status}">${x.status}</span></td>
+      <td class="td-why">${esc(x.why)}</td>
+      <td class="td-path">${pathHtml}</td>
+    </tr>`;
+  }).join('');
   const body = `<div class="table-wrap"><table class="tbl"><thead>${thead}</thead><tbody>${tbody}</tbody></table></div>`;
   return section('QA Checks', rows.length + ' rows', body, false);
 }
@@ -1327,24 +1226,12 @@ function estimatePage() {
 }
 
 function scrollToCheck(id) {
-  // Clear previous highlights
-  document.querySelectorAll('.hl, .pin.active, .issue-card.active').forEach(el => {
-    el.classList.remove('hl', 'active');
-  });
-
-  // Highlight the table row
   const row = byId('check-row-'+id);
   if (row) {
     row.scrollIntoView({behavior:'smooth',block:'center'});
     row.classList.add('hl');
     setTimeout(() => row.classList.remove('hl'), 1800);
   }
-
-  // Highlight corresponding pin(s) in overlay
-  document.querySelectorAll(`.pin[onclick*="${id}"], .issue-card[onclick*="${id}"]`).forEach(el => {
-    el.classList.add('active');
-    setTimeout(() => el.classList.remove('active'), 1800);
-  });
 }
 
 function section(title, count, body, collapsed) {
@@ -1466,89 +1353,23 @@ function clearInput(which) {
     resetDrop('shotDrop', 'Drop screenshot PNG here', 'Generated by the "JSON + Screenshot" bookmarklet');
     setChip('shotStatus', 'Screenshot: empty', false);
   }
-  if (which === 'figmaPath') {
-    byId('figmaPathInput').value = '';
-    byId('figmaPathOutput').style.display = 'none';
-  }
-}
-
-function extractFigmaNodeId(url) {
-  // Extract node-id from Figma URL patterns:
-  // https://www.figma.com/design/{fileKey}/{pageName}?node-id={nodeId}
-  // https://www.figma.com/design/{fileKey}?node-id={nodeId}
-  // Also supports old format: node-id={nodeId}&t=...
-  try {
-    const nodeMatch = url.match(/[?&]node-id=([^&]+)/);
-    if (nodeMatch) {
-      // node-id can be formatted as "123-456" or "123:456"
-      let nodeId = decodeURIComponent(nodeMatch[1]);
-      // Normalize to colon format if dashes are used
-      nodeId = nodeId.replace(/-(?![\da-f])/g, ':'); // Replace dashes but keep hex colors
-      return nodeId;
+  if (which === 'figmaUrl') {
+    const input = byId('figmaUrlInput');
+    const container = byId('figmaUrlContainer');
+    const statusDiv = byId('figmaUrlStatus');
+    input.value = '';
+    input.style.borderColor = '#bbf7d0';
+    input.style.backgroundColor = '#fff';
+    container.style.background = '#f0fdf4';
+    container.style.borderColor = '#bbf7d0';
+    statusDiv.innerHTML = 'ℹ️ Paste your Figma design URL to make all paths in the results clickable and open in Figma.';
+    statusDiv.style.color = '#15803d';
+    statusDiv.style.fontWeight = 'normal';
+    S.figmaUrl = null;
+    S.pathToNodeId = {};
+    if (S.report) {
+      renderSections();
     }
-  } catch (e) {
-    console.error('Error extracting node ID:', e);
-  }
-  return null;
-}
-
-function extractFileKey(url) {
-  // Extract file key from Figma URL
-  // https://www.figma.com/design/{fileKey}/...
-  try {
-    const match = url.match(/figma\.com\/(?:design|file)\/([^/?]+)/);
-    if (match) {
-      return match[1];
-    }
-  } catch (e) {
-    console.error('Error extracting file key:', e);
-  }
-  return null;
-}
-
-function processFigmaPath() {
-  const input = byId('figmaPathInput');
-  const url = input.value.trim();
-
-  if (!url) {
-    byId('figmaPathOutput').style.display = 'none';
-    return;
-  }
-
-  const nodeId = extractFigmaNodeId(url);
-  const fileKey = extractFileKey(url);
-
-  if (!nodeId || !fileKey) {
-    byId('figmaPathOutput').innerHTML = '<div style="color:#dc2626; font-size:12px;">❌ Invalid Figma URL. Please paste a valid design URL with node-id parameter.</div>';
-    byId('figmaPathOutput').style.display = 'block';
-    return;
-  }
-
-  // Build a clean Figma link to the specific node
-  const figmaLink = `https://www.figma.com/design/${fileKey}?node-id=${nodeId}`;
-
-  byId('figmaPathLink').href = figmaLink;
-  byId('figmaPathLink').textContent = figmaLink;
-  byId('figmaPathLink').title = figmaLink;
-  byId('figmaPathOutput').style.display = 'block';
-
-  // Store for potential future use
-  S.figmaPath = figmaLink;
-}
-
-function copyFigmaLink() {
-  const link = byId('figmaPathLink').href;
-  if (link && link !== '#') {
-    navigator.clipboard.writeText(link).then(() => {
-      const btn = event.target;
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(() => {
-        btn.textContent = orig;
-      }, 2000);
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-    });
   }
 }
 
@@ -1567,18 +1388,6 @@ function clearAll() {
   byId('swapBanner').style.display = 'none';
 }
 
-function toggleInstructions() {
-  const content = byId('instructionsContent');
-  const arrow = byId('instructionsArrow');
-  if (content.style.display === 'none') {
-    content.style.display = 'block';
-    arrow.style.transform = 'rotate(90deg)';
-  } else {
-    content.style.display = 'none';
-    arrow.style.transform = 'rotate(0deg)';
-  }
-}
-
 // ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
@@ -1588,10 +1397,8 @@ window.onload = function() {
   wire('shotDrop', 'shotFile', '',          true);
   byId('figInput').addEventListener('input',  () => updateStatus('figInput'));
   byId('browInput').addEventListener('input', () => updateStatus('browInput'));
-  byId('figmaPathInput').addEventListener('input', processFigmaPath);
-  byId('figmaPathInput').addEventListener('paste', () => {
-    setTimeout(processFigmaPath, 10);
-  });
+  byId('figmaUrlInput').addEventListener('input', processFigmaUrl);
+  byId('figmaUrlInput').addEventListener('paste', () => setTimeout(processFigmaUrl, 10));
 };
 </script>
 </body>
