@@ -474,14 +474,14 @@
                         }
                     } else if(cat === 'email') {
                         // אימייל צריך לדחות פורמט בלתי תקין
-                        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+                        const isValidEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(val);
                         const shouldPass = isValidEmail ? !hasError : hasError;
                         testPassed = shouldPass;
                         expectedForValue = isValidEmail ? 'Should be accepted' : 'Should be rejected';
                         resultMessage = isValidEmail ? (hasError ? 'FAIL - should accept valid email' : 'PASS') : (hasError ? 'PASS - correctly rejected' : 'FAIL - should reject');
                     } else if(cat === 'tel') {
                         // טלפון צריך לדחות פורמט בלתי תקין
-                        const isValidPhone = /^[0-9+\-\s()]+$/.test(val);
+                        const isValidPhone = /^[0-9+\\-\\s()]+$/.test(val);
                         const shouldPass = isValidPhone ? !hasError : hasError;
                         testPassed = shouldPass;
                         expectedForValue = isValidPhone ? 'Should be accepted' : 'Should be rejected';
