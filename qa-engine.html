@@ -92,6 +92,9 @@
 <div class="container">
     <div style="text-align: center;">
         <h1>🚀 QA Dynamic Engine v4.0 PRO</h1>
+        <p style="color:#94a3b8;font-size:14px;max-width:700px;margin:0 auto 16px;line-height:1.7;">
+            A 4-step QA automation engine for web forms. Install the bookmarklet once, click it on any target page to extract form fields as JSON, paste the JSON here to generate a console test suite (validation, security, accessibility, happy-flow), run it in the browser console, then paste the results back for a full pass/fail analysis with Excel export.
+        </p>
     </div>
 
     <div class="card setup-zone">
@@ -278,8 +281,13 @@
                         let optElement = opt.element; // Store the original reference
 
                         if(isSelect) {
-                            // SELECT רגיל
+                            // SELECT רגיל — try by value first, fall back to matching text
                             el.value = opt.value;
+                            if(el.value !== opt.value) {
+                                // value attribute mismatch — find by text
+                                const matchOpt = Array.from(el.options).find(o => o.text.trim() === opt.text.trim());
+                                if(matchOpt) el.value = matchOpt.value;
+                            }
                             el.dispatchEvent(new Event('change', {bubbles:true}));
                             el.dispatchEvent(new Event('input', {bubbles:true}));
                         } else if(isCombobox) {
@@ -318,7 +326,7 @@
                     // חפש הודעות שגיאה קרובות לשדה
                     const parent = el.parentElement;
                     if(parent && !errorMessage) {
-                        const errorElem = parent.querySelector('[role="alert"], .error, .invalid-feedback, span[class*="error"]');
+                        const errorElem = parent.querySelector('[role="alert"], .invalid-feedback, .error-message, .field-error, .form-error, span.error, div.error');
                         if(errorElem && errorElem.innerText.trim()) {
                             errorMessage = errorElem.innerText.trim();
                             hasError = true;
@@ -328,7 +336,9 @@
                     // בדוק אם value התקבל (עבור combobox, בדוק אם הערך של הoption נמצא בinput)
                     let valueAccepted = false;
                     if(isSelect) {
-                        valueAccepted = el.value === opt.value;
+                        // Accept if value matches OR if selected option text matches (handles mismatched value attrs)
+                        const selectedText = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text.trim() : '';
+                        valueAccepted = el.value === opt.value || selectedText === opt.text.trim();
                     } else if(isCombobox) {
                         // עבור combobox, בדוק את ה-value או את ה-text
                         valueAccepted = el.value === opt.value || el.value === opt.text || optElement?.textContent?.trim() === opt.text;
@@ -385,23 +395,28 @@
                         hasError = true;
                     }
 
-                    // בדיקה 3: חפש הודעות שגיאה בקרבת השדה
+                    // בדיקה 3: חפש הודעות שגיאה בקרבת השדה (parent only, specific selectors)
                     const parent = el.parentElement;
                     if(parent) {
-                        const errorElem = parent.querySelector('.error, .help-block, [role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .invalid-feedback, span[class*="error"], span[class*="invalid"], div[class*="error"], p[class*="error"], span.text-danger, div.text-danger, [class*="error"]');
-                        if(errorElem && errorElem.innerText.trim()) {
-                            errorMessage = errorElem.innerText.trim();
-                            hasError = true; // אם יש הודעת שגיאה, זה אומר שיש שגיאה
-                        }
-                    }
-
-                    // בדיקה 4: חפש בהורה של ההורה
-                    if(!errorMessage && parent && parent.parentElement) {
-                        const grandparent = parent.parentElement;
-                        const errorElem = grandparent.querySelector('.error, .help-block, [role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, span[class*="error"], span[class*="invalid"], div[class*="error"], p[class*="error"], [class*="error"]');
+                        const errorElem = parent.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block, span.error, div.error, p.error, span.text-danger, div.text-danger');
                         if(errorElem && errorElem.innerText.trim()) {
                             errorMessage = errorElem.innerText.trim();
                             hasError = true;
+                        }
+                    }
+
+                    // בדיקה 4: חפש בהורה של ההורה — רק selectors ספציפיים, לא [class*="error"]
+                    if(!errorMessage && parent && parent.parentElement) {
+                        const grandparent = parent.parentElement;
+                        // Only look at direct children of grandparent, not the entire subtree, to avoid sibling fields
+                        const errorElem = Array.from(grandparent.children).find(child => {
+                            if(child === parent) return false; // skip the parent we already checked
+                            const sel = child.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block');
+                            return sel && sel.innerText.trim();
+                        });
+                        if(errorElem) {
+                            const found = errorElem.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block');
+                            if(found) { errorMessage = found.innerText.trim(); hasError = true; }
                         }
                     }
 
@@ -973,12 +988,15 @@
         const thActualResult = document.getElementById('th-actualResult');
         const thResult = document.getElementById('th-result');
         const thOverride = document.getElementById('th-override');
-        if(thFieldName) thFieldName.innerText = t.fieldName;
-        if(thTestValue) thTestValue.innerText = t.testValue;
-        if(thExpectedResult) thExpectedResult.innerText = t.expectedResult;
-        if(thActualResult) thActualResult.innerText = t.actualResult;
-        if(thResult) thResult.innerText = t.result;
-        if(thOverride) thOverride.innerText = t.override;
+        const textAlign = currentLanguage === 'he' ? 'right' : 'left';
+        if(thFieldName) { thFieldName.innerText = t.fieldName; thFieldName.style.textAlign = textAlign; }
+        if(thTestValue) { thTestValue.innerText = t.testValue; thTestValue.style.textAlign = textAlign; }
+        if(thExpectedResult) { thExpectedResult.innerText = t.expectedResult; thExpectedResult.style.textAlign = textAlign; }
+        if(thActualResult) { thActualResult.innerText = t.actualResult; thActualResult.style.textAlign = textAlign; }
+        if(thResult) { thResult.innerText = t.result; thResult.style.textAlign = 'center'; }
+        if(thOverride) { thOverride.innerText = t.override; thOverride.style.textAlign = 'center'; }
+        // Update all td alignment too
+        document.querySelectorAll('#resultsTable td').forEach(td => { td.style.textAlign = textAlign; });
 
         // Update all dropdown options
         const selects = document.querySelectorAll('.status-override');
