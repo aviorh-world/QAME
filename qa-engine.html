@@ -39,7 +39,7 @@
 
         .field-name { color: #38bdf8; font-weight: bold; font-family: monospace; }
         .field-type { color: #a78bfa; font-size: 12px; }
-        .test-value { color: #e2e8f0; max-width: 250px; word-break: break-all; font-family: monospace; }
+        .test-value { color: #e2e8f0; max-width: 300px; word-break: break-word; font-family: monospace; white-space: pre-wrap; line-height: 1.4; }
         .status-pass { background: rgba(16, 185, 129, 0.2); color: var(--success); text-align: center; font-weight: bold; border-radius: 4px; padding: 4px 8px; }
         .status-fail { background: rgba(244, 63, 94, 0.2); color: var(--error); text-align: center; font-weight: bold; border-radius: 4px; padding: 4px 8px; }
 
@@ -158,7 +158,7 @@
 <script>
     const updateTime = new Date().toLocaleString('he-IL');
     document.getElementById('updateLabel').innerText = "Update: " + updateTime;
-    const bScript = `javascript:(function(){const d={url:window.location.href,forms:Array.from(document.forms).map((f,idx)=>({id:f.id||f.name||'form_'+idx,inputs:Array.from(f.elements).filter(e=>['INPUT','TEXTAREA','SELECT'].includes(e.tagName)).map(e=>({name:e.name||e.id,type:e.type,placeholder:e.placeholder}))}))};const json=JSON.stringify(d,null,2);navigator.clipboard.writeText(json).then(()=>{alert('✅ נתוני הדף הועתקו!\\n\\nאם לא הצליח, הJSON מוצג בחלון חדש');}).catch(err=>{const w=window.open();w.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:20px;">'+json+'</pre>');alert('⚠️ Clipboard לא זמין.\\n\\nהJSON הוצג בחלון חדש.\\nאנא העתק ידנית (Ctrl+A ואחרי זה Ctrl+C).');});})();`;
+    const bScript = `javascript:(function(){const d={url:window.location.href,forms:Array.from(document.forms).map((f,idx)=>({id:f.id||f.name||'form_'+idx,inputs:Array.from(f.elements).filter(e=>['INPUT','TEXTAREA','SELECT'].includes(e.tagName)).map(e=>{const obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(opt=>({value:opt.value,text:opt.text}))}return obj})}))};const json=JSON.stringify(d,null,2);navigator.clipboard.writeText(json).then(()=>{alert('✅ נתוני הדף הועתקו!\\n\\nאם לא הצליח, הJSON מוצג בחלון חדש');}).catch(err=>{const w=window.open();w.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:20px;">'+json+'</pre>');alert('⚠️ Clipboard לא זמין.\\n\\nהJSON הוצג בחלון חדש.\\nאנא העתק ידנית (Ctrl+A ואחרי זה Ctrl+C).');});})();`;
     document.getElementById('bookmarkletLink').href = bScript;
 
     function generateMegaSuite() {
@@ -238,7 +238,123 @@
             const hasType = el.getAttribute('type') || el.tagName.toLowerCase();
             log('  Input type: ' + hasType, true, 'test', i.name, '', 'Field should have proper input type');
 
-            if(i.type === 'checkbox') {
+            // בדוק אם זה SELECT (dropdown) או custom combobox עם listbox
+            const isSelect = el.tagName === 'SELECT' || i.type === 'select';
+            const isCombobox = el.getAttribute('aria-controls') && (el.tagName === 'INPUT' || el.role === 'combobox');
+
+            if(isSelect || isCombobox) {
+                let options = [];
+
+                if(isSelect) {
+                    // זה SELECT רגיל
+                    options = i.options && i.options.length > 0 ? i.options : Array.from(el.options || []).map(o => ({value: o.value, text: o.text}));
+                } else if(isCombobox) {
+                    // זה custom combobox - צריך לפתוח את ה-listbox ולחלץ את האופציות
+                    const listboxId = el.getAttribute('aria-controls');
+                    const listbox = document.getElementById(listboxId) || el.parentElement?.querySelector('[role="listbox"]');
+
+                    if(listbox) {
+                        // פתח את ה-listbox אם הוא סגור
+                        el.click();
+                        await delay(200);
+
+                        // חלץ את כל ה-options מהlistbox
+                        const optElements = listbox.querySelectorAll('[role="option"]');
+                        options = Array.from(optElements).map(opt => ({
+                            value: opt.getAttribute('data-value') || opt.textContent.trim(),
+                            text: opt.textContent.trim(),
+                            element: opt
+                        }));
+                    }
+                }
+                const elementType = isSelect ? 'SELECT' : 'COMBOBOX';
+                log('Testing ' + elementType + ': [' + i.name + '] with ' + options.length + ' options', true, 'action', i.name, '', 'Testing all options');
+
+                if(options.length === 0) {
+                    log('  No options found in ' + elementType, false, 'test', i.name, '', elementType + ' should have options');
+                } else {
+                    for(let optIdx = 0; optIdx < options.length; optIdx++) {
+                        const opt = options[optIdx];
+                        let optElement = opt.element; // Store the original reference
+
+                        if(isSelect) {
+                            // SELECT רגיל
+                            el.value = opt.value;
+                            el.dispatchEvent(new Event('change', {bubbles:true}));
+                            el.dispatchEvent(new Event('input', {bubbles:true}));
+                        } else if(isCombobox) {
+                            // Custom combobox - צריך לפתוח מחדש כל פעם (הlistbox נסגר אחרי בחירה)
+                            const listboxId = el.getAttribute('aria-controls');
+                            const listbox = document.getElementById(listboxId) || el.parentElement?.querySelector('[role="listbox"]');
+
+                            // פתח את ה-listbox
+                            el.click();
+                            await delay(150);
+
+                            // קבל את האופציה המעודכנת מה-DOM החי
+                            const freshOptions = listbox.querySelectorAll('[role="option"]');
+                            if(optIdx < freshOptions.length) {
+                                optElement = freshOptions[optIdx];
+                                optElement.click();
+                            }
+                        }
+
+                    await delay(300); // חכה יותר זמן לdropdowns עם cascading
+
+                    // בדוק אם יש שגיאה
+                    let hasError = false;
+                    let errorMessage = '';
+
+                    // בדוק CSS classes
+                    if(el.classList.contains('is-invalid') || el.classList.contains('error') || el.classList.contains('ng-invalid') || el.classList.contains('invalid')) {
+                        hasError = true;
+                    }
+
+                    // בדוק aria-invalid
+                    if(el.getAttribute('aria-invalid') === 'true') {
+                        hasError = true;
+                    }
+
+                    // חפש הודעות שגיאה קרובות לשדה
+                    const parent = el.parentElement;
+                    if(parent && !errorMessage) {
+                        const errorElem = parent.querySelector('[role="alert"], .error, .invalid-feedback, span[class*="error"]');
+                        if(errorElem && errorElem.innerText.trim()) {
+                            errorMessage = errorElem.innerText.trim();
+                            hasError = true;
+                        }
+                    }
+
+                    // בדוק אם value התקבל (עבור combobox, בדוק אם הערך של הoption נמצא בinput)
+                    let valueAccepted = false;
+                    if(isSelect) {
+                        valueAccepted = el.value === opt.value;
+                    } else if(isCombobox) {
+                        // עבור combobox, בדוק את ה-value או את ה-text
+                        valueAccepted = el.value === opt.value || el.value === opt.text || optElement?.textContent?.trim() === opt.text;
+                    }
+
+                    if(!valueAccepted) {
+                        hasError = true;
+                        if(!errorMessage) errorMessage = 'Option not accepted';
+                    }
+
+                    // בנה הודעה
+                    let fullMessage = '  Option: "' + opt.text + '" (value: ' + opt.value + ')';
+                    if(errorMessage && errorMessage.length < 150) {
+                        fullMessage += ' | Error: ' + errorMessage;
+                    } else if(!hasError && valueAccepted) {
+                        fullMessage += ' | Field accepted option';
+                    }
+
+                    const passStatus = !hasError;
+                    log(fullMessage, passStatus, 'test', i.name, opt.value, 'Should accept option');
+
+                        await delay(100);
+                    }
+                }
+                // דלג על בדיקות רגילות לSELECT - תם כאן!
+            } else if(i.type === 'checkbox') {
                 el.checked = !el.checked;
                 el.dispatchEvent(new Event('change', {bubbles:true}));
                 log('Toggled checkbox: ' + i.name, true, 'test', i.name, 'toggle', testLibrary.checkbox.expected);
@@ -255,42 +371,74 @@
                     // חכה לvalidation
                     await delay(200);
 
-                    // בדוק אם יש שגיאה
+                    // בדוק אם יש שגיאה - בדיקה מקיפה
                     let hasError = false;
                     let errorMessage = '';
 
-                    // בדוק aria-invalid
+                    // בדיקה 1: בדוק CSS classes על השדה עצמו
+                    if(el.classList.contains('is-invalid') || el.classList.contains('error') || el.classList.contains('ng-invalid') || el.classList.contains('invalid')) {
+                        hasError = true;
+                    }
+
+                    // בדיקה 2: בדוק aria-invalid
                     if(el.getAttribute('aria-invalid') === 'true') {
                         hasError = true;
-                        errorMessage = 'aria-invalid detected';
                     }
 
-                    // בדוק CSS classes
-                    if(el.classList.contains('is-invalid') || el.classList.contains('error') || el.classList.contains('ng-invalid')) {
-                        hasError = true;
-                        errorMessage = 'CSS error class detected';
-                    }
-
-                    // בדוק error message בחלון ההורה וסביבה
+                    // בדיקה 3: חפש הודעות שגיאה בקרבת השדה
                     const parent = el.parentElement;
-                    if(parent && !errorMessage) {
-                        // חפש בקלסים שונים
-                        const errorElem = parent.querySelector('.error, .help-block, [role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, [class*="error"]');
+                    if(parent) {
+                        const errorElem = parent.querySelector('.error, .help-block, [role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .invalid-feedback, span[class*="error"], span[class*="invalid"], div[class*="error"], p[class*="error"], span.text-danger, div.text-danger, [class*="error"]');
                         if(errorElem && errorElem.innerText.trim()) {
                             errorMessage = errorElem.innerText.trim();
+                            hasError = true; // אם יש הודעת שגיאה, זה אומר שיש שגיאה
                         }
                     }
 
-                    // אם עדיין לא מצאנו - חפש בדוקומנט כולו לאחרונה (עבור toast/popup messages)
-                    if(!errorMessage && (hasError || el.classList.contains('is-invalid'))) {
-                        const allErrors = document.querySelectorAll('[role="alert"], .alert-danger, .toast-error, [class*="error-message"]');
-                        if(allErrors.length > 0) {
-                            errorMessage = allErrors[allErrors.length - 1].innerText.trim().substring(0, 100); // limit to 100 chars
+                    // בדיקה 4: חפש בהורה של ההורה
+                    if(!errorMessage && parent && parent.parentElement) {
+                        const grandparent = parent.parentElement;
+                        const errorElem = grandparent.querySelector('.error, .help-block, [role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, span[class*="error"], span[class*="invalid"], div[class*="error"], p[class*="error"], [class*="error"]');
+                        if(errorElem && errorElem.innerText.trim()) {
+                            errorMessage = errorElem.innerText.trim();
+                            hasError = true;
                         }
                     }
 
-                    // בדוק אם הערך בפועל הגיע לשדה
+                    // בדיקה 5: חפש הודעות שגיאה בכל המסמך - אבל רק אם היא באמת קרובה לשדה
+                    if(!errorMessage && hasError) {
+                        // חפש רק בקרבת השדה, לא בכל המסמך
+                        const fieldRect = el.getBoundingClientRect();
+                        const nearbyErrors = document.querySelectorAll('[role="alert"], .alert, .alert-danger, .toast-error, .invalid-feedback, span[class*="error"], div[class*="error"], p[class*="error"], span.text-danger, div.text-danger');
+
+                        for(let i = 0; i < nearbyErrors.length; i++) {
+                            const errRect = nearbyErrors[i].getBoundingClientRect();
+                            const distance = Math.sqrt(
+                                Math.pow(errRect.top - fieldRect.top, 2) +
+                                Math.pow(errRect.left - fieldRect.left, 2)
+                            );
+
+                            // רק אם ההודעה קרובה לשדה (בתוך 500px)
+                            if(distance < 500) {
+                                const msg = nearbyErrors[i].innerText.trim();
+                                if(msg && msg.length > 0 && msg.length < 200 && !msg.includes('console') && !msg.includes('script')) {
+                                    errorMessage = msg;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // בדיקה 6: בדוק אם הערך בפועל הגיע לשדה
                     const valueAccepted = el.value === val;
+
+                    // אם הערך לא התקבל - זה ברור שיש שגיאה
+                    if(!valueAccepted && val.length > 0) {
+                        hasError = true;
+                        if(!errorMessage) {
+                            errorMessage = 'Value rejected by field (not accepted)';
+                        }
+                    }
 
                     // קבע את ה-expected result בהתאם לערך שמוכנס
                     let testPassed = false;
@@ -342,8 +490,27 @@
 
                     // אם testPassed הוא null, זה דיווח בלבד (לא PASS/FAIL מוגדר)
                     const passStatus = testPassed !== null ? testPassed : true;
-                    // include actual error message if captured
-                    const fullMessage = errorMessage ? ('  Value: "' + val + '" - ' + resultMessage + ' | Error: ' + errorMessage) : ('  Value: "' + val + '" - ' + resultMessage);
+
+                    // בנה את ההודעה - רק הוסף errorMessage אם הוא בפועל משהו חשוב
+                    let fullMessage = '  Value: "' + val + '" - ' + resultMessage;
+
+                    // הוסף errorMessage רק אם:
+                    // 1. הוא לא ריק
+                    // 2. הוא לא "Option invalid" כברירת מחדל
+                    // 3. הוא לא "Value rejected by field (not accepted)"
+                    if(errorMessage && errorMessage.trim().length > 0 &&
+                       !errorMessage.includes('Option invalid') &&
+                       !errorMessage.includes('not accepted') &&
+                       errorMessage.length < 150) {
+                        fullMessage += ' | Error: ' + errorMessage;
+                    } else if(hasError && !errorMessage) {
+                        // אם יש שגיאה אבל לא מצאנו הודעה - דווח על זה
+                        fullMessage += ' | Field rejected input (no error message found)';
+                    } else if(!hasError && val.length > 0) {
+                        // אם אין שגיאה והערך קיים - דווח שהערך התקבל
+                        fullMessage += ' | Field accepted input';
+                    }
+
                     log(fullMessage, passStatus, 'test', i.name, val, expectedForValue);
                     await delay(80);
                 }
@@ -606,16 +773,22 @@
             const statusText = finalPass ? t.statusPass : t.statusFail;
 
             const tr = document.createElement('tr');
-            // Extract ONLY the error message from test.msg
+            // Extract the full error response from test.msg
             let actualResult = '';
             if(test.msg) {
-                // Check if there's an error message after the pipe separator
-                if(test.msg.includes(' | Error: ')) {
-                    // Extract only the error message part
-                    actualResult = test.msg.split(' | Error: ')[1] || 'No error message';
-                } else {
-                    // If no error format, show empty (field was accepted)
-                    actualResult = '';
+                // Get the full message which contains: Value: "..." - Result Message | Error: ErrorText
+                actualResult = test.msg;
+
+                // Clean up the display - remove "Value: " part but keep the error
+                if(actualResult.includes(' | Error: ')) {
+                    // Show: Result message + actual error
+                    const parts = actualResult.split(' | Error: ');
+                    const resultPart = parts[0].replace(/^.*? - /, ''); // Get just the result message
+                    const errorPart = parts[1]; // Get the error message
+                    actualResult = resultPart + '\n\n🔴 ' + errorPart;
+                } else if(actualResult.includes(' - ')) {
+                    // Just show the result part if no error
+                    actualResult = actualResult.replace(/^.*? - /, '');
                 }
             }
 
@@ -630,7 +803,7 @@
                     <div class="test-value">${escapeHtml(String(test.expected || ''))}</div>
                 </td>
                 <td>
-                    <div class="test-value" style="color: #94a3b8; font-size: 12px;">${escapeHtml(actualResult)}</div>
+                    <div class="test-value" style="color: #94a3b8; font-size: 12px; white-space: pre-wrap;">${escapeHtml(actualResult)}</div>
                 </td>
                 <td>
                     <span class="${statusClass}">${statusText}</span>
