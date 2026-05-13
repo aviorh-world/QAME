@@ -168,24 +168,24 @@
     </div>
 </div>
 <script>
-    document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 14:30';
+    document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 15:20';
     var _bCode = '';
     (function() {
         var s = 'javascript:(function(){';
         s += 'var d={url:window.location.href,';
         s += 'forms:Array.from(document.forms).map(function(f,idx){';
-        s += 'return {id:f.id||f.name||"form_"+idx,';
-        s += 'inputs:Array.from(f.elements).filter(function(e){return ["INPUT","TEXTAREA","SELECT"].includes(e.tagName)}).map(function(e){';
-        s += 'var obj={name:e.name||e.id,type:e.tagName==="SELECT"?"select":e.type,placeholder:e.placeholder||""};';
-        s += 'if(e.tagName==="SELECT"){obj.options=Array.from(e.options).map(function(opt){return {value:opt.value,text:opt.text}})}';
+        s += "return {id:f.id||f.name||'form_'+idx,";
+        s += "inputs:Array.from(f.elements).filter(function(e){return ['INPUT','TEXTAREA','SELECT'].includes(e.tagName)}).map(function(e){";
+        s += "var obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};";
+        s += "if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(function(opt){return {value:opt.value,text:opt.text}})}";
         s += 'return obj})}))};';
         s += 'var json=JSON.stringify(d,null,2);';
         s += 'navigator.clipboard.writeText(json).then(function(){';
-        s += 'alert("\\u2705 Page data copied!\\n\\nPaste it into QA Dynamic Engine.");';
+        s += "alert('✅ Page data copied!\\n\\nPaste it into QA Dynamic Engine.');";
         s += '}).catch(function(err){';
         s += 'var w=window.open();';
-        s += 'w.document.write("<pre>"+json+"<\\/pre>");';
-        s += 'alert("\\u26a0\\ufe0f Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).");';
+        s += "w.document.write('<pre>'+json+'<\\/pre>');";
+        s += "alert('⚠️ Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).');";
         s += '});';
         s += '})();';
         _bCode = s;
