@@ -92,17 +92,20 @@
 <div class="container">
     <div style="text-align: center;">
         <h1>🚀 QA Dynamic Engine</h1>
-        <ol id="introList" style="color:#94a3b8;font-size:14px;max-width:560px;margin:0 auto 16px;line-height:2;text-align:left;display:inline-block;">
-            <li>Install the bookmarklet — drag it to your browser toolbar</li>
-            <li>Click it on any target page — copies form fields as JSON</li>
-            <li>Paste the JSON here — generates a full test suite</li>
-            <li>Run it in the browser console — paste results back for analysis</li>
-        </ol>
+        <p style="color:#94a3b8;font-size:14px;margin:0 auto 16px;line-height:2;">
+            Install bookmarklet &nbsp;&rarr;&nbsp; Click on any target page &nbsp;&rarr;&nbsp; Paste JSON here &nbsp;&rarr;&nbsp; Run in console &nbsp;&rarr;&nbsp; Analyze results
+        </p>
+        <div style="max-width:700px;margin:0 auto 20px;border-radius:12px;overflow:hidden;">
+            <iframe src="https://drive.google.com/file/d/1XNnAIONRiR-3NJEtQU7W_sBZThqEPlYj/preview"
+                    width="100%" height="394" allow="autoplay" frameborder="0"
+                    style="display:block;border:none;border-radius:12px;"></iframe>
+        </div>
     </div>
 
     <div class="card setup-zone">
         <h3>1. Drag to Bookmarks</h3>
-        <a class="bookmarklet-btn" id="bookmarkletLink" href="#">🔍 Extract Page Data</a>
+        <a class="bookmarklet-btn" id="bookmarkletLink" href="javascript:void(0)" onclick="return false;" title="Drag this button to your bookmarks bar">🔍 Extract Page Data</a>
+        <p style="color:#64748b;font-size:12px;margin-top:8px;">⬆ Drag to your bookmarks bar, then click it on any page you want to test</p>
     </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div class="card">
@@ -162,12 +165,27 @@
     </div>
 </div>
 <script>
-    const lastMod = document.lastModified ? new Date(document.lastModified) : null;
-    document.getElementById('updateLabel').innerText = lastMod && !isNaN(lastMod)
-        ? "Updated: " + lastMod.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})
-        : '';
-    const bScript = `javascript:(function(){const d={url:window.location.href,forms:Array.from(document.forms).map((f,idx)=>({id:f.id||f.name||'form_'+idx,inputs:Array.from(f.elements).filter(e=>['INPUT','TEXTAREA','SELECT'].includes(e.tagName)).map(e=>{const obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(opt=>({value:opt.value,text:opt.text}))}return obj})}))};const json=JSON.stringify(d,null,2);navigator.clipboard.writeText(json).then(()=>{alert('✅ Page data copied!\\n\\nPaste it into QA Dynamic Engine.');}).catch(err=>{const w=window.open();w.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:20px;">'+json+'</pre>');alert('⚠️ Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).');});})();`;
-    document.getElementById('bookmarkletLink').href = bScript;
+    document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 14:30';
+    (function() {
+        var s = 'javascript:(function(){';
+        s += 'var d={url:window.location.href,';
+        s += 'forms:Array.from(document.forms).map(function(f,idx){';
+        s += 'return {id:f.id||f.name||"form_"+idx,';
+        s += 'inputs:Array.from(f.elements).filter(function(e){return ["INPUT","TEXTAREA","SELECT"].includes(e.tagName)}).map(function(e){';
+        s += 'var obj={name:e.name||e.id,type:e.tagName==="SELECT"?"select":e.type,placeholder:e.placeholder||""};';
+        s += 'if(e.tagName==="SELECT"){obj.options=Array.from(e.options).map(function(opt){return {value:opt.value,text:opt.text}})}';
+        s += 'return obj})}))};';
+        s += 'var json=JSON.stringify(d,null,2);';
+        s += 'navigator.clipboard.writeText(json).then(function(){';
+        s += 'alert("\\u2705 Page data copied!\\n\\nPaste it into QA Dynamic Engine.");';
+        s += '}).catch(function(err){';
+        s += 'var w=window.open();';
+        s += 'w.document.write("<pre style=\\"white-space:pre-wrap;word-wrap:break-word;padding:20px;\\"">" +json+"<\\/pre>");';
+        s += 'alert("\\u26a0\\ufe0f Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).");';
+        s += '});';
+        s += '})();';
+        document.getElementById('bookmarkletLink').href = s;
+    })();
 
     function generateMegaSuite() {
         const raw = document.getElementById('inputJson').value;
@@ -709,7 +727,7 @@
     const output = JSON.stringify(results);
     try {
         await navigator.clipboard.writeText(output);
-        alert('✅ QA scan complete!\\nResults copied to clipboard!');
+        alert('✅ QA scan complete!\nResults copied to clipboard!');
     } catch(e) {
         console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
         console.log('%c║   📋 JSON OUTPUT — copy from here      ║', 'color: #45ba45; font-size: 13px; font-weight: bold;');
@@ -718,7 +736,7 @@
         console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
         console.log('%c║  Select JSON > Ctrl+C to copy         ║', 'color: #fbbf24; font-size: 13px; font-weight: bold;');
         console.log('%c╚═══════════════════════════════════════╝', 'color: #45ba45; font-size: 13px;');
-        alert('⚠️ Clipboard not available.\\n\\nJSON shown in Console.\\nSelect and copy (Ctrl+C).');
+        alert('⚠️ Clipboard not available.\n\nJSON shown in Console.\nSelect and copy (Ctrl+C).');
     }
 })();`;
         document.getElementById('consoleScript').value = cCode;
