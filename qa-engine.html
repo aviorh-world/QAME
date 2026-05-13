@@ -181,6 +181,43 @@
         console.log('%c' + (pass?'✅':'❌') + ' ' + msg, 'color:' + (pass?'#10b981':'#f43f5e'));
     };
     const delay = ms => new Promise(r => setTimeout(r, ms));
+
+    // Snapshot all live-region / alert text before an action to detect only NEW errors
+    const snapshotAlerts = () => {
+        const map = new Map();
+        document.querySelectorAll('[role="alert"], [aria-live]').forEach(el => map.set(el, el.innerText.trim()));
+        return map;
+    };
+    const diffAlerts = (before) => {
+        let found = '';
+        document.querySelectorAll('[role="alert"], [aria-live]').forEach(el => {
+            const prev = before.get(el) || '';
+            const curr = el.innerText.trim();
+            if(curr && curr !== prev && curr.length > 0 && curr.length < 200) found = curr;
+        });
+        return found;
+    };
+    // Find error scoped to this specific field's form-container (avoids CDK LiveAnnouncer bleed)
+    const findFieldScopedError = (el) => {
+        // 1. aria-describedby (most reliable)
+        const described = el.getAttribute('aria-describedby');
+        if(described) {
+            for(const id of described.split(/\\s+/)) {
+                const desc = document.getElementById(id);
+                if(desc && desc.innerText.trim()) return desc.innerText.trim();
+            }
+        }
+        // 2. Closest Angular Material / Bootstrap / generic form-field container
+        const container = el.closest('mat-form-field, .mat-form-field, .mat-mdc-form-field, .form-group, .form-field, .field-wrapper, .input-wrapper') || el.parentElement;
+        if(container) {
+            const errEl = container.querySelector('mat-error, [role="alert"], .invalid-feedback, .error-message, .field-error, .form-error, .help-block, span.error, div.error');
+            if(errEl && errEl.innerText.trim()) return errEl.innerText.trim();
+        }
+        return '';
+    };
+
+    const now = new Date();
+    const dateYearsAgo = (y) => { const d = new Date(now); d.setFullYear(d.getFullYear() - y); return (d.getMonth()+1).toString().padStart(2,'0') + '/' + d.getDate().toString().padStart(2,'0') + '/' + d.getFullYear(); };
     const testLibrary = {
         email: {
             values: ["valid@test.com", "plainaddress", "test@test.", "@domain.com", "a@b.c", " ".repeat(5) + "a@b.com"],
@@ -205,6 +242,10 @@
         checkbox: {
             values: ["toggle"],
             expected: "Checkbox should toggle between checked and unchecked"
+        },
+        birthdate: {
+            values: [dateYearsAgo(30), dateYearsAgo(17), dateYearsAgo(125), dateYearsAgo(18), dateYearsAgo(120), "13/45/2000", "not-a-date"],
+            expected: "Birthdate must be between 18 and 120 years old"
         }
     };
     const forms = ${JSON.stringify(data.forms)};
@@ -220,6 +261,7 @@
             if(i.name.toLowerCase().includes('phone') || i.name.toLowerCase().includes('mobile')) cat = 'tel';
             if(i.name.toLowerCase().includes('email')) cat = 'email';
             if(i.name.toLowerCase().includes('zip') || i.name.toLowerCase().includes('postal')) cat = 'zip';
+            if(i.name.toLowerCase().match(/birth|dob|birthday/)) cat = 'birthdate';
             if(!testLibrary[cat]) cat = 'text';
 
             const libItem = testLibrary[cat];
@@ -341,12 +383,13 @@
                     // בדוק אם value התקבל (עבור combobox, בדוק אם הערך של הoption נמצא בinput)
                     let valueAccepted = false;
                     if(isSelect) {
-                        // Accept if value matches OR if selected option text matches (handles mismatched value attrs)
                         const selectedText = el.options[el.selectedIndex] ? el.options[el.selectedIndex].text.trim() : '';
                         valueAccepted = el.value === opt.value || selectedText === opt.text.trim();
                     } else if(isCombobox) {
-                        // עבור combobox, בדוק את ה-value או את ה-text
-                        valueAccepted = el.value === opt.value || el.value === opt.text || optElement?.textContent?.trim() === opt.text;
+                        // Dropdown closing (aria-expanded=false) is the reliable signal that an option was accepted
+                        const isStillOpen = el.getAttribute('aria-expanded') === 'true';
+                        const inputText = el.value || el.textContent.trim();
+                        valueAccepted = !isStillOpen || inputText === opt.text.trim() || inputText === opt.value;
                     }
 
                     if(!valueAccepted) {
@@ -378,78 +421,32 @@
                 for(const val of values) {
                     el.value = ""; // Reset
                     el.focus();
+                    const alertsBefore = snapshotAlerts();
                     el.value = val;
                     el.dispatchEvent(new Event('input', {bubbles:true}));
                     el.dispatchEvent(new Event('change', {bubbles:true}));
                     el.blur();
+                    await delay(250);
 
-                    // חכה לvalidation
-                    await delay(200);
-
-                    // בדוק אם יש שגיאה - בדיקה מקיפה
                     let hasError = false;
                     let errorMessage = '';
 
-                    // בדיקה 1: בדוק CSS classes על השדה עצמו
-                    if(el.classList.contains('is-invalid') || el.classList.contains('error') || el.classList.contains('ng-invalid') || el.classList.contains('invalid')) {
+                    // Check 1: field-scoped error (closest form container, avoids CDK LiveAnnouncer bleed)
+                    const scopedErr = findFieldScopedError(el);
+                    if(scopedErr) { errorMessage = scopedErr; hasError = true; }
+
+                    // Check 2: CSS invalid classes on the field
+                    if(!hasError && (el.classList.contains('is-invalid') || el.classList.contains('error') || el.classList.contains('ng-invalid') || el.classList.contains('invalid') || el.getAttribute('aria-invalid') === 'true')) {
                         hasError = true;
                     }
 
-                    // בדיקה 2: בדוק aria-invalid
-                    if(el.getAttribute('aria-invalid') === 'true') {
-                        hasError = true;
+                    // Check 3: newly appeared/changed live-region text (catches Angular CDK announcer for this field only)
+                    if(!errorMessage) {
+                        const newAlert = diffAlerts(alertsBefore);
+                        if(newAlert) { errorMessage = newAlert; hasError = true; }
                     }
 
-                    // בדיקה 3: חפש הודעות שגיאה בקרבת השדה (parent only, specific selectors)
-                    const parent = el.parentElement;
-                    if(parent) {
-                        const errorElem = parent.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block, span.error, div.error, p.error, span.text-danger, div.text-danger');
-                        if(errorElem && errorElem.innerText.trim()) {
-                            errorMessage = errorElem.innerText.trim();
-                            hasError = true;
-                        }
-                    }
-
-                    // בדיקה 4: חפש בהורה של ההורה — רק selectors ספציפיים, לא [class*="error"]
-                    if(!errorMessage && parent && parent.parentElement) {
-                        const grandparent = parent.parentElement;
-                        // Only look at direct children of grandparent, not the entire subtree, to avoid sibling fields
-                        const errorElem = Array.from(grandparent.children).find(child => {
-                            if(child === parent) return false; // skip the parent we already checked
-                            const sel = child.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block');
-                            return sel && sel.innerText.trim();
-                        });
-                        if(errorElem) {
-                            const found = errorElem.querySelector('[role="alert"], .invalid-feedback, .form-error, .error-message, .error-text, .field-error, .validation-error, .alert-danger, .help-block');
-                            if(found) { errorMessage = found.innerText.trim(); hasError = true; }
-                        }
-                    }
-
-                    // בדיקה 5: חפש הודעות שגיאה בכל המסמך - אבל רק אם היא באמת קרובה לשדה
-                    if(!errorMessage && hasError) {
-                        // חפש רק בקרבת השדה, לא בכל המסמך
-                        const fieldRect = el.getBoundingClientRect();
-                        const nearbyErrors = document.querySelectorAll('[role="alert"], .alert, .alert-danger, .toast-error, .invalid-feedback, span[class*="error"], div[class*="error"], p[class*="error"], span.text-danger, div.text-danger');
-
-                        for(let i = 0; i < nearbyErrors.length; i++) {
-                            const errRect = nearbyErrors[i].getBoundingClientRect();
-                            const distance = Math.sqrt(
-                                Math.pow(errRect.top - fieldRect.top, 2) +
-                                Math.pow(errRect.left - fieldRect.left, 2)
-                            );
-
-                            // רק אם ההודעה קרובה לשדה (בתוך 500px)
-                            if(distance < 500) {
-                                const msg = nearbyErrors[i].innerText.trim();
-                                if(msg && msg.length > 0 && msg.length < 200 && !msg.includes('console') && !msg.includes('script')) {
-                                    errorMessage = msg;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // בדיקה 6: בדוק אם הערך בפועל הגיע לשדה
+                    // Check 4: value accepted by field
                     const valueAccepted = el.value === val;
 
                     // אם הערך לא התקבל - זה ברור שיש שגיאה
@@ -491,6 +488,30 @@
                         testPassed = shouldPass;
                         expectedForValue = isValidPhone ? 'Should be accepted' : 'Should be rejected';
                         resultMessage = isValidPhone ? (hasError ? 'FAIL - should accept valid phone' : 'PASS') : (hasError ? 'PASS - correctly rejected' : 'FAIL - should reject');
+                    } else if(cat === 'birthdate') {
+                        const parsed = new Date(val);
+                        const isValidDate = !isNaN(parsed.getTime()) && val.match(/\\d{2}\\/\\d{2}\\/\\d{4}/);
+                        if(!isValidDate) {
+                            testPassed = hasError;
+                            expectedForValue = 'Should be rejected (invalid date format)';
+                            resultMessage = hasError ? 'PASS - correctly rejected invalid format' : 'FAIL - accepted invalid date format';
+                        } else {
+                            const ageMs = Date.now() - parsed.getTime();
+                            const ageYears = ageMs / (365.25 * 24 * 60 * 60 * 1000);
+                            if(ageYears < 18) {
+                                testPassed = hasError;
+                                expectedForValue = 'Should be rejected (under 18)';
+                                resultMessage = hasError ? 'PASS - correctly rejected underage' : '🔴 FAIL - accepted underage date';
+                            } else if(ageYears > 120) {
+                                testPassed = hasError;
+                                expectedForValue = 'Should be rejected (over 120 years)';
+                                resultMessage = hasError ? 'PASS - correctly rejected age over 120' : '🔴 FAIL - accepted age over 120';
+                            } else {
+                                testPassed = !hasError;
+                                expectedForValue = 'Should be accepted (age 18–120)';
+                                resultMessage = hasError ? 'FAIL - should accept valid birthdate' : 'PASS';
+                            }
+                        }
                     } else {
                         // שדות TEXT - בדוק אם יש ערכים מסוכנים (XSS, SQL Injection)
                         const isSuspiciousValue = /(<script|javascript:|onerror=|onclick=|'.*OR.*'|DROP|DELETE|UNION|SELECT)/i.test(val);
@@ -1119,24 +1140,26 @@
     }
 
     function exportToExcel() {
-        // הכנת נתונים בפורמט בהיר - with override support
+        const isEn = currentLanguage === 'en';
+        const col = isEn
+            ? { num: '#', field: 'Field Name', value: 'Test Value', expected: 'Expected Result', actual: 'Actual Result', result: 'Result', status: 'Status', override: 'Override' }
+            : { num: 'מס"ד', field: 'שם השדה', value: 'הערך שנבדק', expected: 'תוצאה צפויה', actual: 'תוצאה בפועל', result: 'תוצאה', status: 'סטטוס', override: 'עקוף' };
+
         const exportData = allTestsData.map((test, idx) => {
             const override = testOverrides[idx];
             const finalPass = override === undefined ? test.pass : (override === 'pass');
-
-            return {
-                'מס"ד': idx + 1,
-                'שם השדה': test.field,
-                'הערך שנבדק': test.testValue,
-                'תוצאה צפויה': test.expected || '',
-                'תוצאה בפועל': test.msg || '',
-                'תוצאה': finalPass ? 'עבר' : 'נכשל',
-                'סטטוס': finalPass ? 'PASS' : 'FAIL',
-                'עקוף': override === undefined ? 'No' : 'Yes'
-            };
+            const row = {};
+            row[col.num]      = idx + 1;
+            row[col.field]    = test.field;
+            row[col.value]    = test.testValue;
+            row[col.expected] = test.expected || '';
+            row[col.actual]   = test.msg || '';
+            row[col.result]   = finalPass ? (isEn ? 'Pass' : 'עבר') : (isEn ? 'Fail' : 'נכשל');
+            row[col.status]   = finalPass ? 'PASS' : 'FAIL';
+            row[col.override] = override === undefined ? 'No' : 'Yes';
+            return row;
         });
 
-        // סיכום - use final counts with overrides
         const passCount = allTestsData.filter((t, idx) => {
             const override = testOverrides[idx];
             return override === undefined ? t.pass : (override === 'pass');
@@ -1144,35 +1167,18 @@
         const failCount = allTestsData.length - passCount;
 
         const ws = XLSX.utils.json_to_sheet(exportData);
-
-        // עיצוב עמודות
-        ws['!cols'] = [
-            { wch: 6 },   // מס"ד
-            { wch: 25 },  // שם השדה
-            { wch: 30 },  // הערך שנבדק
-            { wch: 25 },  // תוצאה צפויה
-            { wch: 35 },  // תוצאה בפועל
-            { wch: 12 },  // תוצאה
-            { wch: 8 },   // סטטוס
-            { wch: 8 }    // עקוף
-        ];
+        ws['!cols'] = [{ wch: 6 }, { wch: 25 }, { wch: 30 }, { wch: 25 }, { wch: 35 }, { wch: 12 }, { wch: 8 }, { wch: 8 }];
 
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "QA_Results");
 
-        // הוספת גיליון סיכום
-        const summaryWs = XLSX.utils.aoa_to_sheet([
-            ['סיכום בדיקות'],
-            [],
-            ['סה"כ בדיקות', allTestsData.length],
-            ['בדיקות שעברו', passCount],
-            ['בדיקות שנכשלו', failCount],
-            ['אחוז הצלחה', Math.round((passCount / allTestsData.length) * 100) + '%']
-        ]);
+        const summaryWs = isEn
+            ? XLSX.utils.aoa_to_sheet([['QA Summary'], [], ['Total Tests', allTestsData.length], ['Passed', passCount], ['Failed', failCount], ['Pass Rate', Math.round((passCount / allTestsData.length) * 100) + '%']])
+            : XLSX.utils.aoa_to_sheet([['סיכום בדיקות'], [], ['סה"כ בדיקות', allTestsData.length], ['בדיקות שעברו', passCount], ['בדיקות שנכשלו', failCount], ['אחוז הצלחה', Math.round((passCount / allTestsData.length) * 100) + '%']]);
         summaryWs['!cols'] = [{ wch: 15 }, { wch: 12 }];
         XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
 
-        XLSX.writeFile(wb, "QA_Deep_Report_" + new Date().toLocaleDateString('he-IL').replace(/\//g, '-') + ".xlsx");
+        XLSX.writeFile(wb, "QA_Report_" + new Date().toLocaleDateString('en-CA') + ".xlsx");
     }
 </script>
 </body>
