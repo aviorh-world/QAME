@@ -92,20 +92,23 @@
 <div class="container">
     <div style="text-align: center;">
         <h1>🚀 QA Dynamic Engine</h1>
-        <p style="color:#94a3b8;font-size:14px;margin:0 auto 16px;line-height:2;">
-            Install bookmarklet &nbsp;&rarr;&nbsp; Click on any target page &nbsp;&rarr;&nbsp; Paste JSON here &nbsp;&rarr;&nbsp; Run in console &nbsp;&rarr;&nbsp; Analyze results
-        </p>
-        <div style="max-width:700px;margin:0 auto 20px;border-radius:12px;overflow:hidden;">
-            <iframe src="https://drive.google.com/file/d/1XNnAIONRiR-3NJEtQU7W_sBZThqEPlYj/preview"
-                    width="100%" height="394" allow="autoplay" frameborder="0"
-                    style="display:block;border:none;border-radius:12px;"></iframe>
-        </div>
+        <details id="howItWorks" style="margin-bottom:8px;">
+            <summary style="cursor:pointer;color:#6366f1;font-size:14px;font-weight:600;list-style:none;padding:6px 0;display:inline-block;">▶ How it works &amp; demo video</summary>
+            <p style="color:#94a3b8;font-size:14px;margin:10px auto 14px;line-height:2;">
+                Install bookmarklet &nbsp;&rarr;&nbsp; Click on any target page &nbsp;&rarr;&nbsp; Paste JSON here &nbsp;&rarr;&nbsp; Run in console &nbsp;&rarr;&nbsp; Analyze results
+            </p>
+            <div style="max-width:700px;margin:0 auto 12px;border-radius:12px;overflow:hidden;">
+                <iframe src="https://drive.google.com/file/d/1XNnAIONRiR-3NJEtQU7W_sBZThqEPlYj/preview"
+                        width="100%" height="394" allow="autoplay" frameborder="0"
+                        style="display:block;border:none;border-radius:12px;"></iframe>
+            </div>
+        </details>
     </div>
 
     <div class="card setup-zone">
         <h3>1. Drag to Bookmarks</h3>
-        <a class="bookmarklet-btn" id="bookmarkletLink" href="javascript:void(0)" onclick="return false;" title="Drag this button to your bookmarks bar">🔍 Extract Page Data</a>
-        <p style="color:#64748b;font-size:12px;margin-top:8px;">⬆ Drag to your bookmarks bar, then click it on any page you want to test</p>
+        <a class="bookmarklet-btn" id="bookmarkletLink" href="javascript:void(0)" onclick="copyBookmarklet(); return false;" title="Drag to bookmarks bar, or click to copy the install URL">🔍 Extract Page Data</a>
+        <p style="color:#64748b;font-size:12px;margin-top:8px;">⬆ Drag to bookmarks bar &nbsp;&middot;&nbsp; or click to copy the install URL</p>
     </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div class="card">
@@ -166,6 +169,7 @@
 </div>
 <script>
     document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 14:30';
+    var _bCode = '';
     (function() {
         var s = 'javascript:(function(){';
         s += 'var d={url:window.location.href,';
@@ -180,12 +184,22 @@
         s += 'alert("\\u2705 Page data copied!\\n\\nPaste it into QA Dynamic Engine.");';
         s += '}).catch(function(err){';
         s += 'var w=window.open();';
-        s += 'w.document.write("<pre style=\\"white-space:pre-wrap;word-wrap:break-word;padding:20px;\\"">" +json+"<\\/pre>");';
+        s += 'w.document.write("<pre>"+json+"<\\/pre>");';
         s += 'alert("\\u26a0\\ufe0f Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).");';
         s += '});';
         s += '})();';
+        _bCode = s;
         document.getElementById('bookmarkletLink').href = s;
     })();
+
+    function copyBookmarklet() {
+        if (!_bCode) return;
+        navigator.clipboard.writeText(_bCode).then(function() {
+            alert('✅ Bookmarklet URL copied!\n\nTo install:\n1. Create a new bookmark in your browser\n2. Paste this as the bookmark URL\n3. Then click the bookmark on any page to extract its form data');
+        }).catch(function() {
+            prompt('Copy this URL and paste it as a new bookmark URL:', _bCode);
+        });
+    }
 
     function generateMegaSuite() {
         const raw = document.getElementById('inputJson').value;
