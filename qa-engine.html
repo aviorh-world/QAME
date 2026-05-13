@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QA Dynamic Engine - v4.0 PRO</title>
+    <title>QA Dynamic Engine</title>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #6366f1; --bg: #0f172a; --panel: #1e293b; --text: #e2e8f0; --success: #10b981; --error: #f43f5e; }
@@ -91,38 +91,41 @@
 <body>
 <div class="container">
     <div style="text-align: center;">
-        <h1>🚀 QA Dynamic Engine v4.0 PRO</h1>
-        <p style="color:#94a3b8;font-size:14px;max-width:700px;margin:0 auto 16px;line-height:1.7;">
-            A 4-step QA automation engine for web forms. Install the bookmarklet once, click it on any target page to extract form fields as JSON, paste the JSON here to generate a console test suite (validation, security, accessibility, happy-flow), run it in the browser console, then paste the results back for a full pass/fail analysis with Excel export.
-        </p>
+        <h1>🚀 QA Dynamic Engine</h1>
+        <ol style="color:#94a3b8;font-size:14px;max-width:560px;margin:0 auto 16px;line-height:2;text-align:left;display:inline-block;">
+            <li>Install the bookmarklet — drag it to your browser toolbar</li>
+            <li>Click it on any target page — copies form fields as JSON</li>
+            <li>Paste the JSON here — generates a full test suite</li>
+            <li>Run it in the browser console — paste results back for analysis</li>
+        </ol>
     </div>
 
     <div class="card setup-zone">
-        <h3>1. גרור לסרגל המועדפים</h3>
+        <h3>1. Drag to Bookmarks</h3>
         <a class="bookmarklet-btn" id="bookmarkletLink" href="#">🔍 Extract Page Data</a>
     </div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div class="card">
-            <h3>2. קלט JSON מהאתר</h3>
-            <textarea id="inputJson" placeholder='הדבק כאן את הנתונים שהועתקו מהבוקמרקלט...'></textarea>
-            <button class="btn-primary" onclick="generateMegaSuite()" style="width: 100%; margin-top: 10px;">⚡ צור סוויטת בדיקות</button>
+            <h3>2. JSON Input from Website</h3>
+            <textarea id="inputJson" placeholder='Paste data copied from bookmarklet...'></textarea>
+            <button class="btn-primary" onclick="generateMegaSuite()" style="width: 100%; margin-top: 10px;">⚡ Create Mega Test Suite</button>
         </div>
         <div class="card">
-            <h3>3. סקריפטים לייצוא</h3>
-            <textarea id="consoleScript" readonly placeholder='כאן יופיע הקוד לקונסול...'></textarea>
+            <h3>3. Export Scripts</h3>
+            <textarea id="consoleScript" readonly placeholder='Code will appear here...'></textarea>
             <div class="btn-group">
-                <button class="btn-success" onclick="copyToClipboard('consoleScript')">📋 העתק קוד</button>
+                <button class="btn-success" onclick="copyToClipboard('consoleScript')">📋 Copy Code</button>
                 <button class="btn-playwright" onclick="downloadPlaywright()">🎭 Playwright Test</button>
             </div>
         </div>
     </div>
     <div class="card">
-        <h3>4. לוח ניתוח תוצאות</h3>
-        <p style="font-size: 0.85rem; color: #94a3b8;" id="analysisInfoText">הדבק את ה-JSON שנוצר בסיום הריצה:</p>
+        <h3>4. Analysis Board</h3>
+        <p style="font-size: 0.85rem; color: #94a3b8;" id="analysisInfoText">Paste JSON generated after run:</p>
         <textarea id="resultJson" placeholder='{"timestamp": "...", "logs": [...] }'></textarea>
         <div class="btn-group">
-            <button class="btn-primary" style="background: #f43f5e" onclick="analyzeResults()">📊 נתח תוצאות (Deep Scan)</button>
-            <button id="excelBtn" style="display:none; background:white; color:black" onclick="exportToExcel()">📥 הורד אקסל</button>
+            <button class="btn-primary" style="background: #f43f5e" onclick="analyzeResults()">📊 Analyze Results (Deep Scan)</button>
+            <button id="excelBtn" style="display:none; background:white; color:black" onclick="exportToExcel()">📥 Download Excel</button>
         </div>
 
         <div id="resultsBoard" class="results-board">
@@ -137,12 +140,12 @@
                 <table id="resultsTable">
                     <thead>
                         <tr>
-                            <th style="text-align: right;" id="th-fieldName">שם השדה</th>
-                            <th style="text-align: right;" id="th-testValue">הערך שנבדק</th>
-                            <th style="text-align: right;" id="th-expectedResult">תוצאה צפויה</th>
-                            <th style="text-align: right;" id="th-actualResult">תוצאה בפועל</th>
-                            <th style="text-align: center;" id="th-result">תוצאה</th>
-                            <th style="text-align: center;" id="th-override">עקוף</th>
+                            <th style="text-align: left;" id="th-fieldName">Field Name</th>
+                            <th style="text-align: left;" id="th-testValue">Test Value</th>
+                            <th style="text-align: left;" id="th-expectedResult">Expected Result</th>
+                            <th style="text-align: left;" id="th-actualResult">Actual Result</th>
+                            <th style="text-align: center;" id="th-result">Result</th>
+                            <th style="text-align: center;" id="th-override">Override</th>
                         </tr>
                     </thead>
                     <tbody id="resultsTableBody"></tbody>
@@ -155,13 +158,15 @@
     <div class="footer-bar">
         <span class="timestamp-badge" id="updateLabel"></span>
         <button onclick="toggleLanguage()" class="lang-toggle">🌐 English / עברית</button>
-        <button onclick="clearAllData()" class="clear-btn-fixed">🗑️ נקה הכל</button>
+        <button onclick="clearAllData()" class="clear-btn-fixed">🗑️ Clear All</button>
     </div>
 </div>
 <script>
-    const updateTime = new Date().toLocaleString('he-IL');
-    document.getElementById('updateLabel').innerText = "Update: " + updateTime;
-    const bScript = `javascript:(function(){const d={url:window.location.href,forms:Array.from(document.forms).map((f,idx)=>({id:f.id||f.name||'form_'+idx,inputs:Array.from(f.elements).filter(e=>['INPUT','TEXTAREA','SELECT'].includes(e.tagName)).map(e=>{const obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(opt=>({value:opt.value,text:opt.text}))}return obj})}))};const json=JSON.stringify(d,null,2);navigator.clipboard.writeText(json).then(()=>{alert('✅ נתוני הדף הועתקו!\\n\\nאם לא הצליח, הJSON מוצג בחלון חדש');}).catch(err=>{const w=window.open();w.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:20px;">'+json+'</pre>');alert('⚠️ Clipboard לא זמין.\\n\\nהJSON הוצג בחלון חדש.\\nאנא העתק ידנית (Ctrl+A ואחרי זה Ctrl+C).');});})();`;
+    const lastMod = document.lastModified ? new Date(document.lastModified) : null;
+    document.getElementById('updateLabel').innerText = lastMod && !isNaN(lastMod)
+        ? "Updated: " + lastMod.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})
+        : '';
+    const bScript = `javascript:(function(){const d={url:window.location.href,forms:Array.from(document.forms).map((f,idx)=>({id:f.id||f.name||'form_'+idx,inputs:Array.from(f.elements).filter(e=>['INPUT','TEXTAREA','SELECT'].includes(e.tagName)).map(e=>{const obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(opt=>({value:opt.value,text:opt.text}))}return obj})}))};const json=JSON.stringify(d,null,2);navigator.clipboard.writeText(json).then(()=>{alert('✅ Page data copied!\\n\\nPaste it into QA Dynamic Engine.');}).catch(err=>{const w=window.open();w.document.write('<pre style="white-space:pre-wrap;word-wrap:break-word;padding:20px;">'+json+'</pre>');alert('⚠️ Clipboard not available.\\n\\nJSON shown in new window. Select all (Ctrl+A) and copy (Ctrl+C).');});})();`;
     document.getElementById('bookmarkletLink').href = bScript;
 
     function generateMegaSuite() {
@@ -683,17 +688,16 @@
     const output = JSON.stringify(results);
     try {
         await navigator.clipboard.writeText(output);
-        alert('✅ הבדיקה הענקית הסתיימה!\\nהתוצאות הועתקו ל-clipboard!');
+        alert('✅ QA scan complete!\\nResults copied to clipboard!');
     } catch(e) {
-        // אם Clipboard לא עובדת, הצג בconsole בצורה קריאה
         console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
-        console.log('%c║   📋 JSON OUTPUT - העתק מכאן          ║', 'color: #45ba45; font-size: 13px; font-weight: bold;');
+        console.log('%c║   📋 JSON OUTPUT — copy from here      ║', 'color: #45ba45; font-size: 13px; font-weight: bold;');
         console.log('%c╚═══════════════════════════════════════╝', 'color: #45ba45; font-size: 13px;');
         console.log('%c' + output, 'background: #1e293b; color: #38bdf8; padding: 10px; border-radius: 4px; font-family: monospace;');
         console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
-        console.log('%c║  בחר את ה-JSON > Ctrl+C להעתקה      ║', 'color: #fbbf24; font-size: 13px; font-weight: bold;');
+        console.log('%c║  Select JSON > Ctrl+C to copy         ║', 'color: #fbbf24; font-size: 13px; font-weight: bold;');
         console.log('%c╚═══════════════════════════════════════╝', 'color: #45ba45; font-size: 13px;');
-        alert('⚠️ Clipboard לא זמינה.\\n\\nJSON מוצג בConsole.\\nבחר וcopy (Ctrl+C)');
+        alert('⚠️ Clipboard not available.\\n\\nJSON shown in Console.\\nSelect and copy (Ctrl+C).');
     }
 })();`;
         document.getElementById('consoleScript').value = cCode;
@@ -871,7 +875,7 @@
     // תרגומים
     const translations = {
         he: {
-            title: '🚀 QA Dynamic Engine v4.0 PRO',
+            title: '🚀 QA Dynamic Engine',
             clearBtn: '🗑️ נקה הכל',
             langBtn: '🌐 English / עברית',
             setupZone: '1. גרור לסרגל המועדפים',
@@ -914,7 +918,7 @@
             copied: 'הועתק!'
         },
         en: {
-            title: '🚀 QA Dynamic Engine v4.0 PRO',
+            title: '🚀 QA Dynamic Engine',
             clearBtn: '🗑️ Clear All',
             langBtn: '🌐 English / עברית',
             setupZone: '1. Drag to Bookmarks',
@@ -958,7 +962,7 @@
         }
     };
 
-    let currentLanguage = 'he';
+    let currentLanguage = 'en';
 
     function toggleLanguage() {
         currentLanguage = currentLanguage === 'he' ? 'en' : 'he';
