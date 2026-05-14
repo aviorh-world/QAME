@@ -168,40 +168,60 @@
     </div>
 </div>
 <script>
-    document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 15:40';
-    var _bCode = '';
+    document.getElementById('updateLabel').innerText = 'Updated: 13 May 2026, 15:20';
+    
     (function() {
-        var code = '(function(){';
-        code += 'var d={url:window.location.href,';
-        code += 'forms:Array.from(document.forms).map(function(f,idx){';
-        code += "return {id:f.id||f.name||'form_'+idx,";
-        code += "inputs:Array.from(f.elements).filter(function(e){return ['INPUT','TEXTAREA','SELECT'].includes(e.tagName)}).map(function(e){";
-        code += "var obj={name:e.name||e.id,type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};";
-        code += "if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(function(opt){return {value:opt.value,text:opt.text}})}";
-        code += 'return obj})}))};';
-        code += 'if(d.forms.length===0){';
-        code += "var all=document.querySelectorAll('input,textarea,select');";
-        code += "d.forms=[{id:'page_inputs',inputs:Array.from(all).map(function(e){";
-        code += "var obj={name:e.name||e.id||e.placeholder||'f'+Math.random().toString(36).slice(2,5),type:e.tagName==='SELECT'?'select':e.type,placeholder:e.placeholder||''};";
-        code += "if(e.tagName==='SELECT'){obj.options=Array.from(e.options).map(function(opt){return {value:opt.value,text:opt.text}})}";
-        code += 'return obj})}];}';
-        code += 'var json=JSON.stringify(d,null,2);';
-        code += 'navigator.clipboard.writeText(json).then(function(){';
-        code += "alert('Copied! Paste into QA Dynamic Engine.');";
-        code += '}).catch(function(){';
-        code += "prompt('Copy this JSON:',json);";
-        code += '});';
-        code += '})();';
-        _bCode = 'javascript:' + encodeURIComponent(code);
-        document.getElementById('bookmarkletLink').href = _bCode;
-    })();
+        const bookmarkletCode = `
+(function(){
+    var d = {
+        url: window.location.href,
+        forms: Array.from(document.forms).map(function(f, idx){
+            return {
+                id: f.id || f.name || 'form_' + idx,
+                inputs: Array.from(f.elements)
+                    .filter(function(e){ return ['INPUT','TEXTAREA','SELECT'].includes(e.tagName); })
+                    .map(function(e){
+                        var obj = {
+                            name: e.name || e.id,
+                            type: e.tagName === 'SELECT' ? 'select' : e.type,
+                            placeholder: e.placeholder || ''
+                        };
+                        if(e.tagName === 'SELECT'){
+                            obj.options = Array.from(e.options).map(function(opt){
+                                return {value: opt.value, text: opt.text};
+                            });
+                        }
+                        return obj;
+                    })
+            };
+        })
+    };
+    var json = JSON.stringify(d, null, 2);
+    navigator.clipboard.writeText(json).then(function(){
+        alert('✅ Page data copied!\\n\\nPaste it into QA Dynamic Engine.');
+    }).catch(function(){
+        var p = prompt('📋 Copy the JSON below (Ctrl+A, Ctrl+C):', json);
+        if(!p) alert('JSON is ready in the prompt above.');
+    });
+})();
+        `.trim();
 
+        // Build the final bookmarklet URL with proper encoding
+        const fullBookmarklet = 'javascript:' + encodeURIComponent(bookmarkletCode);
+        
+        const link = document.getElementById('bookmarkletLink');
+        link.href = fullBookmarklet;
+        
+        // Store for copy function
+        window._bCode = fullBookmarklet;
+    })();
+    
     function copyBookmarklet() {
-        if (!_bCode) return;
-        navigator.clipboard.writeText(_bCode).then(function() {
-            alert('✅ Bookmarklet URL copied!\n\nTo install:\n1. Create a new bookmark in your browser\n2. Paste this as the bookmark URL\n3. Then click the bookmark on any page to extract its form data');
+        if (!window._bCode) return;
+        navigator.clipboard.writeText(window._bCode).then(function() {
+            alert('✅ Bookmarklet URL copied!\n\nTo install:\n1. Create a new bookmark\n2. Paste this as the URL\n3. Click the bookmark on any target page');
         }).catch(function() {
-            prompt('Copy this URL and paste it as a new bookmark URL:', _bCode);
+            prompt('Copy this bookmarklet URL:', window._bCode);
         });
     }
 
@@ -324,7 +344,7 @@
             const hasType = el.getAttribute('type') || el.tagName.toLowerCase();
             log('  Input type: ' + hasType, true, 'test', i.name, '', 'Field should have proper input type');
 
-            // בדוק אם זה SELECT (דרופדאון) או custom combobox עם listbox
+            // בדוק אם זה SELECT (dropdown) או custom combobox עם listbox
             const isSelect = el.tagName === 'SELECT' || i.type === 'select';
             const isCombobox = el.getAttribute('aria-controls') && (el.tagName === 'INPUT' || el.role === 'combobox');
 
@@ -390,7 +410,7 @@
                             }
                         }
 
-                    await delay(300); // חכה יותר זמן לדרופדאונס עם cascading
+                    await delay(300); // חכה יותר זמן לדרופדוונס עם cascading
 
                     // בדוק אם יש שגיאה
                     let hasError = false;
@@ -743,18 +763,78 @@
     log('Text Contrast: Checked (manual review recommended)', true, 'test', 'Contrast', 'See console', 'Text should have adequate contrast ratio (4.5:1 minimum)');
 
     const output = JSON.stringify(results);
-    try {
-        await navigator.clipboard.writeText(output);
-        alert('✅ QA scan complete!\nResults copied to clipboard!');
-    } catch(e) {
-        console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
-        console.log('%c║   📋 JSON OUTPUT — copy from here      ║', 'color: #45ba45; font-size: 13px; font-weight: bold;');
-        console.log('%c╚═══════════════════════════════════════╝', 'color: #45ba45; font-size: 13px;');
-        console.log('%c' + output, 'background: #1e293b; color: #38bdf8; padding: 10px; border-radius: 4px; font-family: monospace;');
-        console.log('%c╔═══════════════════════════════════════╗', 'color: #45ba45; font-size: 13px;');
-        console.log('%c║  Select JSON > Ctrl+C to copy         ║', 'color: #fbbf24; font-size: 13px; font-weight: bold;');
-        console.log('%c╚═══════════════════════════════════════╝', 'color: #45ba45; font-size: 13px;');
-        alert('⚠️ Clipboard not available.\n\nJSON shown in Console.\nSelect and copy (Ctrl+C).');
+
+    // Always expose for console access: type copy(window.__qaResults)
+    window.__qaResults = output;
+
+    // Robust copy helper: tries async Clipboard API, falls back to execCommand
+    const __qaCopy = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch(e1) {
+            try {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.focus();
+                ta.select();
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                return ok;
+            } catch(e2) { return false; }
+        }
+    };
+
+    const __qaAutoCopied = await __qaCopy(output);
+
+    if (__qaAutoCopied) {
+        alert('✅ QA scan complete!\\nResults copied to clipboard!');
+    } else {
+        // Inject a floating panel with a Copy button.
+        // A user click bypasses clipboard auto-write restrictions.
+        const __qaOld = document.getElementById('__qa-copy-overlay');
+        if (__qaOld) __qaOld.remove();
+        const overlay = document.createElement('div');
+        overlay.id = '__qa-copy-overlay';
+        overlay.style.cssText = 'position:fixed;top:20px;right:20px;z-index:2147483647;background:#1e293b;color:#e2e8f0;padding:18px 20px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:system-ui,-apple-system,sans-serif;border:2px solid #6366f1;max-width:340px;line-height:1.5;';
+        const t1 = document.createElement('div');
+        t1.style.cssText = 'font-weight:bold;margin-bottom:6px;font-size:14px;color:#fff;';
+        t1.innerText = '✅ QA scan complete';
+        const t2 = document.createElement('div');
+        t2.style.cssText = 'font-size:12px;color:#94a3b8;margin-bottom:14px;';
+        t2.innerText = 'Auto-copy was blocked. Click below to copy results:';
+        const copyBtn = document.createElement('button');
+        copyBtn.innerText = '📋 Copy Results to Clipboard';
+        copyBtn.style.cssText = 'background:#6366f1;color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:bold;width:100%;font-size:13px;display:block;';
+        const closeBtn = document.createElement('button');
+        closeBtn.innerText = 'Close (results in console)';
+        closeBtn.style.cssText = 'background:transparent;color:#94a3b8;border:1px solid #334155;padding:6px 12px;border-radius:6px;cursor:pointer;width:100%;margin-top:8px;font-size:11px;display:block;';
+        overlay.appendChild(t1);
+        overlay.appendChild(t2);
+        overlay.appendChild(copyBtn);
+        overlay.appendChild(closeBtn);
+        document.body.appendChild(overlay);
+
+        copyBtn.onclick = async () => {
+            const ok = await __qaCopy(output);
+            if (ok) {
+                copyBtn.innerText = '✅ Copied!';
+                copyBtn.style.background = '#10b981';
+                setTimeout(function(){ overlay.remove(); }, 1500);
+            } else {
+                copyBtn.innerText = '❌ Still blocked — see console';
+                copyBtn.style.background = '#f43f5e';
+            }
+        };
+        closeBtn.onclick = function(){ overlay.remove(); };
+
+        // Final fallback: dump to console (use the DevTools copy() helper)
+        console.log('%c📋 Results also in: window.__qaResults  —  type: copy(window.__qaResults)', 'color:#fbbf24;font-weight:bold;font-size:13px;');
+        console.log(output);
     }
 })();`;
         document.getElementById('consoleScript').value = cCode;
