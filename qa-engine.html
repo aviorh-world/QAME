@@ -85,6 +85,50 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   <h1>🤖 QA Flow Runner</h1>
   <p class="subtitle">Record a stable happy flow with the bookmarklet, drop the bundle here, review clear results, and get a Playwright spec.</p>
 
+  <details class="step" style="border-left:4px solid var(--accent);background:rgba(56,189,248,0.04);">
+    <summary style="cursor:pointer;color:var(--accent);font-weight:700;font-size:15px;list-style:none;padding:4px 0;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px;">📖</span>
+      <span>Quick instructions &amp; tips</span>
+      
+    </summary>
+    <div style="margin-top:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <a href="https://drive.google.com/file/d/1f97MVRDr1y_OaO69fZkB2R306E_TWUGR/view?usp=sharing" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#0b1120;border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:22px;">🎬</span>
+          <div>
+            <div style="font-weight:600;font-size:13px;">Watch demo video</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Short walkthrough on Google Drive</div>
+          </div>
+        </a>
+        <a href="https://drive.google.com/file/d/1RRel28nUjKCG0mratIL04PYnB4WZzIU3/view?usp=sharing" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#0b1120;border:1px solid var(--border);border-radius:8px;color:var(--text);text-decoration:none;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+          <span style="font-size:22px;">📚</span>
+          <div>
+            <div style="font-weight:600;font-size:13px;">Full README &amp; button reference</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">Everything the tool does, in detail</div>
+          </div>
+        </a>
+      </div>
+      <div style="background:#0b1120;border-radius:8px;padding:14px 18px;border:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin-bottom:10px;">⚡ Things worth knowing</div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.6;">
+          <div style="display:flex;gap:10px;">
+            <span style="color:var(--success);font-weight:700;flex-shrink:0;">1.</span>
+            <span><strong style="color:var(--text);">Run stopped mid-way?</strong> Just click the bookmarklet again — it picks up exactly where it left off (session is preserved in sessionStorage, no need to start over).</span>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <span style="color:var(--success);font-weight:700;flex-shrink:0;">2.</span>
+            <span><strong style="color:var(--text);">Can&apos;t auto-fill a field?</strong> Common with iframes &amp; complex inputs — just type the value yourself. Learn mode captures what you typed and the generated Playwright spec will know to fill it the same way next time.</span>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <span style="color:var(--success);font-weight:700;flex-shrink:0;">3.</span>
+            <span><strong style="color:var(--text);">Watching the recording?</strong> Use the floating panel: <code class="inline">▶ Play</code> auto-runs, <code class="inline">Step</code> walks one CTA at a time, <code class="inline">Export</code> downloads the bundle, <code class="inline">Rules</code> overrides field values, <code class="inline">Log</code> shows what happened.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+
+
   <div class="step" style="text-align:center;">
     <h2 style="text-align:left;"><span class="num">1</span> Install the bookmarklet</h2>
     <p class="helper" style="text-align:left;">Drag this to your bookmarks bar. Click it on the first page of a flow to start recording.</p>
@@ -128,7 +172,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   </div>
 
   <details>
-    <summary><span class="num">3</span> Start URL or API (FullFlow only)</summary>
+    <summary><span class="num">3</span> Start URL or API (optional)</summary>
     <div class="content">
       <p class="helper">If empty, the spec uses the bundle's sanitized first URL.</p>
       <p class="helper" style="margin-top:14px;"><strong>Static URL</strong></p>
@@ -166,7 +210,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     </div>
   </details>
 
-  <details open>
+  <details id="section4">
     <summary><span class="num">4</span> Generate replay</summary>
     <div class="content" style="text-align:center;">
       <div style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
@@ -191,7 +235,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
           <span class="cmd-code">npx playwright show-report</span>
           <button class="cmd-copy" onclick="navigator.clipboard.writeText('npx playwright show-report');this.textContent='✓ copied';setTimeout(()=>this.textContent='Copy',1500);">Copy</button>
         </div>
-        <div class="cmd-note">First command opens the Playwright UI mode (recommended — interactive watcher, time-travel, screenshots, network). Second runs the spec headed so you see the browser. Third opens the full HTML report from the last run.</div>
+        <div class="cmd-note">First command opens the Playwright UI mode (recommended — interactive watcher, time-travel, screenshots, network). Second runs the spec headed so you see the browser. Third opens the full HTML report from the last run. Full button reference is in the <a href="https://drive.google.com/file/d/1RRel28nUjKCG0mratIL04PYnB4WZzIU3/view?usp=sharing" target="_blank" rel="noopener" style="color:var(--accent);">README</a>.</div>
       </div>
     </div>
   </details>
@@ -1007,6 +1051,9 @@ function renderBundlePreview(){
   currentBundle = b;
   currentBundleRows = buildResultRows(b);
   card.style.display='block';
+  // Auto-open section 4 (Generate replay) so the user can immediately download
+  const s4 = document.getElementById('section4');
+  if(s4 && !s4.open) s4.open = true;
 
   const flow = Array.isArray(b.flowMap) ? b.flowMap : [];
   const tests = Array.isArray(b.logs) ? b.logs : [];
