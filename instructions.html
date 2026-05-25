@@ -148,10 +148,12 @@
       <tr><td><strong style="color:var(--accent);">Fields Filled</strong> (blue)</td><td>Form inputs the bookmarklet filled</td></tr>
       <tr><td><strong style="color:var(--success);">Passed</strong> (green)</td><td>Steps with no validation errors</td></tr>
       <tr><td><strong style="color:var(--error);">Failed</strong> (red)</td><td>Steps with errors / unreachable CTAs</td></tr>
-      <tr><td><strong style="color:var(--warn);">Warnings</strong> (yellow)</td><td>Soft issues — iframes, network 4xx, etc.</td></tr>
+      <tr><td><strong style="color:var(--warn);">Warnings</strong> (yellow)</td><td>Soft issues — iframes and accessibility smoke findings.</td></tr>
+      <tr><td><strong style="color:var(--error);">Broken Links</strong> (red)</td><td>Links that returned HTTP 4xx/5xx or failed during audit.</td></tr>
+      <tr><td><strong style="color:var(--accent);">Network</strong> (blue)</td><td>Failed fetch/XHR requests observed while the flow ran.</td></tr>
     </tbody>
   </table>
-  <p>Filter buttons let you narrow the table to just passed, failed, warnings, iframes, or network. Export to ZIP or Excel for sharing.</p>
+  <p>Filter buttons let you narrow the table to just passed, failed, warnings, iframes, network, broken links, or accessibility smoke checks. Export to ZIP or Excel for sharing.</p>
 
   <hr>
 
@@ -170,9 +172,9 @@
 
   <h3>Checkboxes</h3>
   <ul>
-    <li><strong>🎓 Learn mode</strong> — On by default. Captures values you type so they're reused in the spec.</li>
-    <li><strong>💾 Recovery snapshots</strong> — Saves state periodically (in sessionStorage, not as downloads) so you can recover from crashes.</li>
-    <li><strong>🧪 Advanced validation</strong> — Runs deeper checks on filled forms (slower, more thorough).</li>
+    <li><strong>🎓 Learn mode</strong> — Off by default. Captures values you type so they're reused in the spec.</li>
+    <li><strong>⬇️ Download before each CTA</strong> — Off by default. Recovery snapshots are always saved quietly in the background; enable this only for JSON checkpoints before every CTA.</li>
+    <li><strong>🧪 Input tests</strong> — Off by default. Adds negative, boundary, required-field, format, and basic security checks before the happy flow (slower, more thorough).</li>
   </ul>
 
   <hr>
@@ -227,10 +229,11 @@ npx playwright test --trace on --video on</code></pre>
   <p>Then drop the spec into the generated <code>tests/</code> folder.</p>
 
   <h3>Reading the results</h3>
-  <p>After a run, four things tell you what happened:</p>
+  <p>After a run, five things tell you what happened:</p>
   <ol>
     <li><strong>Console output</strong> — Real-time <code>console.log</code> from the spec (the <code>✅ step X</code>, <code>🔄 auto-advance</code>, <code>🍪 dismissed cookie</code> lines).</li>
     <li><strong><code>flow-replay-results.json</code></strong> — Attached to the test in the HTML report. Compact per-step OK/SKIPPED/ERROR.</li>
+    <li><strong><code>audit-results.json</code></strong> — Broken-link and accessibility smoke findings from each audited page.</li>
     <li><strong><code>summary.json</code></strong> — Attached alongside. Aggregate totals + final URL.</li>
     <li><strong>The trace</strong> — If <code>trace: 'on'</code>, drag the <code>trace.zip</code> to <a href="https://trace.playwright.dev" target="_blank">trace.playwright.dev</a> for time-travel debugging.</li>
   </ol>
@@ -264,6 +267,7 @@ npx playwright test --trace on --video on</code></pre>
       <tr><td><code>flow-replay-&lt;site&gt;.spec.ts</code></td><td>Generated Playwright test.</td></tr>
       <tr><td><code>flow-replay-&lt;site&gt;.console.js</code></td><td>Generated browser-console replay.</td></tr>
       <tr><td><code>flow-replay-results.json</code></td><td>Per-step result, attached after each Playwright run.</td></tr>
+      <tr><td><code>audit-results.json</code></td><td>Broken-link and accessibility smoke findings attached after each Playwright run.</td></tr>
       <tr><td><code>summary.json</code></td><td>Aggregate result counts, attached after each Playwright run.</td></tr>
     </tbody>
   </table>
