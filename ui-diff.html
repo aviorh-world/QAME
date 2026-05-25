@@ -58,6 +58,7 @@ body{background:var(--bg);font-family:Inter,sans-serif;color:var(--text);font-si
 .inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
 .input-field label{display:block;font-weight:600;font-size:13px;margin-bottom:6px;color:var(--text)}
 .input-field .field-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.field-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .btn-clean{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
 .btn-clean:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
 
@@ -70,6 +71,9 @@ body{background:var(--bg);font-family:Inter,sans-serif;color:var(--text);font-si
 
 textarea{width:100%;min-height:110px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;resize:vertical;background:#fafbfc;color:var(--text);transition:border-color .15s}
 textarea:focus{outline:none;border-color:var(--blue);background:#fff}
+textarea.json-zone{border-style:dashed}
+textarea.json-zone.drag{border-color:var(--blue);background:var(--blue-light)}
+textarea.json-zone.loaded{border-color:var(--green);background:var(--green-light)}
 .file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 
 /* ── Screenshot input ── */
@@ -89,6 +93,12 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 .status-chip.ok .dot{background:var(--green)}
 .status-chip.ok{border-color:#bbf7d0;background:var(--green-light);color:var(--green)}
 .status-chip.err .dot{background:var(--red)}
+.input-error{display:none;margin-top:12px;border:1px solid #fecaca;background:var(--red-light);color:#991b1b;border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.45}
+.input-error.show{display:block}
+.input-error.warn{border-color:#fde68a;background:var(--amber-light);color:#92400e}
+.pill.conf-high{background:var(--green-light);color:var(--green)}
+.pill.conf-medium{background:var(--amber-light);color:var(--amber)}
+.pill.conf-low{background:var(--purple-light);color:var(--purple)}
 
 /* ── Swap warning ── */
 .swap-banner{display:flex;align-items:flex-start;gap:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-bottom:16px}
@@ -107,7 +117,7 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 .badge.warn{background:var(--amber-light);color:var(--amber);border:1px solid #fde68a}
 
 /* ── Score grid ── */
-.score-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
+.score-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;padding:16px 20px;background:var(--bg);border-bottom:1px solid var(--border)}
 .score-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
 .score-box .sb-label{font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;font-size:9px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}
 .score-box .sb-value{font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1}
@@ -262,28 +272,26 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
       <div class="input-field">
         <div class="field-head">
           <label>Figma JSON <span style="color:var(--muted);font-weight:400">(exported from the Figma plugin)</span></label>
-          <button type="button" class="btn-clean" onclick="clearInput('fig')">Clear</button>
-        </div>
-        <div class="drop-zone" id="figDrop">
-          <div class="dz-title">Drop Figma JSON here</div>
-          <div class="dz-sub">or click to browse</div>
+          <div class="field-actions">
+            <button type="button" class="btn-clean" onclick="byId('figFile').click()">Upload</button>
+            <button type="button" class="btn-clean" onclick="clearInput('fig')">Clear</button>
+          </div>
         </div>
         <input class="file-input" id="figFile" type="file" accept=".json,application/json">
-        <textarea id="figInput" placeholder='Paste Figma JSON here...&#10;&#10;It should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'></textarea>
+        <textarea class="json-zone" id="figInput" placeholder='Paste or drop Figma JSON here...&#10;&#10;It should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'></textarea>
       </div>
 
       <!-- Browser JSON -->
       <div class="input-field">
         <div class="field-head">
           <label>Browser JSON <span style="color:var(--muted);font-weight:400">(from the bookmarklet above)</span></label>
-          <button type="button" class="btn-clean" onclick="clearInput('brow')">Clear</button>
-        </div>
-        <div class="drop-zone" id="browDrop">
-          <div class="dz-title">Drop Browser JSON here</div>
-          <div class="dz-sub">or click to browse</div>
+          <div class="field-actions">
+            <button type="button" class="btn-clean" onclick="byId('browFile').click()">Upload</button>
+            <button type="button" class="btn-clean" onclick="clearInput('brow')">Clear</button>
+          </div>
         </div>
         <input class="file-input" id="browFile" type="file" accept=".json,application/json">
-        <textarea id="browInput" placeholder='Paste Browser JSON here...&#10;&#10;It should look like: {"meta":{"url":"..."},"elements":[...]}'></textarea>
+        <textarea class="json-zone" id="browInput" placeholder='Paste or drop Browser JSON here...&#10;&#10;It should look like: {"meta":{"url":"..."},"elements":[...]}'></textarea>
       </div>
     </div>
 
@@ -326,6 +334,7 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
       <div class="status-chip" id="browStatus"><div class="dot"></div>Browser JSON: empty</div>
       <div class="status-chip" id="shotStatus"><div class="dot"></div>Screenshot: empty</div>
     </div>
+    <div class="input-error" id="inputError"></div>
 
   </div>
 </div>
@@ -380,6 +389,18 @@ textarea:focus{outline:none;border-color:var(--blue);background:#fff}
 //  STATE
 // ═══════════════════════════════════════════════════════
 const S = { report: null, shot: null, filter: 'all', overlayPage: null, figmaUrl: null, pathToNodeId: {} };
+const MATCH = {
+  minScore: 52,
+  visualScore: 70,
+  high: 85,
+  medium: 68
+};
+const PRODUCT_RULES = {
+  ignorePlaceholder: [/\$\s*X/i, /X,XXX/i, /\{\{/i, /\bplaceholder\b/i],
+  dynamicPath: [/Offers/i, /Financing offers/i, /APR Label/i, /Collapsed/i, /Expanded/i],
+  dynamicText: [/^\$[0-9,.]+\/?(?:mo)?$/i, /^\d+\s+months$/i],
+  expandedVisibleText: /total payments/i
+};
 const byId = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -393,6 +414,34 @@ function detectKind(obj) {
   if (Array.isArray(obj.elements) && obj.meta && obj.meta.url) return 'browser';
   if (Array.isArray(obj.elements) && obj.meta) return 'browser';
   return null;
+}
+
+function validateInputPair(fRaw, bRaw) {
+  const errors = [], warnings = [];
+  const fKind = detectKind(fRaw), bKind = detectKind(bRaw);
+
+  if (fKind !== 'figma' && fKind !== 'browser') errors.push('Figma input is not a recognized UI Diff or Figma export.');
+  if (bKind !== 'browser' && bKind !== 'figma') errors.push('Browser input is not a recognized browser capture.');
+  if (fKind === bKind && fKind) errors.push('Both inputs look like ' + fKind + ' JSON. Load one Figma export and one Browser capture.');
+
+  const fig = fKind === 'figma' ? fRaw : bKind === 'figma' ? bRaw : null;
+  const brow = fKind === 'browser' ? fRaw : bKind === 'browser' ? bRaw : null;
+
+  if (fig) {
+    const root = detectRoot(fig);
+    if (!root || typeof root !== 'object') errors.push('Figma JSON has no readable document/root node.');
+    if (!fig.metadata?.exporter && !fig.document?.type) warnings.push('Figma JSON has no exporter metadata; parser will use best-effort mode.');
+  }
+
+  if (brow) {
+    if (!Array.isArray(brow.elements)) errors.push('Browser JSON must include an elements array.');
+    else if (!brow.elements.length) errors.push('Browser JSON has zero captured elements.');
+    if (!brow.meta?.viewport) warnings.push('Browser JSON has no viewport metadata; responsive comparisons may be less reliable.');
+    if (!brow.meta?.page) warnings.push('Browser JSON has no page-size metadata; screenshot overlay may be approximate.');
+    if (!brow.meta?.extractor) warnings.push('Browser JSON has no extractor version; results may not be reproducible.');
+  }
+
+  return { errors, warnings, fKind, bKind };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -414,10 +463,15 @@ function amountMismatch(a,b) {
   const A = amountTokens(a), B = amountTokens(b);
   return A.length && B.length && A[0] !== B[0] && amountShape(a) === amountShape(b);
 }
-function ignorePlaceholder(t) { return /\$\s*X|X,XXX|\{\{|\bplaceholder\b/i.test(String(t||'')); }
+function ignorePlaceholder(t) {
+  const text = String(t||'');
+  return PRODUCT_RULES.ignorePlaceholder.some(rx => rx.test(text));
+}
 function dynamicOffer(t, path) {
-  return /Offers|Financing offers|APR Label|Collapsed|Expanded/.test(path||'') &&
-    (/^\$[0-9,.]+\/?(?:mo)?$/i.test(String(t||'').trim()) || /^\d+\s+months$/i.test(String(t||'').trim()));
+  const text = String(t||'').trim();
+  const p = String(path||'');
+  return PRODUCT_RULES.dynamicPath.some(rx => rx.test(p)) &&
+    PRODUCT_RULES.dynamicText.some(rx => rx.test(text));
 }
 function isSliderLabel(fig, brow) {
   const p = String(fig.path||'').toLowerCase();
@@ -431,7 +485,25 @@ function isDynamicTotal(text, path) {
     /\$\s*X,XXX|\$X,XXX|XX,XXX|\{\{.*total|\$[\d,]+\.XX/i.test(t) ||
     /total payments|offer summary|collapsed|expanded|financing offers/i.test(p);
 }
-function hasExpandedVisible(brows) { return brows.some(e => /total payments/i.test(e.text||'')); }
+function hasExpandedVisible(brows) { return brows.some(e => PRODUCT_RULES.expandedVisibleText.test(e.text||'')); }
+
+function confidence(score) {
+  if (score >= MATCH.high) return 'high';
+  if (score >= MATCH.medium) return 'medium';
+  return 'low';
+}
+
+function confidenceLabel(score) {
+  return confidence(score) + ' (' + Math.round(score) + '%)';
+}
+
+function setInputError(messages, level='error') {
+  const el = byId('inputError');
+  if (!el) return;
+  const list = (messages || []).filter(Boolean);
+  el.className = 'input-error' + (list.length ? ' show' : '') + (level === 'warn' ? ' warn' : '');
+  el.innerHTML = list.map(x => `<div>${esc(x)}</div>`).join('');
+}
 
 // ═══════════════════════════════════════════════════════
 //  UI INTERACTIONS
@@ -463,7 +535,7 @@ function getFigmaLinkForPath(path) {
   // Try to get node-id from path mapping
   const nodeId = S.pathToNodeId[path];
   if (nodeId) {
-    return `https://www.figma.com/design/${fileKey}?node-id=${nodeId}`;
+    return `https://www.figma.com/design/${encodeURIComponent(fileKey)}?node-id=${encodeURIComponent(String(nodeId).replace(':','-'))}`;
   }
   // Fallback to base URL if no specific node-id
   return S.figmaUrl.split('?')[0];
@@ -582,10 +654,10 @@ function sim(a, b) {
 function contextBonus(fig, b) {
   const p = fig.path||'', cls = b.classes||'', tag = b.tag||'';
   let bonus = 0;
-  if (/Placeholder|Main component|Fields/.test(p) && tag==='input') bonus += 65;
-  if (/Slider|Frame 18/.test(p) && /label-field/.test(cls)) bonus += 45;
-  if (/APR Label|months/.test(p) && /label-months/.test(cls)) bonus += 45;
-  if (/Offers|Financing/.test(p) && (/offer-item|tae|months|label-months/.test(cls) || tag==='offer-item')) bonus += 20;
+  if (/Placeholder|Main component|Fields/.test(p) && tag==='input') bonus += 28;
+  if (/Slider|Frame 18/.test(p) && /label-field/.test(cls)) bonus += 20;
+  if (/APR Label|months/.test(p) && /label-months/.test(cls)) bonus += 20;
+  if (/Offers|Financing/.test(p) && (/offer-item|tae|months|label-months/.test(cls) || tag==='offer-item')) bonus += 12;
   return bonus;
 }
 function posPenalty(fig, b) {
@@ -609,7 +681,7 @@ function hasMeaningfulTextMismatch(figText, browserText) {
 }
 function shouldCheckVisuals(fig, browserNode, score, actualText) {
   if (!browserNode) return false;
-  if (score == null || score < 60) return false;
+  if (score == null || score < MATCH.visualScore) return false;
   if (hasMeaningfulTextMismatch(fig.text, actualText)) return false;
   return true;
 }
@@ -624,7 +696,7 @@ function findMatch(fig, brows, used) {
     s -= posPenalty(fig, b);
     if (s > bestScore) { bestScore = s; best = { b, i, score: s, amountMismatch: amountMismatch(fig.text, candidate) }; }
   });
-  return best && best.score >= 35 ? best : null;
+  return best && best.score >= MATCH.minScore ? best : null;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -682,37 +754,19 @@ function detectSpacingIssues(brows, r) {
   });
   
   typePositions.forEach((elements, key) => {
-    if (elements.length < 2) return;
-    
-    // Check Y-axis consistency
-    const yValues = elements.map(e => e.rect.y).sort((a,b) => a-b);
-    const avgY = yValues.reduce((a,b) => a+b, 0) / yValues.length;
-    
-    elements.forEach(e => {
-      if (Math.abs(e.rect.y - avgY) > tolerance) {
-        issues.push({
-          element: (e.text||'').slice(0,60),
-          type: 'Spacing',
-          check: '📏 Vertical Alignment Variance',
-          expected: 'Y: '+Math.round(avgY)+'px',
-          actual: 'Y: '+e.rect.y+'px',
-          diff: Math.abs(e.rect.y - avgY).toFixed(1)+'px',
-          tolerance: '±'+tolerance+'px',
-          status: 'warning',
-          severity: 'Medium',
-          figmaPath: 'TYPE: '+key,
-          rect: e.rect,
-          why: 'Similar elements have inconsistent vertical positioning'
-        });
-      }
-    });
+    if (elements.length < 3) return;
     
     // Check gaps between consecutive elements
-    const sorted = [...elements].sort((a,b) => a.rect.y - b.rect.y);
+    const sorted = [...elements]
+      .filter(e => Math.abs(e.rect.x - elements[0].rect.x) <= 12)
+      .sort((a,b) => a.rect.y - b.rect.y);
+    if (sorted.length < 3) return;
     for (let i = 1; i < sorted.length; i++) {
       const gap = sorted[i].rect.y - (sorted[i-1].rect.y + sorted[i-1].rect.h);
+      if (gap < 0) continue;
       if (i > 1) {
         const prevGap = sorted[i-1].rect.y - (sorted[i-2].rect.y + sorted[i-2].rect.h);
+        if (prevGap < 0) continue;
         if (Math.abs(gap - prevGap) > tolerance) {
           issues.push({
             element: (sorted[i].text||'').slice(0,60),
@@ -814,33 +868,31 @@ function detectAlignmentIssues(brows, r) {
   });
   
   elementsByType.forEach((elements, type) => {
-    if (elements.length < 2) return;
-    
+    if (elements.length < 3) return;
     const xValues = elements.map(e => e.rect.x).sort((a,b) => a-b);
-    const xRange = Math.max(...xValues) - Math.min(...xValues);
-    
-    if (xRange > 5) {
-      const avgX = xValues.reduce((a,b) => a+b, 0) / xValues.length;
-      
-      elements.forEach(e => {
-        if (Math.abs(e.rect.x - avgX) > 5) {
-          issues.push({
-            element: (e.text||'').slice(0,60),
-            type: 'Alignment',
-            check: '↔️ Horizontal Misalignment',
-            expected: 'X: '+Math.round(avgX)+'px',
-            actual: 'X: '+e.rect.x+'px',
-            diff: xRange+'px spread',
-            tolerance: '±5px',
-            status: 'warning',
-            severity: 'Medium',
-            figmaPath: 'TYPE: '+type,
-            rect: e.rect,
-            why: 'Similar elements not horizontally aligned (X varies by '+xRange+'px)'
-          });
-        }
-      });
-    }
+    const medianX = xValues[Math.floor(xValues.length / 2)];
+    const aligned = elements.filter(e => Math.abs(e.rect.x - medianX) <= 5);
+    if (aligned.length / elements.length < 0.7) return;
+
+    elements.forEach(e => {
+      const delta = Math.abs(e.rect.x - medianX);
+      if (delta > 8) {
+        issues.push({
+          element: (e.text||'').slice(0,60),
+          type: 'Alignment',
+          check: '↔️ Horizontal Misalignment',
+          expected: 'X near '+Math.round(medianX)+'px',
+          actual: 'X: '+e.rect.x+'px',
+          diff: delta.toFixed(0)+'px',
+          tolerance: '±8px from aligned majority',
+          status: 'warning',
+          severity: 'Medium',
+          figmaPath: 'TYPE: '+type,
+          rect: e.rect,
+          why: 'Most similar elements share one X position; this one is an outlier.'
+        });
+      }
+    });
   });
   
   return issues;
@@ -902,29 +954,45 @@ function makeWhy(row) {
   if (row.check === 'Dynamic offer data') return 'Offer amount / term is scenario-specific. Verify the Figma design state matches the browser scenario.';
   if (row.check === 'Dynamic total payments') return 'Visible only after an offer is selected (Expanded state). Ensure browser capture matches Figma state.';
   if (row.check === 'Text presence') return '"' + row.element.slice(0,60) + '" appears in Figma but was not found in Browser JSON as visible text.';
-  if (row.check.startsWith('Element match')) return 'Matched with ' + row.diff + ' confidence score.';
+  if (row.check === 'Low-confidence match') return 'Text was found, but the match is weak. Review before treating this as a pass.';
+  if (row.category === 'consistency') return 'Browser-only consistency signal. Use it as a review hint, not as a Figma mismatch.';
+  if (row.check.startsWith('Element match')) return 'Matched with ' + (row.confidence || row.diff) + ' confidence.';
   if (row.status === 'failed') return 'Expected ' + row.expected + ' but browser had ' + row.actual + '.';
   if (row.status === 'warning') return 'Possible state, data, or responsive difference.';
   return 'Matches within tolerance.';
 }
-function addCheck(r, row) { row.id = r.checks.length + 1; if (!row.why) row.why = makeWhy(row); r.checks.push(row); }
+function addCheck(r, row) {
+  row.id = r.checks.length + 1;
+  row.category = row.category || 'figma-diff';
+  row.confidence = row.confidence || '';
+  if (!row.why) row.why = makeWhy(row);
+  r.checks.push(row);
+}
 
 // ═══════════════════════════════════════════════════════
 //  RUN DIFF
 // ═══════════════════════════════════════════════════════
 function runDiff() {
+  setInputError([]);
   let fRaw, bRaw;
   try {
     fRaw = JSON.parse(byId('figInput').value.trim());
     bRaw = JSON.parse(byId('browInput').value.trim());
   } catch(e) {
-    alert('Invalid JSON: ' + e.message);
+    setInputError(['Invalid JSON: ' + e.message]);
     return;
   }
 
+  const validation = validateInputPair(fRaw, bRaw);
+  if (validation.errors.length) {
+    setInputError(validation.errors);
+    return;
+  }
+  setInputError(validation.warnings.map(x => 'Warning: ' + x), 'warn');
+
   // Auto-detect and correct if files are swapped
-  const fKind = detectKind(fRaw);
-  const bKind = detectKind(bRaw);
+  const fKind = validation.fKind;
+  const bKind = validation.bKind;
   let f = fRaw, b = bRaw, swapped = false;
 
   if (fKind === 'browser' && bKind === 'figma') {
@@ -937,6 +1005,7 @@ function runDiff() {
   }
 
   byId('swapBanner').style.display = swapped ? 'flex' : 'none';
+  S.pathToNodeId = {};
 
   // Parse Figma
   const root = detectRoot(f);
@@ -944,14 +1013,22 @@ function runDiff() {
   const figEls = [];
   walk(root, figEls, base);
   const textEls = figEls.filter(x => x.text);
+  if (!textEls.length) {
+    setInputError(['Figma JSON parsed successfully, but no text nodes were found. Check that the export includes text layers.']);
+    return;
+  }
 
   // Parse Browser
   const brows = (b.elements || []).filter(x => x && x.rect);
+  if (!brows.length) {
+    setInputError(['Browser JSON parsed successfully, but no visible elements with rectangles were found. Re-capture the page after it finishes rendering.']);
+    return;
+  }
   const expandedVisible = hasExpandedVisible(brows);
 
   const r = {
     checks: [],
-    coverage: { figNodes: figEls.length, figText: textEls.length, browser: brows.length, matched: 0, missing: 0, ignored: 0, warnings: 0 },
+    coverage: { figNodes: figEls.length, figText: textEls.length, browser: brows.length, matched: 0, missing: 0, ignored: 0, warnings: 0, consistency: 0 },
     meta: b.meta || {},
     page: b.meta?.page || null,
     swapped
@@ -997,11 +1074,13 @@ function runDiff() {
 
     used.add(m.i);
     const actualText = m.b.text || m.b.value || m.b.ariaLabel || '<'+m.b.tag+'>';
+    const conf = confidence(m.score);
+    const confText = confidenceLabel(m.score);
 
     if (m.amountMismatch) {
       if (isSliderLabel(fig, m.b)) {
         r.coverage.matched++;
-        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+        addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match (slider)', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score >= '+MATCH.minScore, status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
       } else {
         r.coverage.warnings++;
         addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'State mismatch', expected: fig.text, actual: actualText, diff: 'amount differs', tolerance: 'must match state', status: 'warning', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
@@ -1009,28 +1088,33 @@ function runDiff() {
       }
     } else {
       r.coverage.matched++;
-      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: '≥35%', status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect });
+      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score >= '+MATCH.minScore, status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
+    }
+
+    if (conf === 'low') {
+      r.coverage.warnings++;
+      addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Low-confidence match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'review manually', status: 'warning', severity: 'Medium', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
     }
 
     const visualChecksAllowed = shouldCheckVisuals(fig, m.b, m.score, actualText);
 
     if (!visualChecksAllowed && (fig.fontSize || fig.color)) {
       r.coverage.warnings++;
-      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score ≥ 60 and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
+      addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score >= '+MATCH.visualScore+' and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, confidence: confText, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
     }
 
     // Font size check
     if (fig.fontSize && visualChecksAllowed) {
       const a = px(m.b.styles?.fontSize);
       const d = a == null ? null : Math.abs(a - fig.fontSize);
-      addCheck(r, { element: label, type: 'Typography', check: 'Font size', expected: fig.fontSize+'px', actual: a==null ? 'n/a' : a+'px', diff: d==null ? 'n/a' : d+'px', tolerance: '±2px', status: d!=null && d<=2 ? 'passed' : 'failed', severity: 'Medium', figmaPath: fig.path, rect: m.b.rect });
+      addCheck(r, { element: label, type: 'Typography', check: 'Font size', expected: fig.fontSize+'px', actual: a==null ? 'n/a' : a+'px', diff: d==null ? 'n/a' : d+'px', tolerance: '±2px', status: d!=null && d<=2 ? 'passed' : 'failed', severity: 'Medium', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
     }
 
     // Color check
     if (fig.color && visualChecksAllowed) {
       const a = colorHex(m.b.styles?.color);
       const ok = sameColor(fig.color, a);
-      addCheck(r, { element: label, type: 'Color', check: 'Text color', expected: fig.color, actual: a||'n/a', diff: ok ? '✓' : 'mismatch', tolerance: 'exact', status: ok ? 'passed' : 'failed', severity: 'High', figmaPath: fig.path, rect: m.b.rect });
+      addCheck(r, { element: label, type: 'Color', check: 'Text color', expected: fig.color, actual: a||'n/a', diff: ok ? '✓' : 'mismatch', tolerance: 'exact', status: ok ? 'passed' : 'failed', severity: 'High', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
     }
   });
 
@@ -1049,8 +1133,10 @@ function runDiff() {
   
   // Add all additional issues to report
   additionalIssues.forEach(issue => {
-    if (issue.status === 'failed') r.coverage.missing++;
-    else if (issue.status === 'warning') r.coverage.warnings++;
+    issue.category = 'consistency';
+    issue.status = 'warning';
+    issue.severity = issue.severity || 'Low';
+    r.coverage.consistency++;
     addCheck(r, issue);
   });
 
@@ -1080,6 +1166,7 @@ function renderResults(r) {
     scoreBox('Warnings',   warn,                'warnings') +
     scoreBox('Ignored',    ign,                 'ignored') +
     scoreBox('Matched',    r.coverage.matched, 'matched') +
+    scoreBox('Consistency', r.coverage.consistency || 0, 'warnings') +
     scoreBox('Figma Text', r.coverage.figText, 'figtext');
 
   renderSections();
@@ -1131,6 +1218,8 @@ function renderTable() {
     <th style="min-width:110px">Expected</th>
     <th style="min-width:110px">Actual</th>
     <th style="width:90px">Status</th>
+    <th style="width:120px">Confidence</th>
+    <th style="width:120px">Category</th>
     <th style="min-width:180px">What this means</th>
     <th>Figma path</th>
   </tr>`;
@@ -1149,6 +1238,8 @@ function renderTable() {
       <td class="td-mono">${esc(x.expected)}</td>
       <td class="td-mono">${esc(x.actual)}</td>
       <td><span class="pill ${x.status}">${x.status}</span></td>
+      <td>${x.confidence ? `<span class="pill conf-${esc(String(x.confidence).split(' ')[0])}">${esc(x.confidence)}</span>` : ''}</td>
+      <td class="td-mono">${esc(x.category === 'consistency' ? 'browser review' : 'figma diff')}</td>
       <td class="td-why">${esc(x.why)}</td>
       <td class="td-path">${pathHtml}</td>
     </tr>`;
@@ -1248,12 +1339,12 @@ function section(title, count, body, collapsed) {
 //  EXPORT
 // ═══════════════════════════════════════════════════════
 function exportCSV() {
-  const h = ['id','element','check','expected','actual','status','severity','why','figmaPath'];
+  const h = ['id','category','confidence','element','check','expected','actual','status','severity','why','figmaPath'];
   const csv = [h.join(',')].concat(S.report.checks.map(r => h.map(k => '"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
   download(new Blob([csv],{type:'text/csv'}),'ui-diff-report.csv');
 }
 function exportExcel() {
-  const h = ['id','element','check','expected','actual','status','severity','why','figmaPath'];
+  const h = ['id','category','confidence','element','check','expected','actual','status','severity','why','figmaPath'];
   const csv = [h.join(',')].concat(S.report.checks.map(r => h.map(k => '"'+String(r[k]??'').replace(/"/g,'""')+'"').join(','))).join('\n');
   download(new Blob(["﻿"+csv],{type:'text/csv;charset=utf-8;'}),'ui-diff-report.xls');
 }
@@ -1273,7 +1364,7 @@ function download(blob, name) {
 // ═══════════════════════════════════════════════════════
 function wire(dropId, fileId, textareaId, isImage) {
   const drop = byId(dropId), file = byId(fileId);
-  drop.addEventListener('click', () => file.click());
+  if (drop.tagName !== 'TEXTAREA') drop.addEventListener('click', () => file.click());
   drop.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); drop.classList.add('drag'); });
   drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
   drop.addEventListener('drop', e => {
@@ -1295,7 +1386,6 @@ function readFile(file, textareaId, isImage, drop) {
       setChip('shotStatus', 'Screenshot: loaded', true);
     } else {
       byId(textareaId).value = e.target.result;
-      drop.innerHTML = `<div class="dz-title">✓ ${esc(file.name)}</div><div class="dz-sub">Loaded</div>`;
       drop.classList.add('loaded');
       updateStatus(textareaId);
     }
@@ -1340,12 +1430,12 @@ function setChip(id, text, ok) {
 function clearInput(which) {
   if (which === 'fig') {
     byId('figInput').value = ''; byId('figFile').value = '';
-    resetDrop('figDrop', 'Drop Figma JSON here', 'or click to browse');
+    resetJsonInput('figInput');
     setChip('figStatus', 'Figma JSON: empty', false);
   }
   if (which === 'brow') {
     byId('browInput').value = ''; byId('browFile').value = '';
-    resetDrop('browDrop', 'Drop Browser JSON here', 'or click to browse');
+    resetJsonInput('browInput');
     setChip('browStatus', 'Browser JSON: empty', false);
   }
   if (which === 'shot') {
@@ -1373,6 +1463,11 @@ function clearInput(which) {
   }
 }
 
+function resetJsonInput(id) {
+  const el = byId(id);
+  if (el) el.classList.remove('loaded','drag');
+}
+
 function resetDrop(id, title, sub) {
   const d = byId(id);
   d.innerHTML = `<div class="dz-title">${esc(title)}</div><div class="dz-sub">${esc(sub)}</div>`;
@@ -1381,6 +1476,7 @@ function resetDrop(id, title, sub) {
 
 function clearAll() {
   clearInput('fig'); clearInput('brow'); clearInput('shot');
+  setInputError([]);
   S.report = null; S.shot = null;
   byId('results').style.display = 'none';
   byId('sections').innerHTML = '';
@@ -1392,11 +1488,11 @@ function clearAll() {
 //  INIT
 // ═══════════════════════════════════════════════════════
 window.onload = function() {
-  wire('figDrop',  'figFile',  'figInput',  false);
-  wire('browDrop', 'browFile', 'browInput', false);
+  wire('figInput',  'figFile',  'figInput',  false);
+  wire('browInput', 'browFile', 'browInput', false);
   wire('shotDrop', 'shotFile', '',          true);
-  byId('figInput').addEventListener('input',  () => updateStatus('figInput'));
-  byId('browInput').addEventListener('input', () => updateStatus('browInput'));
+  byId('figInput').addEventListener('input',  () => { resetJsonInput('figInput'); updateStatus('figInput'); });
+  byId('browInput').addEventListener('input', () => { resetJsonInput('browInput'); updateStatus('browInput'); });
   byId('figmaUrlInput').addEventListener('input', processFigmaUrl);
   byId('figmaUrlInput').addEventListener('paste', () => setTimeout(processFigmaUrl, 10));
 };
