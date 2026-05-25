@@ -151,6 +151,8 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       <button class="filter-btn result-filter" data-filter="warn" onclick="setResultFilter('warn', this)">⚠️ Warnings</button>
       <button class="filter-btn result-filter" data-filter="iframe" onclick="setResultFilter('iframe', this)">🖼️ Iframes</button>
       <button class="filter-btn result-filter" data-filter="network" onclick="setResultFilter('network', this)">🌐 Network</button>
+      <button class="filter-btn result-filter" data-filter="link" onclick="setResultFilter('link', this)">🔗 Links</button>
+      <button class="filter-btn result-filter" data-filter="a11y" onclick="setResultFilter('a11y', this)">♿ A11y</button>
       <button class="success" onclick="exportSessionZip()" style="margin-left:auto;font-size:12px;padding:8px 14px;">📦 Session ZIP</button>
       <button class="success" onclick="exportResultsExcel()" style="font-size:12px;padding:8px 14px;">📥 Export Excel</button>
     </div>
@@ -253,12 +255,13 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   sessionStorage.setItem('__qaAutoSessionId', state.sessionId);
   state.net      = JSON.parse(sessionStorage.getItem('__qaAutoNet')||'[]');
   state.tests    = JSON.parse(sessionStorage.getItem('__qaAutoTests')||'[]');
+  state.audit    = JSON.parse(sessionStorage.getItem('__qaAutoAudit')||'[]');
   state.flowMap  = JSON.parse(sessionStorage.getItem('__qaAutoFlowMap')||'[]');
   state.snapshots = JSON.parse(sessionStorage.getItem('__qaAutoSnapshots')||'[]');
   state.paused   = true; // Every new bookmarklet activation starts paused so recovery can be exported safely.
   sessionStorage.setItem('__qaAutoPaused','1');
-  state.testMode = sessionStorage.getItem('__qaAutoTestMode') === '1';
-  // Optional advanced validation library - only runs before happy-fill when Advanced validation mode is ON
+  state.testMode = false;
+  // Optional input-test library - only runs before happy-fill when Input tests mode is ON.
   const _testLib = {
     email: [
       {value:'valid@test.com', shouldPass:true,  expected:'Valid email — accept'},
@@ -276,22 +279,66 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       {value:'abc',            shouldPass:false, expected:'Letters — reject'},
       {value:'!@#',            shouldPass:false, expected:'Symbols — reject'}
     ],
+    number: [
+      {value:'0',              shouldPass:true,  expected:'Boundary number — accept if in range'},
+      {value:'-1',             shouldPass:false, expected:'Negative number boundary — reject when not allowed'},
+      {value:'999999999',      shouldPass:false, expected:'Very large number boundary — reject when out of range'}
+    ],
+    date: [
+      {value:'1990-01-01',     shouldPass:true,  expected:'Valid date — accept'},
+      {value:'1900-01-01',     shouldPass:false, expected:'Old date boundary — reject when out of range'},
+      {value:'2099-12-31',     shouldPass:false, expected:'Future date boundary — reject when out of range'}
+    ],
+    password: [
+      {value:'123',            shouldPass:false, expected:'Too-short password — reject'},
+      {value:'password',       shouldPass:false, expected:'Weak password — reject'},
+      {value:'Aa1!aaaa',       shouldPass:true,  expected:'Complex password — accept'}
+    ],
     text: [
+      {value:'',               shouldPass:false, expected:'Empty required value — reject when field is required', requiredOnly:true},
+      {value:'a'.repeat(256),  shouldPass:false, expected:'Long text boundary — reject when above allowed length'},
       {value:"<script>alert(1)</"+"script>", shouldPass:false, expected:'XSS — reject (SECURITY)', security:true},
       {value:"' OR '1'='1",    shouldPass:false, expected:'SQL injection — reject (SECURITY)', security:true}
     ]
   };
-  const _categorize = (name) => {
+  const _categorize = (name, type) => {
     const n = (name||'').toLowerCase();
+    const t = (type||'').toLowerCase();
+    if(t==='number' || n.match(/amount|price|quantity|qty|count|total|income|salary/)) return 'number';
+    if(t==='date' || n.match(/date|dob|birth/)) return 'date';
+    if(t==='password' || n.match(/password|passcode/)) return 'password';
     if(n.includes('email')) return 'email';
-    if(n.match(/phone|mobile/)) return 'tel';
+    if(t==='tel' || n.match(/phone|mobile/)) return 'tel';
     if(n.match(/zip|postal/)) return 'zip';
     return 'text';
   };
+  const _dynamicBoundaryTests = (el) => {
+    const tests = [];
+    const required = el.required || el.getAttribute('aria-required') === 'true';
+    const min = el.getAttribute('min');
+    const max = el.getAttribute('max');
+    const minLength = Number(el.getAttribute('minlength') || 0);
+    const maxLength = Number(el.getAttribute('maxlength') || 0);
+    const type = (el.type || '').toLowerCase();
+    if(required) tests.push({ value:'', shouldPass:false, expected:'Required boundary — empty value should be rejected' });
+    if(type === 'number'){
+      if(min !== null && min !== '') tests.push({ value:String(Number(min)-1), shouldPass:false, expected:'Below min boundary — reject' });
+      if(max !== null && max !== '') tests.push({ value:String(Number(max)+1), shouldPass:false, expected:'Above max boundary — reject' });
+    }
+    if(type === 'date'){
+      if(min) tests.push({ value:'1900-01-01', shouldPass:false, expected:'Before min date boundary — reject' });
+      if(max) tests.push({ value:'2099-12-31', shouldPass:false, expected:'After max date boundary — reject' });
+    }
+    if(minLength > 1) tests.push({ value:'a'.repeat(Math.max(1, minLength-1)), shouldPass:false, expected:'Below minlength boundary — reject' });
+    if(maxLength > 0 && maxLength < 500) tests.push({ value:'a'.repeat(maxLength+1), shouldPass:false, expected:'Above maxlength boundary — reject' });
+    if((el.getAttribute('pattern') || '').trim()) tests.push({ value:'###invalid###', shouldPass:false, expected:'Pattern boundary — reject invalid format' });
+    return tests;
+  };
   // Run validation tests on a single field. Records results in Analysis-Board format.
   const runFieldTests = async (el, fldKey) => {
-    const cat = _categorize(fldKey);
-    const tests = _testLib[cat] || _testLib.text;
+    const cat = _categorize(fldKey, el.type);
+    const required = el.required || el.getAttribute('aria-required') === 'true';
+    const tests = (_testLib[cat] || _testLib.text).concat(_dynamicBoundaryTests(el)).filter(t => !t.requiredOnly || required);
     const origVal = el.value;
     for(const t of tests){
       try {
@@ -314,6 +361,115 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     }
     // Restore field to empty so happy-fill can take over
     try { setValue(el, origVal || ''); } catch(e){}
+  };
+  const selectorFor = (el) => {
+    if(!el || !el.tagName) return '';
+    if(el.id) return '#'+String(el.id).replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+    const parts = [];
+    let node = el;
+    while(node && node.nodeType === 1 && parts.length < 4){
+      let part = node.tagName.toLowerCase();
+      if(node.className && typeof node.className === 'string'){
+        const cls = node.className.trim().split(/\\s+/).filter(Boolean)[0];
+        if(cls) part += '.' + cls.replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+      }
+      const parent = node.parentElement;
+      if(parent){
+        const same = Array.from(parent.children).filter(x => x.tagName === node.tagName);
+        if(same.length > 1) part += ':nth-of-type(' + (same.indexOf(node) + 1) + ')';
+      }
+      parts.unshift(part);
+      node = parent;
+    }
+    return parts.join(' > ');
+  };
+  const accessibleName = (el) => {
+    if(!el) return '';
+    const labelledBy = el.getAttribute('aria-labelledby');
+    if(labelledBy){
+      const txt = labelledBy.split(/\\s+/).map(id => (document.getElementById(id)||{}).textContent || '').join(' ').trim();
+      if(txt) return txt;
+    }
+    if(el.getAttribute('aria-label')) return el.getAttribute('aria-label').trim();
+    if(el.id){
+      const escId = (window.CSS && CSS.escape) ? CSS.escape(el.id) : String(el.id).replace(/"/g,'\\\\"');
+      const label = document.querySelector('label[for="' + escId + '"]');
+      if(label && label.textContent.trim()) return label.textContent.trim();
+    }
+    const wrap = el.closest('label');
+    if(wrap && wrap.textContent.trim()) return wrap.textContent.trim();
+    return (el.textContent || el.value || el.getAttribute('title') || el.getAttribute('placeholder') || '').trim();
+  };
+  const collectA11yIssues = () => {
+    const issues = [];
+    document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea').forEach(el => {
+      if(!accessibleName(el)) issues.push({ field: selectorFor(el), expected: 'Form control should have an accessible label', actual: 'Missing label, aria-label, aria-labelledby, title, or placeholder' });
+    });
+    document.querySelectorAll('button, [role="button"], a[href]').forEach(el => {
+      if(!accessibleName(el)) issues.push({ field: selectorFor(el), expected: 'Interactive element should expose an accessible name', actual: 'Empty button/link name' });
+    });
+    document.querySelectorAll('img').forEach(el => {
+      if(!el.hasAttribute('alt')) issues.push({ field: selectorFor(el), expected: 'Image should include alt text or alt="" if decorative', actual: 'Missing alt attribute' });
+    });
+    const ids = {};
+    document.querySelectorAll('[id]').forEach(el => {
+      ids[el.id] = ids[el.id] || [];
+      ids[el.id].push(el);
+    });
+    Object.keys(ids).forEach(id => {
+      if(ids[id].length > 1) issues.push({ field: '#' + id, expected: 'IDs should be unique', actual: ids[id].length + ' elements share this id' });
+    });
+    let last = 0;
+    document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(el => {
+      const level = Number(el.tagName.slice(1));
+      if(last && level > last + 1) issues.push({ field: selectorFor(el), expected: 'Heading levels should not skip', actual: 'Jumped from h' + last + ' to h' + level });
+      last = level;
+    });
+    return issues.slice(0, 80);
+  };
+  const recordAudit = (rows) => {
+    const seen = new Set((state.audit || []).map(r => [r.type,r.url,r.field,r.actual].join('|')));
+    rows.forEach(r => {
+      const key = [r.type,r.url,r.field,r.actual].join('|');
+      if(!seen.has(key)){
+        seen.add(key);
+        state.audit.push(r);
+      }
+    });
+    sessionStorage.setItem('__qaAutoAudit', JSON.stringify((state.audit || []).slice(-500)));
+  };
+  const performPageAudit = async () => {
+    const rows = [];
+    const pageUrl = location.href;
+    collectA11yIssues().forEach(i => rows.push({ t:new Date().toISOString(), type:'a11y', pass:false, field:i.field, expected:i.expected, actual:i.actual, url:pageUrl }));
+    const links = Array.from(document.querySelectorAll('a[href]')).map(a => ({ href:a.href, text:(a.textContent||a.getAttribute('aria-label')||'').trim().slice(0,80) })).filter(l => {
+      if(!l.href) return false;
+      if(/^(mailto|tel|sms|javascript):/i.test(l.href)) return false;
+      try {
+        const u = new URL(l.href, location.href);
+        if(u.hash && u.origin + u.pathname + u.search === location.origin + location.pathname + location.search) return false;
+        return u.origin === location.origin;
+      } catch(e){ return false; }
+    });
+    const unique = Array.from(new Map(links.map(l => [l.href, l])).values()).slice(0, 25);
+    for(const link of unique){
+      const t0 = Date.now();
+      try {
+        let r = await fetch(link.href, { method:'HEAD', credentials:'include', cache:'no-store' });
+        if(r.status === 405) r = await fetch(link.href, { method:'GET', credentials:'include', cache:'no-store' });
+        if(!r.ok) rows.push({ t:new Date().toISOString(), type:'link', pass:false, field:link.text || link.href, expected:'Link should return HTTP 2xx/3xx', actual:'HTTP ' + r.status + ' (' + (Date.now()-t0) + 'ms)', url:link.href });
+      } catch(e){
+        rows.push({ t:new Date().toISOString(), type:'link', pass:false, field:link.text || link.href, expected:'Same-origin link should be reachable', actual:'Request failed: ' + String(e && e.message || e), url:link.href });
+      }
+    }
+    if(unique.length && !rows.some(r => r.type === 'link' && r.pass === false)){
+      rows.push({ t:new Date().toISOString(), type:'link', pass:true, field:'Link audit', expected:'Same-origin links should be reachable', actual:unique.length + ' link(s) checked; no broken links found', url:pageUrl });
+    }
+    recordAudit(rows);
+    const linkIssues = rows.filter(r => r.type === 'link' && r.pass === false).length;
+    const a11yIssues = rows.filter(r => r.type === 'a11y').length;
+    if(linkIssues || a11yIssues) log('🔎 Audit found ' + linkIssues + ' broken link(s), ' + a11yIssues + ' a11y issue(s)', linkIssues ? 'err' : 'info');
+    else log('🔎 Audit clean: same-origin links and a11y smoke checks passed', 'ok');
   };
   // Patch fetch + XHR once (preserve across re-clicks via guard)
   if(!window.__qaNetPatched){
@@ -349,20 +505,24 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     sessionStorage.setItem('__qaAutoLog', JSON.stringify(state.log.slice(-500)));
     sessionStorage.setItem('__qaAutoNet', JSON.stringify(state.net.slice(-500)));
     sessionStorage.setItem('__qaAutoTests', JSON.stringify(state.tests.slice(-500)));
+    sessionStorage.setItem('__qaAutoAudit', JSON.stringify((state.audit||[]).slice(-500)));
     sessionStorage.setItem('__qaAutoSnapshots', JSON.stringify((state.snapshots||[]).slice(-80)));
     console.log('%c[QA-Auto] '+msg, 'color:'+(level==='err'?'#f43f5e':level==='ok'?'#10b981':'#6366f1'));
     updatePanel();
   };
 
   // Interactive learning: when stuck, prompt the user and save to localStorage rules.
-  state.learnMode = sessionStorage.getItem('__qaAutoLearn') === '1';
-  state.autoSave  = sessionStorage.getItem('__qaAutoSave')  === '1';
-  // Helper: keep recovery snapshots inside sessionStorage. This prevents dozens of downloads during a flow.
+  state.learnMode = false;
+  state.autoSave = true;
+  sessionStorage.setItem('__qaAutoSave', '1');
+  state.autoDownload = false;
+  // Helper: keep recovery snapshots inside sessionStorage by default. Downloads are opt-in only.
   const buildBundlePayload = (reason) => {
     let learnedRules = {};
     try { learnedRules = JSON.parse(localStorage.getItem('__qaAutoRules')||'{}'); } catch(e){}
     const tests = state.tests || [];
     const fm = state.flowMap || [];
+    const audit = state.audit || [];
     return {
       snapshotAt: new Date().toISOString(),
       generatedAt: new Date().toISOString(),
@@ -375,18 +535,21 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         testsRun: tests.length,
         testsPassed: tests.filter(t=>t.pass).length,
         testsFailed: tests.filter(t=>!t.pass).length,
+        brokenLinks: audit.filter(t=>t.type==='link').length,
+        accessibilityIssues: audit.filter(t=>t.type==='a11y').length,
         stuckOn: fm.filter(p=>p.result==='timeout').map(p=>p.url),
         recoverySnapshots: (state.snapshots || []).length
       },
       learnedRules: learnedRules,
       flowMap: fm,
       logs: tests,
+      audit: audit,
       actions: state.log || [],
       network: state.net || [],
       snapshots: state.snapshots || []
     };
   };
-  const payloadScore = (p) => ((p.flowMap||[]).length*1000) + ((p.logs||[]).length*100) + ((p.network||[]).length*10) + ((p.actions||[]).length);
+  const payloadScore = (p) => ((p.flowMap||[]).length*1000) + ((p.logs||[]).length*100) + ((p.audit||[]).length*100) + ((p.network||[]).length*10) + ((p.actions||[]).length);
   const rememberRecoveryPayload = (p) => {
     try {
       if(!p || payloadScore(p) < 10) return;
@@ -403,10 +566,28 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     try { const hist = JSON.parse(localStorage.getItem('__qaAutoRecoveryHistory')||'[]'); candidates.push(...hist); } catch(e){}
     candidates.sort((a,b) => payloadScore(b) - payloadScore(a));
     const best = candidates[0] || buildBundlePayload(reason);
+    const mergedAudit = [];
+    const seenAudit = new Set();
+    const addAudit = (rows) => (rows || []).forEach(r => {
+      const key = [r.type,r.url,r.field,r.actual].join('|');
+      if(!seenAudit.has(key)){ seenAudit.add(key); mergedAudit.push(r); }
+    });
+    candidates.forEach(c => {
+      addAudit(c && c.audit);
+      (c && c.snapshots || []).forEach(s => addAudit(s && s.audit));
+    });
+    if(mergedAudit.length) best.audit = mergedAudit;
     best.reason = reason || best.reason || '';
     best.generatedAt = new Date().toISOString();
-    best.snapshots = state.snapshots || best.snapshots || [];
+    best.snapshotCount = (state.snapshots || best.snapshots || []).length;
+    delete best.snapshots;
     return best;
+  };
+  const exportBundlePayload = (reason) => {
+    const p = buildBundlePayload(reason);
+    p.snapshotCount = (state.snapshots || []).length;
+    delete p.snapshots;
+    return p;
   };
   const saveSnapshot = (reason) => {
     try {
@@ -635,7 +816,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
           if(pick && el.value !== pick.value){ el.value = pick.value; el.dispatchEvent(new Event('change',{bubbles:true})); filled++; }
         } else {
           const fldName = el.name || el.id || '';
-          // Test mode: run validation tests on this field BEFORE happy-fill
+          // Input-tests mode: run negative/boundary/security tests on this field BEFORE happy-fill.
           if(state.testMode){
             await runFieldTests(el, fldName);
           }
@@ -698,6 +879,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     try {
       log('🔍 Scanning '+location.pathname);
       await delay(800);
+      await performPageAudit();
       const filled = await fillFields();
       log('✏️ Filled '+filled+' fields', 'ok');
       if(filled === 0){
@@ -710,6 +892,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       if(!cta){ log('⚠️ No CTA button found — flow may be complete', 'err'); state.busy=false; return; }
       log('🚀 Clicking CTA: "'+(cta.textContent||cta.value).trim()+'"');
       if(state.autoSave) saveSnapshot('pre-CTA on '+location.pathname);
+      if(state.autoDownload) downloadJson(exportBundlePayload('pre-CTA download on '+location.pathname), 'pre-cta-'+Date.now()+'.json');
       cta.click();
       const reason = await waitForNextPage();
       log('Transition: '+reason);
@@ -742,7 +925,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     p.id = 'qa-auto-panel';
     p.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:2147483647;background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:system-ui,sans-serif;border:2px solid #10b981;max-width:430px;font-size:12px;line-height:1.5;';
     const btnStyle = 'border:none;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;min-width:76px;';
-    p.innerHTML = '<div style="font-weight:bold;margin-bottom:6px;color:#fff;font-size:13px;">🤖 QA Auto Flow Runner</div><div id="qa-auto-status" style="color:#94a3b8;margin-bottom:8px;">starting...</div><div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #334155;"><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;"><input id="qa-auto-learn" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.learnMode?' checked':'') +'> 🎓 Learn mode</label><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;margin-top:4px;"><input id="qa-auto-save" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.autoSave?' checked':'') +'> 💾 Recovery snapshots (no downloads)</label><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;margin-top:4px;"><input id="qa-auto-testmode" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.testMode?' checked':'') +'> 🧪 Advanced validation</label></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;"><button id="qa-auto-toggle" style="'+btnStyle+'background:#10b981;color:#fff;">▶ Play</button><button id="qa-auto-step" style="'+btnStyle+'background:#6366f1;color:#fff;">Step</button><button id="qa-auto-export" style="'+btnStyle+'background:#a78bfa;color:#000;">Export</button></div><div style="display:flex;gap:7px;flex-wrap:wrap;"><button id="qa-auto-edit" style="'+btnStyle+'background:#fbbf24;color:#000;">Rules</button><button id="qa-auto-net" style="'+btnStyle+'background:#38bdf8;color:#000;">Log</button></div><div id="qa-auto-log" style="max-height:140px;overflow-y:auto;font-family:monospace;font-size:10px;margin-top:10px;color:#cbd5e1;border-top:1px solid #334155;padding-top:8px;"></div>';
+    p.innerHTML = '<div style="font-weight:bold;margin-bottom:6px;color:#fff;font-size:13px;">🤖 QA Auto Flow Runner</div><div id="qa-auto-status" style="color:#94a3b8;margin-bottom:8px;">starting...</div><div style="margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #334155;"><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;"><input id="qa-auto-learn" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.learnMode?' checked':'') +'> 🎓 Learn mode</label><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;margin-top:4px;"><input id="qa-auto-download" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.autoDownload?' checked':'') +'> ⬇️ Download before each CTA</label><label style="font-size:11px;color:#94a3b8;cursor:pointer;display:block;margin-top:4px;"><input id="qa-auto-testmode" type="checkbox" style="vertical-align:middle;margin-right:4px;"'+ (state.testMode?' checked':'') +'> 🧪 Input tests</label></div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px;"><button id="qa-auto-toggle" style="'+btnStyle+'background:#10b981;color:#fff;">▶ Play</button><button id="qa-auto-step" style="'+btnStyle+'background:#6366f1;color:#fff;">Step</button><button id="qa-auto-export" style="'+btnStyle+'background:#a78bfa;color:#000;">Export</button></div><div style="display:flex;gap:7px;flex-wrap:wrap;"><button id="qa-auto-edit" style="'+btnStyle+'background:#fbbf24;color:#000;">Rules</button><button id="qa-auto-net" style="'+btnStyle+'background:#38bdf8;color:#000;">Log</button></div><div id="qa-auto-log" style="max-height:140px;overflow-y:auto;font-family:monospace;font-size:10px;margin-top:10px;color:#cbd5e1;border-top:1px solid #334155;padding-top:8px;"></div>';
     document.body.appendChild(p); state.panel = p;
     const syncToggle = () => {
         const b = p.querySelector('#qa-auto-toggle');
@@ -765,6 +948,9 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         try { navigator.clipboard.writeText(JSON.stringify(bundle.learnedRules || {})); } catch(e){}
         log('📦 Export downloaded ('+((bundle.flowMap||[]).length)+' step(s)).', 'ok');
     };
+    p.querySelector('#qa-auto-learn').onchange = (e)=>{ state.learnMode = e.target.checked; sessionStorage.setItem('__qaAutoLearn', state.learnMode?'1':'0'); };
+    p.querySelector('#qa-auto-download').onchange = (e)=>{ state.autoDownload = e.target.checked; sessionStorage.setItem('__qaAutoDownload', state.autoDownload?'1':'0'); };
+    p.querySelector('#qa-auto-testmode').onchange = (e)=>{ state.testMode = e.target.checked; sessionStorage.setItem('__qaAutoTestMode', state.testMode?'1':'0'); };
     syncToggle();
     p.querySelector('#qa-auto-edit').onclick = async ()=>{
         const host = location.hostname.toLowerCase();
@@ -973,11 +1159,24 @@ function resultStatus(row){
   return 'warn';
 }
 
+function collectBundleAudit(bundle){
+  const rows = [];
+  const seen = new Set();
+  const addRows = (items) => (items || []).forEach(r => {
+    const key = [r.type,r.url,r.field,r.actual].join('|');
+    if(!seen.has(key)){ seen.add(key); rows.push(r); }
+  });
+  addRows(Array.isArray(bundle.audit) ? bundle.audit : []);
+  (Array.isArray(bundle.snapshots) ? bundle.snapshots : []).forEach(s => addRows(Array.isArray(s.audit) ? s.audit : []));
+  return rows;
+}
+
 function buildResultRows(bundle){
   const rows = [];
   const flow = Array.isArray(bundle.flowMap) ? bundle.flowMap : [];
   const tests = Array.isArray(bundle.logs) ? bundle.logs : [];
   const network = Array.isArray(bundle.network) ? bundle.network : [];
+  const audit = collectBundleAudit(bundle);
 
   flow.forEach((step, idx) => {
     const ok = step.result && step.result !== 'timeout';
@@ -1008,6 +1207,17 @@ function buildResultRows(bundle){
     expected: 'Network request should complete successfully',
     actual: 'HTTP ' + (n.status || 'ERR') + (n.error ? ' - ' + n.error : '') + ' (' + (n.ms || 0) + 'ms)',
     url: n.url || ''
+  }));
+
+  audit.forEach((a, idx) => rows.push({
+    kind: a.type === 'link' ? 'link' : a.type === 'a11y' ? 'a11y' : 'audit',
+    filter: a.type === 'link' ? 'link' : a.type === 'a11y' ? 'a11y' : 'warn',
+    result: a.pass === true ? 'PASS' : a.type === 'link' ? 'ERROR' : 'WARN',
+    step: '',
+    field: a.field || (a.type + ' #' + (idx + 1)),
+    expected: a.expected || '',
+    actual: a.actual || '',
+    url: a.url || ''
   }));
 
   return rows;
@@ -1057,7 +1267,10 @@ function renderBundlePreview(){
 
   const flow = Array.isArray(b.flowMap) ? b.flowMap : [];
   const tests = Array.isArray(b.logs) ? b.logs : [];
+  const audit = collectBundleAudit(b);
   const netErrors = (Array.isArray(b.network) ? b.network : []).filter(n => !n.ok).length;
+  const brokenLinks = audit.filter(a => a.type === 'link' && a.pass !== true).length;
+  const a11yIssues = audit.filter(a => a.type === 'a11y').length;
   const iframeCount = flow.reduce((n,s)=>n+((s.iframes||[]).length),0);
   const fieldsFilled = flow.reduce((n,p)=>n+(p.filled||0),0);
   const passed = currentBundleRows.filter(r => resultStatus(r) === 'pass').length;
@@ -1075,7 +1288,9 @@ function renderBundlePreview(){
       warned        ? statCard('warn',  warned,       'Warnings')        : '',
       tests.length  ? statCard('',      tests.length, 'Validation Tests'): '',
       iframeCount   ? statCard('warn',  iframeCount,  'Iframes')         : '',
-      netErrors     ? statCard('fail',  netErrors,    'Network Errors')  : ''
+      netErrors     ? statCard('fail',  netErrors,    'Network Errors')  : '',
+      brokenLinks   ? statCard('fail',  brokenLinks,  'Broken Links')    : '',
+      a11yIssues    ? statCard('warn',  a11yIssues,   'A11y Issues')     : ''
     ].filter(Boolean).join('');
   }
   renderResultsTable();
@@ -1195,11 +1410,14 @@ async function exportSessionZip(){
   if(!currentBundle || !currentBundleRows.length){ alert('Drop or paste a bundle first.'); return; }
   const { rows, summary, flow } = buildExportData();
   const folder = sessionFolderName();
+  const slimBundle = { ...currentBundle, snapshotCount: (currentBundle.snapshots || []).length };
+  delete slimBundle.snapshots;
   const files = [
-    { path: folder + '/qa-bundle.json', content: JSON.stringify(currentBundle, null, 2) },
+    { path: folder + '/qa-bundle.json', content: JSON.stringify(slimBundle, null, 2) },
     { path: folder + '/summary.csv', content: rowsToCsv(summary) },
     { path: folder + '/results.csv', content: rowsToCsv(rows) },
     { path: folder + '/flow-steps.csv', content: rowsToCsv(flow) },
+    { path: folder + '/audit.json', content: JSON.stringify(collectBundleAudit(currentBundle), null, 2) },
     { path: folder + '/network.json', content: JSON.stringify(currentBundle.network || [], null, 2) },
     { path: folder + '/actions.json', content: JSON.stringify(currentBundle.actions || [], null, 2) }
   ];
@@ -1301,6 +1519,8 @@ function generateSpec(){
 const FIELD_TIMEOUT = 3000;                       // per-CTA click attempt
 const FAIL_ON_ERROR = true;                       // throw at end if any step ended ERROR
 const FAIL_ON_SKIPPED = true;                     // throw at end if any step ended SKIPPED (URL mismatch / unreachable)
+const FAIL_ON_BROKEN_LINKS = true;                // throw at end if any audited link returns 4xx/5xx
+const FAIL_ON_A11Y_SMOKE = false;                 // keep smoke a11y findings as warnings by default
 const MAX_CONSECUTIVE_ERRORS = 2;                 // bail after N consecutive failed/skipped steps
 const URL_WAIT_MS = 4000;                         // max wait for the expected pathname
 const LOAD_STATE_TIMEOUT = 4000;                  // max wait for domcontentloaded
@@ -1308,6 +1528,7 @@ const CTA_HARD_CAP_MS = 10000;                    // hard cap on the entire clic
 const IFRAME_FILL_TIMEOUT = 1500;                 // per-field timeout inside iframe handlers
 const STRICT_URL_GATE = true;                     // if true, skip fill+click when on wrong URL (fail-fast)
 const AUTO_ADVANCE_MAX = 3;                       // attempts to fill+click through unrecorded intermediate pages (set 0 to disable)
+const MAX_LINKS_PER_PAGE = 50;                    // cap link checks so audits stay fast
 const LEARNED_RULES = ${JSON.stringify(learnedRules, null, 2)};
 const OTP_VALUE = '1111';
 
@@ -1371,6 +1592,94 @@ function stripJsonComments(str){
   }
   // Also strip trailing commas before } or ]
   return out.replace(/,(\\s*[}\\]])/g, '$1');
+}
+
+async function auditCurrentPage(page, request, stepNo){
+  const data = await page.evaluate((stepNo) => {
+    const selectorFor = (el) => {
+      if(!el || !el.tagName) return '';
+      if(el.id) return '#'+String(el.id).replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+      const parts = [];
+      let node = el;
+      while(node && node.nodeType === 1 && parts.length < 4){
+        let part = node.tagName.toLowerCase();
+        if(node.className && typeof node.className === 'string'){
+          const cls = node.className.trim().split(/\\s+/).filter(Boolean)[0];
+          if(cls) part += '.' + cls.replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+        }
+        const parent = node.parentElement;
+        if(parent){
+          const same = Array.from(parent.children).filter(x => x.tagName === node.tagName);
+          if(same.length > 1) part += ':nth-of-type(' + (same.indexOf(node) + 1) + ')';
+        }
+        parts.unshift(part);
+        node = parent;
+      }
+      return parts.join(' > ');
+    };
+    const accessibleName = (el) => {
+      if(!el) return '';
+      const labelledBy = el.getAttribute('aria-labelledby');
+      if(labelledBy){
+        const txt = labelledBy.split(/\\s+/).map(id => (document.getElementById(id)||{}).textContent || '').join(' ').trim();
+        if(txt) return txt;
+      }
+      if(el.getAttribute('aria-label')) return el.getAttribute('aria-label').trim();
+      if(el.id){
+        const escId = (window.CSS && CSS.escape) ? CSS.escape(el.id) : String(el.id).replace(/"/g,'\\\\"');
+        const label = document.querySelector('label[for="' + escId + '"]');
+        if(label && label.textContent.trim()) return label.textContent.trim();
+      }
+      const wrap = el.closest('label');
+      if(wrap && wrap.textContent.trim()) return wrap.textContent.trim();
+      return (el.textContent || el.value || el.getAttribute('title') || el.getAttribute('placeholder') || '').trim();
+    };
+    const a11y = [];
+    document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select, textarea').forEach(el => {
+      if(!accessibleName(el)) a11y.push({ type:'a11y', step:stepNo, field:selectorFor(el), expected:'Form control should have an accessible label', actual:'Missing label, aria-label, aria-labelledby, title, or placeholder', url:location.href });
+    });
+    document.querySelectorAll('button, [role="button"], a[href]').forEach(el => {
+      if(!accessibleName(el)) a11y.push({ type:'a11y', step:stepNo, field:selectorFor(el), expected:'Interactive element should expose an accessible name', actual:'Empty button/link name', url:location.href });
+    });
+    document.querySelectorAll('img').forEach(el => {
+      if(!el.hasAttribute('alt')) a11y.push({ type:'a11y', step:stepNo, field:selectorFor(el), expected:'Image should include alt text or alt="" if decorative', actual:'Missing alt attribute', url:location.href });
+    });
+    const ids = {};
+    document.querySelectorAll('[id]').forEach(el => { ids[el.id] = ids[el.id] || []; ids[el.id].push(el); });
+    Object.keys(ids).forEach(id => {
+      if(ids[id].length > 1) a11y.push({ type:'a11y', step:stepNo, field:'#'+id, expected:'IDs should be unique', actual:ids[id].length + ' elements share this id', url:location.href });
+    });
+    let last = 0;
+    document.querySelectorAll('h1,h2,h3,h4,h5,h6').forEach(el => {
+      const level = Number(el.tagName.slice(1));
+      if(last && level > last + 1) a11y.push({ type:'a11y', step:stepNo, field:selectorFor(el), expected:'Heading levels should not skip', actual:'Jumped from h' + last + ' to h' + level, url:location.href });
+      last = level;
+    });
+    const links = Array.from(document.querySelectorAll('a[href]')).map(a => ({ href:a.href, text:(a.textContent || a.getAttribute('aria-label') || '').trim().slice(0,80) })).filter(l => {
+      if(!l.href || /^(mailto|tel|sms|javascript):/i.test(l.href)) return false;
+      try {
+        const u = new URL(l.href, location.href);
+        if(u.hash && u.origin + u.pathname + u.search === location.origin + location.pathname + location.search) return false;
+        return /^https?:$/i.test(u.protocol);
+      } catch(e){ return false; }
+    });
+    return { url: location.href, links, a11y: a11y.slice(0, 100) };
+  }, stepNo);
+  const rows = data.a11y || [];
+  const uniqueLinks = Array.from(new Map((data.links || []).map(l => [l.href, l])).values()).slice(0, MAX_LINKS_PER_PAGE);
+  for(const link of uniqueLinks){
+    const t0 = Date.now();
+    try {
+      let resp = await request.head(link.href, { timeout: 8000 });
+      if(resp.status() === 405) resp = await request.get(link.href, { timeout: 8000 });
+      if(resp.status() >= 400){
+        rows.push({ type:'link', step:stepNo, field:link.text || link.href, expected:'Link should return HTTP 2xx/3xx', actual:'HTTP ' + resp.status() + ' (' + (Date.now()-t0) + 'ms)', url:link.href });
+      }
+    } catch(e){
+      rows.push({ type:'link', step:stepNo, field:link.text || link.href, expected:'Link should be reachable', actual:'Request failed: ' + String(e && e.message || e).slice(0,180), url:link.href });
+    }
+  }
+  return rows;
 }
 
 test('replay recorded flow', async ({ page, request }) => {
@@ -1729,6 +2038,7 @@ test('replay recorded flow', async ({ page, request }) => {
   }
 
   const results = [];
+  const auditResults = [];
   let consecutiveErrors = 0;
   for(let i=0; i<NORMALIZED_STEPS.length; i++){
     const step = NORMALIZED_STEPS[i];
@@ -1844,6 +2154,11 @@ test('replay recorded flow', async ({ page, request }) => {
         }
       }
       await dismissCookieBanner(page);
+      const auditRows = await auditCurrentPage(page, request, i + 1).catch(e => [{ type:'audit', step:i+1, field:'page audit', expected:'Audit should complete', actual:String(e && e.message || e).slice(0,180), url:page.url() }]);
+      auditResults.push(...auditRows);
+      const brokenNow = auditRows.filter(a => a.type === 'link').length;
+      const a11yNow = auditRows.filter(a => a.type === 'a11y').length;
+      if(brokenNow || a11yNow) console.log('🔎 audit step '+(i+1)+': '+brokenNow+' broken link(s), '+a11yNow+' a11y issue(s)');
       const fr = await fillVisibleFields(page);
       r.filled = fr.filled;
       // If this step had iframes recorded, try known iframe handlers (Stripe etc.)
@@ -1903,18 +2218,23 @@ test('replay recorded flow', async ({ page, request }) => {
     }
   }
   await test.info().attach('flow-replay-results.json', { body: JSON.stringify(results, null, 2), contentType:'application/json' });
+  await test.info().attach('audit-results.json', { body: JSON.stringify(auditResults, null, 2), contentType:'application/json' });
   // === Final summary — printed in test stdout and surfaced in HTML report ===
   const summary = {
     total: results.length,
     ok: results.filter(r=>r.status==='OK').length,
     skipped: results.filter(r=>r.status==='SKIPPED').length,
     error: results.filter(r=>r.status==='ERROR').length,
+    brokenLinks: auditResults.filter(r=>r.type==='link').length,
+    accessibilityIssues: auditResults.filter(r=>r.type==='a11y').length,
     finalUrl: (()=>{ try { return new URL(page.url()).pathname; } catch(e){ return '(unknown)'; } })(),
   };
   console.log('\\n=== Replay summary ===');
   console.log('  OK:      '+summary.ok);
   console.log('  SKIPPED: '+summary.skipped);
   console.log('  ERROR:   '+summary.error);
+  console.log('  links:   '+summary.brokenLinks+' broken');
+  console.log('  a11y:    '+summary.accessibilityIssues+' smoke issue(s)');
   console.log('  total:   '+summary.total);
   console.log('  final URL: '+summary.finalUrl);
   for(const r of results){
@@ -1927,6 +2247,8 @@ test('replay recorded flow', async ({ page, request }) => {
   const failReasons = [];
   if(FAIL_ON_ERROR && summary.error > 0)     failReasons.push(summary.error+' ERROR step(s)');
   if(FAIL_ON_SKIPPED && summary.skipped > 0) failReasons.push(summary.skipped+' SKIPPED step(s)');
+  if(FAIL_ON_BROKEN_LINKS && summary.brokenLinks > 0) failReasons.push(summary.brokenLinks+' broken link(s)');
+  if(FAIL_ON_A11Y_SMOKE && summary.accessibilityIssues > 0) failReasons.push(summary.accessibilityIssues+' a11y smoke issue(s)');
   if(failReasons.length > 0){
     throw new Error('Replay finished with failures: ' + failReasons.join(', ') + '. See attached flow-replay-results.json for details.');
   }
