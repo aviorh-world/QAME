@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA Flow Runner — Complete Guide</title>
+<style>
+  :root { --primary:#6366f1; --bg:#0f172a; --panel:#1e293b; --text:#e2e8f0; --muted:#64748b; --success:#10b981; --warn:#fbbf24; --accent:#38bdf8; --error:#f43f5e; --border:#334155; }
+  * { box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif; background:var(--bg); color:var(--text); margin:0; padding:0; line-height:1.65; }
+  .wrap { max-width:880px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:36px; font-weight:800; margin:0 0 6px; background:linear-gradient(135deg,#6366f1,#38bdf8); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+  .tagline { color:var(--muted); font-size:16px; margin:0 0 38px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+  h2 { font-size:22px; font-weight:700; color:#fff; margin:42px 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+  h3 { font-size:17px; font-weight:700; color:var(--accent); margin:28px 0 10px; }
+  p { margin:10px 0; }
+  a { color:var(--accent); text-decoration:none; border-bottom:1px solid transparent; transition:border-color .15s; }
+  a:hover { border-bottom-color:var(--accent); }
+  code { background:#0b1120; color:var(--warn); padding:2px 7px; border-radius:4px; font-family:ui-monospace,'Cascadia Code',Menlo,monospace; font-size:13px; border:1px solid var(--border); }
+  pre { background:#020617; border:1px solid var(--border); border-left:4px solid var(--success); border-radius:8px; padding:16px 20px; overflow-x:auto; margin:14px 0; }
+  pre code { background:transparent; color:#a7f3d0; border:none; padding:0; font-size:13px; }
+  ul, ol { padding-left:24px; }
+  li { margin:6px 0; }
+  blockquote { border-left:4px solid var(--accent); background:rgba(56,189,248,0.06); padding:12px 18px; margin:14px 0; border-radius:4px; color:#cbd5e1; }
+  blockquote strong { color:var(--accent); }
+  table { width:100%; border-collapse:collapse; margin:14px 0; background:#0b1120; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
+  th { background:#1e293b; color:var(--primary); text-align:left; padding:12px 14px; font-size:12px; text-transform:uppercase; letter-spacing:0.5px; border-bottom:2px solid var(--border); }
+  td { padding:11px 14px; border-bottom:1px solid #1e293b; vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover { background:rgba(99,102,241,0.05); }
+  td code { font-size:12px; }
+  .flow-diagram { background:#020617; border:1px solid var(--border); border-radius:10px; padding:24px; margin:20px 0; text-align:center; font-family:ui-monospace,monospace; font-size:13px; color:var(--accent); white-space:pre; overflow-x:auto; line-height:1.5; }
+  .callout { background:#0b1120; border:1px solid var(--border); border-left:4px solid var(--warn); border-radius:8px; padding:14px 18px; margin:18px 0; }
+  .callout .num { display:inline-block; background:var(--success); color:#fff; width:24px; height:24px; line-height:24px; text-align:center; border-radius:50%; font-weight:700; margin-right:10px; font-size:13px; }
+  .callout strong { color:#fff; }
+  hr { border:none; border-top:1px solid var(--border); margin:36px 0; }
+  .footer { text-align:center; color:var(--muted); font-size:13px; font-style:italic; margin-top:48px; padding-top:24px; border-top:1px solid var(--border); }
+  .toc { background:#0b1120; border:1px solid var(--border); border-radius:8px; padding:18px 22px; margin:24px 0; }
+  .toc strong { color:var(--accent); display:block; margin-bottom:8px; font-size:13px; text-transform:uppercase; letter-spacing:0.5px; }
+  .toc ul { margin:0; padding-left:18px; }
+  .toc li { margin:4px 0; }
+  .toc a { color:var(--text); border:none; font-size:14px; }
+  .toc a:hover { color:var(--accent); }
+  .emoji-large { font-size:22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>🤖 QA Flow Runner — Complete Guide</h1>
+  <p class="tagline">A point-and-click tool for capturing user flows in any web app and replaying them as Playwright tests — no test-writing required.</p>
+
+  <div class="toc">
+    <strong>📑 Contents</strong>
+    <ul>
+      <li><a href="#picture">The Big Picture</a></li>
+      <li><a href="#quick">Quick Start (5 Minutes)</a></li>
+      <li><a href="#ui">The Main UI — What Every Section Does</a></li>
+      <li><a href="#panel">The Floating Panel (during recording)</a></li>
+      <li><a href="#tips">Things Worth Knowing</a></li>
+      <li><a href="#smart">Smart Logic — How the Replay Handles Real-World Mess</a></li>
+      <li><a href="#run">Running the Playwright Spec</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+      <li><a href="#files">File Reference</a></li>
+    </ul>
+  </div>
+
+  <h2 id="picture"><span class="emoji-large">🗺️</span> The Big Picture</h2>
+  <div class="flow-diagram">┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ 1. Record   │ ──▶ │ 2. Bundle   │ ──▶ │ 3. Generate │ ──▶ │ 4. Replay   │
+│  in your    │     │  download   │     │  the spec   │     │ in Playwright│
+│   browser   │     │   (JSON)    │     │  (.ts file) │     │ (or console)│
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘</div>
+  <p>You record a flow once by clicking through it like a normal user. The bookmarklet captures every URL, every CTA you clicked, every value you typed. Drop the resulting bundle into the tool, pick "Generate replay", and you get a Playwright <code>.spec.ts</code> file that walks through the same flow every time.</p>
+
+  <hr>
+
+  <h2 id="quick"><span class="emoji-large">🚀</span> Quick Start (5 Minutes)</h2>
+
+  <h3>Step 1 — Install the Bookmarklet</h3>
+  <p>Open the tool's HTML page in your browser. In <strong>section 1</strong>, drag the green <strong>🤖 Auto Flow Runner</strong> button to your browser's bookmarks bar.</p>
+  <blockquote><strong>Tip:</strong> If your bookmarks bar isn't visible, press <code>Ctrl+Shift+B</code> (Windows) or <code>Cmd+Shift+B</code> (Mac).</blockquote>
+
+  <h3>Step 2 — Record a Flow</h3>
+  <ol>
+    <li>Navigate to the first page of your flow (e.g. a checkout start page).</li>
+    <li>Click the <strong>🤖 Auto Flow Runner</strong> bookmark.</li>
+    <li>A floating panel appears in the bottom-right corner.</li>
+    <li>Click <strong>▶ Play</strong> in the panel to start automatic playback, OR click <strong>Step</strong> to walk through manually one CTA at a time.</li>
+    <li>Type any values the form needs (the bookmarklet will learn them).</li>
+    <li>When done, click <strong>📦 Bundle</strong> (or <strong>Export</strong>) in the panel to download a <code>qa-bundle-*.json</code> file.</li>
+  </ol>
+
+  <h3>Step 3 — Drop the Bundle</h3>
+  <p>Back in the tool, in <strong>section 2</strong>, drop the <code>qa-bundle-*.json</code> file onto the card (or paste its contents). The results panel appears immediately showing stats and a table of everything recorded.</p>
+
+  <h3>Step 4 — Generate the Replay</h3>
+  <p>Expand <strong>section 4 — Generate replay</strong> and choose one of:</p>
+  <ul>
+    <li><strong>🎧 Download Playwright spec (.ts)</strong> — for running in CI / on a server</li>
+    <li><strong>📋 Download console replay (.js)</strong> — for pasting into DevTools to run live in your browser</li>
+  </ul>
+  <p>Files are auto-named based on the site (e.g. <code>flow-replay-mysite.spec.ts</code>).</p>
+
+  <h3>Step 5 — Run It</h3>
+  <p>In your terminal, from your Playwright project root:</p>
+  <pre><code>npx playwright test --ui</code></pre>
+  <p>This opens the <strong>Playwright UI mode</strong> — the recommended way to debug. You'll see the spec, can run it step-by-step, watch screenshots between actions, see network calls, and time-travel through any moment of the test.</p>
+
+  <hr>
+
+  <h2 id="ui"><span class="emoji-large">🎛️</span> The Main UI — What Every Section Does</h2>
+
+  <h3>📖 Quick instructions &amp; tips (top blue box)</h3>
+  <p>Links to the demo video and this README, plus three quick reminders.</p>
+
+  <h3>Section 1 — Install the bookmarklet</h3>
+  <p>The drag-to-bookmarks-bar button. One-time install.</p>
+
+  <h3>Section 2 — Drop the bundle</h3>
+  <p>Drop zone for the <code>qa-bundle-*.json</code> you exported from a recording. Updates the results panel live.</p>
+
+  <h3>Section 3 — Start URL or API <em>(optional)</em></h3>
+  <p><strong>Static URL</strong>: Force the spec to always start at this URL.<br>
+  <strong>API endpoint</strong>: Have the spec POST/GET to an API at runtime and use the returned URL. Useful when each test run needs a fresh token.</p>
+  <p>Inside this section:</p>
+  <ul>
+    <li><strong>JSON path</strong> — Where to find the URL in the API response. Leave empty to auto-detect common field names (<code>url</code>, <code>RedirectURL</code>, <code>applicationUrl</code>, etc).</li>
+    <li><strong>Custom headers</strong> — For API auth.</li>
+    <li><strong>Request body</strong> — For POST.</li>
+    <li><strong>Learned Rules</strong> — Per-domain field overrides as JSON. Used when the bundle's auto-learned values aren't right.</li>
+  </ul>
+
+  <h3>Section 4 — Generate replay <em>(collapsed by default)</em></h3>
+  <p>Two buttons:</p>
+  <ul>
+    <li><strong>Playwright spec (.ts)</strong> — Full-featured test file.</li>
+    <li><strong>Console replay (.js)</strong> — Standalone JS to paste in browser DevTools.</li>
+  </ul>
+  <p>Below them: ready-to-copy <code>npx playwright</code> commands.</p>
+
+  <h3>📊 Bundle Results <em>(appears after you drop a bundle)</em></h3>
+  <p>Stats grid + filterable table:</p>
+  <table>
+    <thead><tr><th>Stat card</th><th>What it counts</th></tr></thead>
+    <tbody>
+      <tr><td><strong style="color:#fbbf24;">Steps</strong> (yellow)</td><td>Total page transitions captured</td></tr>
+      <tr><td><strong style="color:var(--accent);">Fields Filled</strong> (blue)</td><td>Form inputs the bookmarklet filled</td></tr>
+      <tr><td><strong style="color:var(--success);">Passed</strong> (green)</td><td>Steps with no validation errors</td></tr>
+      <tr><td><strong style="color:var(--error);">Failed</strong> (red)</td><td>Steps with errors / unreachable CTAs</td></tr>
+      <tr><td><strong style="color:var(--warn);">Warnings</strong> (yellow)</td><td>Soft issues — iframes, network 4xx, etc.</td></tr>
+    </tbody>
+  </table>
+  <p>Filter buttons let you narrow the table to just passed, failed, warnings, iframes, or network. Export to ZIP or Excel for sharing.</p>
+
+  <hr>
+
+  <h2 id="panel"><span class="emoji-large">🎮</span> The Floating Panel (during recording)</h2>
+  <p>When the bookmarklet is active, a floating panel appears in the bottom-right with these controls:</p>
+  <table>
+    <thead><tr><th>Button</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><strong>▶ Play / ⏸ Pause</strong></td><td>Toggles automatic execution. Pause preserves session — you can resume by clicking Play.</td></tr>
+      <tr><td><strong>Step</strong></td><td>Manually advance one CTA. Useful for tricky pages where auto-play might get confused.</td></tr>
+      <tr><td><strong>Export</strong></td><td>Downloads the bundle as <code>qa-bundle-*.json</code> for use in the main tool.</td></tr>
+      <tr><td><strong>Rules</strong></td><td>Opens an editor to override per-field values for this domain.</td></tr>
+      <tr><td><strong>Log</strong></td><td>Shows the in-browser execution log (filtered for cleanliness).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Checkboxes</h3>
+  <ul>
+    <li><strong>🎓 Learn mode</strong> — On by default. Captures values you type so they're reused in the spec.</li>
+    <li><strong>💾 Recovery snapshots</strong> — Saves state periodically (in sessionStorage, not as downloads) so you can recover from crashes.</li>
+    <li><strong>🧪 Advanced validation</strong> — Runs deeper checks on filled forms (slower, more thorough).</li>
+  </ul>
+
+  <hr>
+
+  <h2 id="tips"><span class="emoji-large">💡</span> Things Worth Knowing</h2>
+
+  <div class="callout"><span class="num">1</span><strong>Run stopped mid-way?</strong><br>The bookmarklet stores everything in <code>sessionStorage</code>. Click the bookmark again on the page you got stuck on — it resumes from exactly that point. No need to start over.</div>
+
+  <div class="callout"><span class="num">2</span><strong>Can't auto-fill a field?</strong><br>This happens with iframes, custom date-pickers, and any non-standard input. Just <strong>type the value yourself</strong>. If Learn mode is on, the bookmarklet captures what you typed, and the generated Playwright spec will know to fill it the same way on every run.</div>
+
+  <div class="callout"><span class="num">3</span><strong>Page looks stuck but nothing's wrong?</strong><br>Check the Log button in the panel. The bookmarklet might be waiting on a cookie banner it doesn't recognize, or a CTA whose text changed. The console-replay generates the same logs in your browser console with color-coded output.</div>
+
+  <div class="callout"><span class="num">4</span><strong>Generated spec runs in Playwright but step X fails?</strong><br>Check the <code>flow-replay-results.json</code> attachment in the Playwright HTML report. It tells you exactly which step failed and why (URL mismatch, CTA not found, etc.). Most failures are because production changed pages — re-record the flow.</div>
+
+  <div class="callout"><span class="num">5</span><strong>The console-replay vs the Playwright spec</strong><br><strong>Console replay</strong>: For quick smoke tests in your own browser. No CI setup. Paste in DevTools console, watch it run.<br><strong>Playwright spec</strong>: For CI, parallel runs, traces, screenshots, network mocking. Real test infrastructure.<br>Both share the same logic — dedup, skip-ahead, auto-advance, generic CTA fallback, cookie dismissal. Use whichever fits.</div>
+
+  <hr>
+
+  <h2 id="smart"><span class="emoji-large">⚙️</span> Smart Logic — How the Replay Handles Real-World Mess</h2>
+  <p>Production isn't a clean recording. The replay code handles common issues automatically:</p>
+  <table>
+    <thead><tr><th>Problem</th><th>What the replay does</th></tr></thead>
+    <tbody>
+      <tr><td>Recording captured 6 duplicate clicks on the same button</td><td><strong>Dedup</strong>: collapses consecutive identical (URL, CTA) entries into one</td></tr>
+      <tr><td>Production shows an extra page that wasn't in the recording</td><td><strong>Auto-advance</strong>: fills it and clicks a generic CTA up to 3 times</td></tr>
+      <tr><td>Production skipped a page that was in the recording</td><td><strong>Skip-ahead</strong>: detects we're on a later step's URL and jumps to it</td></tr>
+      <tr><td>Cookie banner blocks the click</td><td><strong>Cookie dismissal</strong>: tries 50+ selectors for major CMPs (OneTrust, Cookiebot, Didomi, Quantcast, …) plus a DOM-scan fallback</td></tr>
+      <tr><td>Recorded CTA name doesn't match the actual button</td><td><strong>Generic CTA fallback</strong>: tries any common CTA word (Continuar, Siguiente, Confirmar, Submit, …)</td></tr>
+    </tbody>
+  </table>
+  <p>After 2 consecutive failures the replay bails out cleanly with a SKIPPED status, so it never spins forever.</p>
+
+  <hr>
+
+  <h2 id="run"><span class="emoji-large">🛠️</span> Running the Playwright Spec</h2>
+  <p>Drop the generated <code>.spec.ts</code> file into a Playwright project's <code>tests/</code> folder, then:</p>
+  <pre><code># Interactive UI mode (recommended for debugging)
+npx playwright test --ui
+
+# Headed mode — see the browser as it runs
+npx playwright test flow-replay-mysite.spec.ts --headed
+
+# Open the HTML report from the last run
+npx playwright show-report
+
+# Run with traces, screenshots, video on failure (set in playwright.config.ts)
+npx playwright test --trace on --video on</code></pre>
+
+  <h3>First-time setup</h3>
+  <p>If you don't have a Playwright project yet:</p>
+  <pre><code>npm init playwright@latest</code></pre>
+  <p>Then drop the spec into the generated <code>tests/</code> folder.</p>
+
+  <h3>Reading the results</h3>
+  <p>After a run, four things tell you what happened:</p>
+  <ol>
+    <li><strong>Console output</strong> — Real-time <code>console.log</code> from the spec (the <code>✅ step X</code>, <code>🔄 auto-advance</code>, <code>🍪 dismissed cookie</code> lines).</li>
+    <li><strong><code>flow-replay-results.json</code></strong> — Attached to the test in the HTML report. Compact per-step OK/SKIPPED/ERROR.</li>
+    <li><strong><code>summary.json</code></strong> — Attached alongside. Aggregate totals + final URL.</li>
+    <li><strong>The trace</strong> — If <code>trace: 'on'</code>, drag the <code>trace.zip</code> to <a href="https://trace.playwright.dev" target="_blank">trace.playwright.dev</a> for time-travel debugging.</li>
+  </ol>
+
+  <hr>
+
+  <h2 id="trouble"><span class="emoji-large">🆘</span> Troubleshooting</h2>
+
+  <h3>"CTA not found" on the first step</h3>
+  <p>Cookie banner is probably intercepting the click. Run this in DevTools console on the test page to identify it:</p>
+  <pre><code>copy([...document.querySelectorAll('[id*=cookie i],[id*=consent i],[class*=cookie i],[class*=consent i]')].map(e =&gt; e.outerHTML.slice(0,300)).join('\n---\n'))</code></pre>
+  <p>Then share the output with whoever maintains the tool to add a selector.</p>
+
+  <h3>"URL gate failed" after a successful click</h3>
+  <p>Production probably navigated to a page that's not in the recording. Auto-advance handles this most of the time. If it gives up, the recording is too stale — re-record the flow.</p>
+
+  <h3>Spec passes but step X was SKIPPED</h3>
+  <p>By default <code>FAIL_ON_SKIPPED = true</code> so this should fail the test. If you want lenient mode (pass even with skips), edit the constants at the top of the generated <code>.spec.ts</code>.</p>
+
+  <h3>Bookmarklet doesn't appear</h3>
+  <p>Some sites have a strict Content Security Policy that blocks bookmarklets. Workaround: open DevTools console and paste the bookmarklet's code (without the <code>javascript:</code> prefix) directly.</p>
+
+  <hr>
+
+  <h2 id="files"><span class="emoji-large">📂</span> File Reference</h2>
+  <table>
+    <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>qa-engine.html</code></td><td>The main tool. Open in browser.</td></tr>
+      <tr><td><code>qa-bundle-*.json</code></td><td>Output from the bookmarklet, input to the tool.</td></tr>
+      <tr><td><code>flow-replay-&lt;site&gt;.spec.ts</code></td><td>Generated Playwright test.</td></tr>
+      <tr><td><code>flow-replay-&lt;site&gt;.console.js</code></td><td>Generated browser-console replay.</td></tr>
+      <tr><td><code>flow-replay-results.json</code></td><td>Per-step result, attached after each Playwright run.</td></tr>
+      <tr><td><code>summary.json</code></td><td>Aggregate result counts, attached after each Playwright run.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">Built for QA folks who hate writing tests but love the safety net.</div>
+
+</div>
+</body>
+</html>
