@@ -17,6 +17,10 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 .site-hero{min-height:auto!important;padding:48px 60px 42px!important;grid-template-columns:minmax(0,1fr) 360px!important}
 .hero-name{font-size:clamp(32px,3.7vw,50px)!important;line-height:1.08!important}
 .hero-tagline{font-size:16px!important;max-width:680px!important}
+.hero-actions .lab-btn{background:transparent!important;color:var(--ice)!important;border-color:rgba(255,255,255,.18)!important;box-shadow:none!important}
+.hero-actions .lab-btn.active-page{background:var(--accent)!important;color:var(--navy2)!important;border-color:var(--accent)!important}
+.s-label,.s-title{text-align:center!important;display:block!important}
+.s-title::after{left:50%!important;transform:translateX(-50%)!important}
 @media(max-width:900px){.site-hero{grid-template-columns:1fr!important;padding:36px 22px 32px!important}.hero-name{font-size:30px!important}}
 </style>
 </head>
@@ -31,7 +35,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
     <div class="hero-role">QA Engineer / Manual + Automation</div>
     <div class="hero-name">QA tools, docs, and evidence</div>
     <div class="hero-tagline">A short set of testing tools, documentation samples, videos, and protected work examples from real QA work.</div>
-    <div class="hero-actions"><a class="lab-btn primary" href="https://aviorh-world.github.io/QAME/projects.html">View Projects</a><a class="lab-btn" href="https://aviorh-world.github.io/QAME/cv.html">View CV</a><a class="lab-btn" href="mailto:Aviorh@gmail.com">Contact</a></div>
+    <div class="hero-actions"><a class="lab-btn active-page" href="projects.html">View Projects</a><a class="lab-btn" href="cv.html">View CV</a><a class="lab-btn" href="#contact">Contact</a></div>
   </div>
   <div class="hero-right"><div class="hero-panel"><div class="panel-top"><span>QA Signal</span><div class="panel-dots"><span></span><span></span><span></span></div></div><div class="signal-list"><div class="signal-row"><span>Experience</span><strong>10+ yrs</strong><span class="signal-status">verified</span></div><div class="signal-row"><span>Integrations</span><strong>5+</strong><span class="signal-status">owned</span></div><div class="signal-row"><span>Mode</span><strong>Root cause</strong><span class="signal-status">active</span></div></div><div class="hero-links"><a href="mailto:Aviorh@gmail.com">Aviorh@gmail.com</a><a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">LinkedIn</a><a href="https://wa.me/972545959059" target="_blank">WhatsApp</a></div></div></div>
 </div>
@@ -319,7 +323,7 @@ function unlockWorkFiles(){
 // Note: All bookmarklet, drag-and-drop and diff-tool JS was removed because it belongs to the embedded tool pages and was causing errors on this page.
 </script>
 
-<footer class="site-footer">
+<footer class="site-footer" id="contact">
   <div class="sf-grid">
     <div>
       <div class="sf-brand">Avior Hadad</div>

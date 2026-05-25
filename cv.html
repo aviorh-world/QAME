@@ -17,6 +17,12 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 .site-hero{min-height:auto!important;padding:48px 60px 42px!important;grid-template-columns:minmax(0,1fr) 360px!important}
 .hero-name{font-size:clamp(32px,3.7vw,50px)!important;line-height:1.08!important}
 .hero-tagline{font-size:16px!important;max-width:680px!important}
+.hero-actions .lab-btn{background:transparent!important;color:var(--ice)!important;border-color:rgba(255,255,255,.18)!important;box-shadow:none!important}
+.hero-actions .lab-btn.active-page{background:var(--accent)!important;color:var(--navy2)!important;border-color:var(--accent)!important}
+.s-label,.s-title{text-align:center!important;display:block!important}
+.s-title::after{left:50%!important;transform:translateX(-50%)!important}
+.cv-sec-title{justify-content:center!important;text-align:center!important}
+.cv-sec-title::before{display:none!important}
 @media(max-width:900px){.site-hero{grid-template-columns:1fr!important;padding:36px 22px 32px!important}.hero-name{font-size:30px!important}}
 </style>
 </head>
@@ -31,15 +37,16 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
   <div>
     <div class="hero-role">Resume / QA signal</div>
     <div class="hero-name">Avior Hadad</div>
-    <div class="hero-tagline">QA Engineer with 10+ years across fintech, travel, and retail. Integration QA, logs, APIs, data, CI/CD awareness, Power BI reporting, and practical automation growth.</div>
-    <div class="hero-actions"><a class="lab-btn primary" href="https://aviorh-world.github.io/QAME/projects.html">View Projects</a><a class="lab-btn" href="mailto:Aviorh@gmail.com">Contact</a></div>
+    <div class="hero-tagline">QA Engineer with 10+ years across fintech, travel, and retail. Integration QA, logs, APIs, data, DWH checks, CI/CD awareness, and practical automation growth.</div>
+    <div class="hero-actions"><a class="lab-btn" href="projects.html">View Projects</a><a class="lab-btn active-page" href="cv.html">View CV</a><a class="lab-btn" href="#contact">Contact</a></div>
   </div>
   <div class="hero-right"><div class="hero-panel"><div class="panel-top"><span>CV Snapshot</span><div class="panel-dots"><span></span><span></span><span></span></div></div><div class="signal-list"><div class="signal-row"><span>Experience</span><strong>10+ yrs</strong><span class="signal-status">QA</span></div><div class="signal-row"><span>Current</span><strong>Jifiti</strong><span class="signal-status">active</span></div><div class="signal-row"><span>Direction</span><strong>SDET path</strong><span class="signal-status">growing</span></div></div></div></div>
 </div>
 <div class="cv-wrap">
 <div class="lang-switch">
-  <a href="https://aviorh-world.github.io/QAME/cv.html" class="active">&#127468;&#127463; English CV</a>
+  <a href="cv.html" class="active">&#127468;&#127463; English CV</a>
   <a href="cv-he.html">Hebrew CV</a>
+  <a href="avior_hadad_cv_final.docx" download>Download EN</a>
 </div>
 <div class="cv-card">
   <div class="cv-band">
@@ -56,7 +63,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 
     <div class="cv-sec">
       <div class="cv-sec-title">Professional Summary</div>
-      <p class="cv-summary">QA Engineer with 10+ years across fintech, travel, and retail. Strong experience in web, mobile, API, integration, and backend system testing, with a practical focus on logs, data validation, third-party flows, CI/CD signals, Power BI reporting, and developer-ready evidence. <strong>Early-stage automation developer</strong>, vibe coder, and AI-oriented QA professional using Claude, NotebookLM, and testing utilities to improve coverage, documentation, and team speed.</p>
+      <p class="cv-summary">QA Engineer with 10+ years across fintech, travel, and retail. Strong experience in web, mobile, API, integration, and backend system testing, with a practical focus on logs, data validation, third-party flows, DWH checks, CI/CD signals, and developer-ready evidence. <strong>Early-stage automation developer</strong>, vibe coder, and AI-oriented QA professional using Claude, Codex, NotebookLM, and testing utilities to improve coverage, documentation, and team speed.</p>
     </div>
 
     <div class="cv-sec">
@@ -116,7 +123,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
         <div class="cv-sk"><span class="cv-sk-lbl">API &amp; Debug</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
         <div class="cv-sk"><span class="cv-sk-lbl">Backend Env</span><div class="cv-chips"><span class="cv-chip">C#/.NET (test-facing)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span><span class="cv-chip">CI/CD</span></div></div>
         <div class="cv-sk"><span class="cv-sk-lbl">Database</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span><span class="cv-chip">Power BI</span></div></div>
-        <div class="cv-sk"><span class="cv-sk-lbl">AI &amp; Tools</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span><span class="cv-chip">FullStory</span></div></div>
+        <div class="cv-sk"><span class="cv-sk-lbl">AI &amp; Tools</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">Codex</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span><span class="cv-chip">FullStory</span></div></div>
       </div>
     </div>
 
@@ -139,7 +146,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
   </div>
 </div>
 </div>
-<footer class="site-footer">
+<footer class="site-footer" id="contact">
   <div class="sf-grid">
     <div>
       <div class="sf-brand">Avior Hadad</div>
@@ -158,6 +165,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
       <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
       <a href="https://wa.me/972545959059" target="_blank">&#128222; 054-595-9059</a>
       <a href="https://aviorh-world.github.io/QAME/cv.html">&#128196; View CV</a>
+      <a href="avior_hadad_cv_final.docx" download>&#128229; Download English CV</a>
     </div>
   </div>
   <hr class="sf-div"/>

@@ -6,7 +6,7 @@
 <title>קורות חיים · אביאור חדד</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
-<style>:root{--navy:#1B3A5C;--navy2:#0F2540;--sky:#5A9BC0;--ice:#BDD5EA;--cream:#F5F1EB;--charcoal:#2A2A2A;--mid:#6B7A8D;--accent:#E8A952;--white:#FFFFFF;--border:rgba(27,58,92,0.12);}
+<style>:root{--navy:#10243a;--navy2:#07111f;--sky:#2f7da7;--ice:#dbeaf3;--cream:#f6f2ea;--charcoal:#233244;--mid:#66788f;--accent:#e8a952;--white:#FFFFFF;--border:rgba(16,36,58,0.14);--shadow:0 18px 45px rgba(16,36,58,.10);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:19px;}
 body{font-family:'Lora',Georgia,serif;background:var(--cream);color:var(--charcoal);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
@@ -138,32 +138,53 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
   body[dir="rtl"] .cv-sk-lbl{text-align:right;}
   body[dir="rtl"] .cv-edu-row{flex-direction:row-reverse;}
   body[dir="rtl"] .cv-port{flex-direction:row-reverse;}
-  .rtl-note{font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);text-align:center;margin-bottom:12px;letter-spacing:1px;}</style>
+  .rtl-note{font-family:'DM Mono',monospace;font-size:11px;color:var(--mid);text-align:center;margin-bottom:12px;letter-spacing:1px;}
+  .site-topbar{background:rgba(7,17,31,.96)!important;border-bottom:1px solid rgba(255,255,255,.08)!important;box-shadow:0 10px 30px rgba(7,17,31,.18)!important}
+  .site-topbar-brand{color:rgba(255,255,255,.68)!important}
+  .site-topbar-links a{min-height:50px!important;color:rgba(255,255,255,.55)!important}
+  .site-topbar-links a.current,.site-topbar-links a:hover{color:var(--accent)!important;border-bottom-color:var(--accent)!important;background:rgba(255,255,255,.035)!important}
+  .site-hero{min-height:auto!important;padding:48px 60px 42px!important;grid-template-columns:minmax(0,1fr) 360px!important;align-items:center!important;background:radial-gradient(circle at 82% 20%,rgba(47,125,167,.20),transparent 30%),linear-gradient(135deg,#07111f 0%,#12283f 100%)!important}
+  .hero-bg{display:none!important}
+  .hero-name{font-size:clamp(32px,3.7vw,50px)!important;line-height:1.08!important;letter-spacing:0!important}
+  .hero-tagline{font-style:normal!important;font-size:16px!important;max-width:680px!important;color:var(--ice)!important}
+  .hero-right{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex-wrap:wrap!important}
+  .lab-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;padding:12px 18px!important;text-decoration:none!important;font:700 11px 'DM Mono',monospace!important;letter-spacing:1.6px!important;text-transform:uppercase!important;border:1px solid rgba(255,255,255,.18)!important;color:var(--ice)!important;background:transparent!important;opacity:1!important}
+  .lab-btn.active-page{background:var(--accent)!important;border-color:var(--accent)!important;color:var(--navy2)!important}
+  .cv-card{background:#fffdf8!important;box-shadow:var(--shadow)!important;border-color:var(--border)!important}
+  .cv-band{background:linear-gradient(135deg,#10213a,#07111f)!important}
+  .cv-job{border:1px solid var(--border)!important;border-radius:14px!important;background:rgba(255,255,255,.48)!important;padding:20px!important}
+  .cv-sec-title{justify-content:center!important;text-align:center!important;border-bottom-color:var(--navy)!important}
+  .cv-sec-title::before{display:none!important}
+  .s-label,.s-title{text-align:center!important;display:block!important}
+  .s-title::after{left:50%!important;transform:translateX(-50%)!important}
+  .lang-switch a{border-radius:999px!important}
+  @media(max-width:900px){.site-hero{grid-template-columns:1fr!important;padding:36px 22px 32px!important}.hero-right{flex-direction:column!important;align-items:stretch!important}.lab-btn{width:100%!important}.hero-name{font-size:30px!important}.site-topbar{padding:0!important}.site-topbar-brand{display:none!important}.site-topbar-links{width:100%;justify-content:space-around}.site-topbar-links a{flex:1;justify-content:center;padding:0 6px;font-size:10px;letter-spacing:1px}}
+</style>
 </head>
 <body dir="rtl">
 <div class="site-topbar" dir="ltr">
-  <a class="site-topbar-brand" href="https://aviorh-world.github.io/QAME/">Avior Hadad &middot; QA Portfolio</a>
-  <div class="site-topbar-links"><a href="https://aviorh-world.github.io/QAME/">Home</a><a href="https://aviorh-world.github.io/QAME/about.html">About Me</a><a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a><a href="https://aviorh-world.github.io/QAME/cv.html" class="current">CV</a></div>
+  <a class="site-topbar-brand" href="index.html">Avior Hadad / QA</a>
+  <div class="site-topbar-links"><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="cv.html" class="current">CV</a></div>
 </div>
 
 <div class="site-hero" dir="ltr">
   <div class="hero-bg">QA</div>
   <div>
     <div class="hero-role">QA Engineer &middot; Manual &amp; Automation</div>
-    <div class="hero-name">Avior Hadad &middot;<br><span style="font-size:0.6em;font-weight:600;color:var(--accent);letter-spacing:0px;">QA Portfolio</span></div>
-    <div class="hero-tagline">10+ years breaking software so users don&rsquo;t have to.</div>
+    <div class="hero-name">Avior Hadad</div>
+    <div class="hero-tagline">QA Engineer with 10+ years across fintech, travel, and retail. Integration QA, logs, APIs, data, DWH checks, CI/CD awareness, and practical automation growth.</div>
   </div>
   <div class="hero-right">
-    <a href="mailto:Aviorh@gmail.com">&#9993; Aviorh@gmail.com</a>
-    <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
-    <a href="https://wa.me/972545959059" target="_blank">&#128222; 054-595-9059</a>
-    <a class="cv-btn" href="https://aviorh-world.github.io/QAME/cv.html" target="_blank">&#128196; View CV</a>
+    <a class="lab-btn" href="projects.html">View Projects</a>
+    <a class="lab-btn active-page" href="cv-he.html">View CV</a>
+    <a class="lab-btn" href="#contact">Contact</a>
   </div>
 </div>
 <div class="cv-wrap" dir="rtl">
 <div class="lang-switch" dir="ltr">
-  <a href="https://aviorh-world.github.io/QAME/cv.html">&#127468;&#127463; English CV</a>
-  <a href="https://aviorh-world.github.io/QAME/cv-he.html" class="active">&#127470;&#127473; Hebrew CV</a>
+  <a href="cv.html">&#127468;&#127463; English CV</a>
+  <a href="cv-he.html" class="active">&#127470;&#127473; Hebrew CV</a>
+  <a href="avior_hadad_cv_he.docx" download>Download HE</a>
 </div>
 <div class="cv-card">
   <div class="cv-band">
@@ -238,9 +259,9 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
         <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">ניהול בדיקות</span><div class="cv-chips"><span class="cv-chip">Cloudbeat</span><span class="cv-chip">Jira</span><span class="cv-chip">Zephyr</span><span class="cv-chip">Confluence</span></div></div>
         <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">אוטומציה</span><div class="cv-chips"><span class="cv-chip">Playwright (מתחיל)</span><span class="cv-chip">Selenium</span><span class="cv-chip">TestProject</span></div></div>
         <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">API ודיבאג</span><div class="cv-chips"><span class="cv-chip">Postman</span><span class="cv-chip">Swagger</span><span class="cv-chip">Coralogix</span><span class="cv-chip">Kibana</span></div></div>
-        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">סביבת Backend</span><div class="cv-chips"><span class="cv-chip">C#/.NET (לצורכי בדיקות)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span></div></div>
-        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">מסד נתונים</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span></div></div>
-        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">AI וכלים</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">סביבת Backend</span><div class="cv-chips"><span class="cv-chip">C#/.NET (לצורכי בדיקות)</span><span class="cv-chip">Azure DevOps</span><span class="cv-chip">Git</span><span class="cv-chip">CI/CD</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">מסד נתונים</span><div class="cv-chips"><span class="cv-chip">SQL Server</span><span class="cv-chip">MongoDB</span><span class="cv-chip">Oracle</span><span class="cv-chip">DWH checks</span><span class="cv-chip">Power BI</span></div></div>
+        <div class="cv-sk-rtl"><span class="cv-sk-lbl-rtl">AI וכלים</span><div class="cv-chips"><span class="cv-chip">Claude (Anthropic)</span><span class="cv-chip">Codex</span><span class="cv-chip">NotebookLM</span><span class="cv-chip">BrowserStack</span></div></div>
       </div>
     </div>
 
@@ -263,7 +284,7 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
   </div>
 </div>
 </div>
-<footer class="site-footer" dir="ltr">
+<footer class="site-footer" dir="ltr" id="contact">
   <div class="sf-grid">
     <div>
       <div class="sf-brand">Avior Hadad</div>
@@ -271,27 +292,25 @@ main{max-width:1100px;margin:0 auto;padding:60px;position:relative;z-index:1;}
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Navigate</div>
-      <a href="https://aviorh-world.github.io/QAME/">Home</a>
-      <a href="https://aviorh-world.github.io/QAME/about.html">About Me</a>
-      <a href="https://aviorh-world.github.io/QAME/projects.html">My Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="index.html">Home</a>
+      <a href="projects.html">Projects</a>
+      <a href="cv.html">CV</a>
     </div>
     <div class="sf-col">
       <div class="sf-col-title">Connect</div>
       <a href="mailto:Aviorh@gmail.com">&#9993; Email</a>
       <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
       <a href="https://wa.me/972545959059" target="_blank">&#128222; 054-595-9059</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">&#128196; View CV</a>
+      <a href="avior_hadad_cv_he.docx" download>&#128196; Download Hebrew CV</a>
     </div>
   </div>
   <hr class="sf-div"/>
   <div class="sf-bottom">
     <span>&copy; 2025 Avior Hadad</span>
     <div class="sf-bottom-r">
-      <a href="https://aviorh-world.github.io/QAME/">Home</a>
-      <a href="https://aviorh-world.github.io/QAME/about.html">About</a>
-      <a href="https://aviorh-world.github.io/QAME/projects.html">Projects</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">CV</a>
+      <a href="index.html">Home</a>
+      <a href="projects.html">Projects</a>
+      <a href="cv.html">CV</a>
     </div>
   </div>
 </footer>
