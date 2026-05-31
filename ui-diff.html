@@ -61,6 +61,11 @@ body{background:var(--bg);font-family:Inter,sans-serif;color:var(--text);font-si
 .field-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .btn-clean{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s}
 .btn-clean:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.source-tabs{display:flex;gap:4px;margin:0 0 8px}
+.source-tabs button{border:1px solid var(--border);background:#fff;border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s}
+.source-tabs button:hover{background:var(--bg)}
+.source-tabs button.active{background:var(--text);border-color:var(--text);color:#fff}
+.source-note{font-size:11px;color:var(--muted);margin-top:6px;min-height:16px}
 
 .drop-zone{border:1.5px dashed var(--border);border-radius:8px;background:#fafbfc;padding:14px;text-align:center;cursor:pointer;transition:all .15s;min-height:52px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;margin-bottom:8px}
 .drop-zone:hover,.drop-zone.drag{border-color:var(--blue);background:var(--blue-light)}
@@ -271,14 +276,19 @@ textarea.json-zone.loaded{border-color:var(--green);background:var(--green-light
       <!-- Figma JSON -->
       <div class="input-field">
         <div class="field-head">
-          <label>Figma JSON <span style="color:var(--muted);font-weight:400">(exported from the Figma plugin)</span></label>
+          <label>Figma source <span id="figSourceLabel" style="color:var(--muted);font-weight:400">(plugin JSON)</span></label>
           <div class="field-actions">
             <button type="button" class="btn-clean" onclick="byId('figFile').click()">Upload</button>
             <button type="button" class="btn-clean" onclick="clearInput('fig')">Clear</button>
           </div>
         </div>
+        <div class="source-tabs" role="tablist" aria-label="Figma source type">
+          <button type="button" id="figSourceJson" class="active" onclick="setFigmaSource('json')">Plugin JSON</button>
+          <button type="button" id="figSourceCode" onclick="setFigmaSource('code')">Copy as Code</button>
+        </div>
         <input class="file-input" id="figFile" type="file" accept=".json,application/json">
-        <textarea class="json-zone" id="figInput" placeholder='Paste or drop Figma JSON here...&#10;&#10;It should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'></textarea>
+        <textarea class="json-zone" id="figInput" placeholder='Paste or drop Figma plugin JSON here...&#10;&#10;It should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'></textarea>
+        <div class="source-note" id="figSourceNote">Most accurate mode. Includes Figma node ids, paths, geometry, and styles when exported by the plugin.</div>
       </div>
 
       <!-- Browser JSON -->
@@ -388,7 +398,7 @@ textarea.json-zone.loaded{border-color:var(--green);background:var(--green-light
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
-const S = { report: null, shot: null, filter: 'all', overlayPage: null, figmaUrl: null, pathToNodeId: {} };
+const S = { report: null, shot: null, filter: 'all', overlayPage: null, figmaUrl: null, pathToNodeId: {}, figmaSource: 'json' };
 const MATCH = {
   minScore: 52,
   visualScore: 70,
@@ -503,6 +513,21 @@ function setInputError(messages, level='error') {
   const list = (messages || []).filter(Boolean);
   el.className = 'input-error' + (list.length ? ' show' : '') + (level === 'warn' ? ' warn' : '');
   el.innerHTML = list.map(x => `<div>${esc(x)}</div>`).join('');
+}
+
+function setFigmaSource(mode) {
+  S.figmaSource = mode === 'code' ? 'code' : 'json';
+  byId('figSourceJson').classList.toggle('active', S.figmaSource === 'json');
+  byId('figSourceCode').classList.toggle('active', S.figmaSource === 'code');
+  byId('figSourceLabel').textContent = S.figmaSource === 'json' ? '(plugin JSON)' : '(Figma Copy as Code)';
+  byId('figFile').accept = S.figmaSource === 'json' ? '.json,application/json' : '.css,.html,.txt,.jsx,.tsx,text/*';
+  byId('figInput').placeholder = S.figmaSource === 'json'
+    ? 'Paste or drop Figma plugin JSON here...\n\nIt should look like: {"metadata":{"exporter":"UI Diff..."},"document":{...}}'
+    : 'Paste Figma "Copy as code" output here...\n\nCSS (all layers), HTML, or JSX are supported. CSS mode uses readable layer names as text.';
+  byId('figSourceNote').textContent = S.figmaSource === 'json'
+    ? 'Most accurate mode. Includes Figma node ids, paths, geometry, and styles when exported by the plugin.'
+    : 'Deterministic fallback. CSS all layers uses layer names as text; HTML/JSX extracts visible text and inline styles.';
+  updateStatus('figInput');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -637,6 +662,181 @@ function walk(n, out, base, path='') {
   (n.children || []).forEach(c => walk(c, out, base, p));
 }
 
+function normalizeFigmaJson(f) {
+  const root = detectRoot(f);
+  const base = rootBox(root);
+  const figEls = [];
+  S.pathToNodeId = {};
+  walk(root, figEls, base);
+  return figEls;
+}
+
+function cleanCodeForParsing(src) {
+  return String(src || '')
+    .replace(/className=/g, 'class=')
+    .replace(/htmlFor=/g, 'for=')
+    .replace(/<>\s*/g, '<div>')
+    .replace(/\s*<\/>/g, '</div>');
+}
+
+function parseStyleText(styleText) {
+  const out = {};
+  const text = String(styleText || '');
+  text.split(';').forEach(part => {
+    const [rawKey, rawValue] = part.split(':');
+    if (!rawKey || !rawValue) return;
+    const key = rawKey.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    out[key] = rawValue.trim().replace(/^['"]|['"]$/g, '');
+  });
+  if (!Object.keys(out).length && /[{,]\s*[a-zA-Z]+/.test(text)) {
+    text.replace(/([a-zA-Z]+)\s*:\s*['"]?([^,'"}]+)['"]?/g, (_, key, value) => {
+      out[key] = String(value).trim();
+      return '';
+    });
+  }
+  return out;
+}
+
+function parseTailwindStyles(classes) {
+  const cls = String(classes || '').split(/\s+/).filter(Boolean);
+  const styles = {};
+  const fontSizes = { xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24, '3xl': 30, '4xl': 36 };
+  const weights = { thin: 100, extralight: 200, light: 300, normal: 400, medium: 500, semibold: 600, bold: 700, extrabold: 800, black: 900 };
+  const colors = { black: '#000000', white: '#FFFFFF', slate: '#64748B', gray: '#6B7280', red: '#EF4444', amber: '#F59E0B', green: '#22C55E', blue: '#3B82F6', purple: '#A855F7', pink: '#EC4899' };
+
+  cls.forEach(c => {
+    let m = c.match(/^text-\[(#[0-9a-fA-F]{3,8})\]$/);
+    if (m) styles.color = colorHex(m[1]);
+    m = c.match(/^text-(xs|sm|base|lg|xl|2xl|3xl|4xl)$/);
+    if (m) styles.fontSize = fontSizes[m[1]];
+    m = c.match(/^font-(thin|extralight|light|normal|medium|semibold|bold|extrabold|black)$/);
+    if (m) styles.fontWeight = weights[m[1]];
+    m = c.match(/^text-([a-z]+)(?:-\d+)?$/);
+    if (m && colors[m[1]]) styles.color = colors[m[1]];
+  });
+
+  return styles;
+}
+
+function directElementText(el) {
+  let text = '';
+  Array.from(el.childNodes || []).forEach(n => {
+    if (n.nodeType === 3) text += ' ' + n.textContent;
+  });
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function looksLikeFigmaLayerCss(raw) {
+  return /\/\*[\s\S]*?\*\/\s*(?:\/\*[\s\S]*?\*\/\s*)*[\w-]+\s*:/.test(String(raw || ''));
+}
+
+function parseCssDeclarations(block) {
+  const out = {};
+  String(block || '').replace(/\/\*[\s\S]*?\*\//g, '').split(';').forEach(part => {
+    const i = part.indexOf(':');
+    if (i < 0) return;
+    const key = part.slice(0, i).trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+    const value = part.slice(i + 1).trim();
+    if (key && value) out[key] = value;
+  });
+  return out;
+}
+
+function isReadableLayerText(name, css) {
+  const n = String(name || '').trim();
+  if (!n || n.length < 2) return false;
+  if (!css.fontSize && !css.fontFamily && !css.lineHeight && !css.fontWeight && !css.textAlign && !css.textDecorationLine) return false;
+  if (/^(frame|group|vector|rectangle|oval|layer|path|shape|iconcolor|final|goodtogo|button|title|text title|chevron|logos?|checkbox|fields)(?:[\s/_.-]|\d|$)/i.test(n)) return false;
+  if (/^(icons?|buttons?|cbds-icon|jifiti-team|returningusers)\s*\//i.test(n)) return false;
+  if (/^(step|line|ellipse|image|mask|background|auto layout|inside auto layout|grey\/|black & white\/|citizens\/)\s*/i.test(n)) return false;
+  if (/^[\d\s/_.-]+$/.test(n)) return false;
+  if (!/[a-zA-Z]/.test(n)) return false;
+  return true;
+}
+
+function parseFigmaLayerCss(src) {
+  const raw = String(src || '');
+  const matches = [...raw.matchAll(/\/\*\s*([\s\S]*?)\s*\*\/\s*([\s\S]*?)(?=\/\*\s*[\s\S]*?\s*\*\/|$)/g)];
+  const figEls = [];
+  let index = 0;
+
+  matches.forEach(match => {
+    const name = match[1].replace(/\s+/g, ' ').trim();
+    const css = parseCssDeclarations(match[2]);
+    if (!isReadableLayerText(name, css)) return;
+    index++;
+    figEls.push({
+      name,
+      type: 'TEXT',
+      path: 'Copy as Code CSS / ' + name + '[' + index + ']',
+      text: name,
+      x: px(css.left),
+      y: px(css.top),
+      w: px(css.width),
+      h: px(css.height),
+      fontSize: px(css.fontSize),
+      color: colorHex(css.color),
+      fontWeight: css.fontWeight || null,
+      nodeId: null,
+      source: 'figma-copy-as-code-css'
+    });
+  });
+
+  const warnings = [];
+  if (!figEls.length) warnings.push('Figma CSS was detected, but no readable text layers were found. In Figma, use Copy as Code > CSS (all layers) on a frame that includes named text layers.');
+  return { figEls, warnings, kind: 'css' };
+}
+
+function parseFigmaMarkupCode(raw) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(cleanCodeForParsing(raw), 'text/html');
+  const nodes = Array.from(doc.body.querySelectorAll('*'));
+  const figEls = [];
+  let index = 0;
+
+  nodes.forEach(el => {
+    const text = directElementText(el);
+    const aria = el.getAttribute('aria-label') || el.getAttribute('placeholder') || el.getAttribute('alt') || '';
+    const label = (text || aria).trim();
+    const classes = el.getAttribute('class') || '';
+    const inline = parseStyleText(el.getAttribute('style') || '');
+    const tw = parseTailwindStyles(classes);
+    const fontSize = px(inline.fontSize) || tw.fontSize || null;
+    const color = colorHex(inline.color) || tw.color || null;
+    const fontWeight = inline.fontWeight || tw.fontWeight || null;
+
+    if (!label && !fontSize && !color && !fontWeight) return;
+    index++;
+    figEls.push({
+      name: el.getAttribute('data-name') || el.getAttribute('name') || el.tagName.toLowerCase(),
+      type: label ? 'TEXT' : el.tagName.toUpperCase(),
+      path: 'Copy as Code / ' + el.tagName.toLowerCase() + '[' + index + ']',
+      text: label,
+      x: null,
+      y: null,
+      w: px(inline.width) || null,
+      h: px(inline.height) || null,
+      fontSize,
+      color,
+      fontWeight,
+      nodeId: null,
+      source: 'figma-copy-as-code'
+    });
+  });
+
+  const warnings = [];
+  if (!figEls.length) warnings.push('Copy as Code parsed successfully, but no readable text or style nodes were found.');
+  if (figEls.length && !figEls.some(x => x.fontSize || x.color)) warnings.push('Copy as Code has limited style data; visual checks will rely mostly on text matching.');
+  return { figEls, warnings, kind: 'markup' };
+}
+
+function parseFigmaCode(src) {
+  const raw = String(src || '').trim();
+  if (!raw) return { figEls: [], warnings: ['Figma Copy as Code input is empty.'] };
+  if (looksLikeFigmaLayerCss(raw)) return parseFigmaLayerCss(raw);
+  return parseFigmaMarkupCode(raw);
+}
+
 // ═══════════════════════════════════════════════════════
 //  MATCHING
 // ═══════════════════════════════════════════════════════
@@ -661,6 +861,7 @@ function contextBonus(fig, b) {
   return bonus;
 }
 function posPenalty(fig, b) {
+  if (fig.source === 'figma-copy-as-code-css') return 0;
   if (fig.x == null || fig.y == null || !b.rect) return 0;
   const dx = Math.abs((fig.x||0)-(b.rect.x||0)), dy = Math.abs((fig.y||0)-(b.rect.y||0));
   return Math.min(45, (dx+dy)/18);
@@ -948,6 +1149,7 @@ function detectPositionAnomalies(brows, r) {
 //  WHY / DESCRIPTIONS
 // ═══════════════════════════════════════════════════════
 function makeWhy(row) {
+  if (row.check === 'CSS layer not matched') return 'Copy as Code CSS exposes Figma layer names, not guaranteed visible text. Treat this as an informational hint, not a product mismatch.';
   if (row.check === 'State mismatch') return 'Same template, different amount/data — check that Figma and browser use the same scenario.';
   if (row.check === 'Ignored dynamic placeholder') return 'Dynamic placeholder in Figma ($X, {{...}}) — not expected to match literal browser text.';
   if (row.check === 'Hidden variant ignored') return 'This node is inside an Expanded variant not visible in the current browser capture.';
@@ -974,47 +1176,65 @@ function addCheck(r, row) {
 // ═══════════════════════════════════════════════════════
 function runDiff() {
   setInputError([]);
-  let fRaw, bRaw;
+  let fRaw = null, bRaw, figEls = [], validationWarnings = [], swapped = false;
   try {
-    fRaw = JSON.parse(byId('figInput').value.trim());
     bRaw = JSON.parse(byId('browInput').value.trim());
+    if (S.figmaSource === 'json') {
+      fRaw = JSON.parse(byId('figInput').value.trim());
+    }
   } catch(e) {
     setInputError(['Invalid JSON: ' + e.message]);
     return;
   }
 
-  const validation = validateInputPair(fRaw, bRaw);
-  if (validation.errors.length) {
-    setInputError(validation.errors);
-    return;
-  }
-  setInputError(validation.warnings.map(x => 'Warning: ' + x), 'warn');
+  let b = bRaw;
+  if (S.figmaSource === 'json') {
+    const validation = validateInputPair(fRaw, bRaw);
+    if (validation.errors.length) {
+      setInputError(validation.errors);
+      return;
+    }
+    validationWarnings = validation.warnings;
 
-  // Auto-detect and correct if files are swapped
-  const fKind = validation.fKind;
-  const bKind = validation.bKind;
-  let f = fRaw, b = bRaw, swapped = false;
+    // Auto-detect and correct if files are swapped
+    const fKind = validation.fKind;
+    const bKind = validation.bKind;
+    let f = fRaw;
 
-  if (fKind === 'browser' && bKind === 'figma') {
-    f = bRaw; b = fRaw; swapped = true;
-  } else if (fKind === null && bKind === 'figma') {
-    f = bRaw; b = fRaw; swapped = true;
-  } else if (fKind === null && bKind === null) {
-    // Unknown types, try to infer from structure
-    if (fRaw.elements && bRaw.document) { f = bRaw; b = fRaw; swapped = true; }
+    if (fKind === 'browser' && bKind === 'figma') {
+      f = bRaw; b = fRaw; swapped = true;
+    } else if (fKind === null && bKind === 'figma') {
+      f = bRaw; b = fRaw; swapped = true;
+    } else if (fKind === null && bKind === null) {
+      // Unknown types, try to infer from structure
+      if (fRaw.elements && bRaw.document) { f = bRaw; b = fRaw; swapped = true; }
+    }
+
+    figEls = normalizeFigmaJson(f);
+  } else {
+    const bKind = detectKind(bRaw);
+    if (bKind !== 'browser') {
+      setInputError(['Browser input is not a recognized browser capture. Copy as Code is only supported for the Figma source field.']);
+      return;
+    }
+    if (!Array.isArray(bRaw.elements) || !bRaw.elements.length) {
+      setInputError(['Browser JSON must include a non-empty elements array.']);
+      return;
+    }
+    const parsedCode = parseFigmaCode(byId('figInput').value);
+    figEls = parsedCode.figEls;
+    validationWarnings = parsedCode.warnings;
+    S.pathToNodeId = {};
   }
 
   byId('swapBanner').style.display = swapped ? 'flex' : 'none';
-  S.pathToNodeId = {};
+  setInputError(validationWarnings.map(x => 'Warning: ' + x), 'warn');
 
-  // Parse Figma
-  const root = detectRoot(f);
-  const base = rootBox(root);
-  const figEls = [];
-  walk(root, figEls, base);
   const textEls = figEls.filter(x => x.text);
   if (!textEls.length) {
-    setInputError(['Figma JSON parsed successfully, but no text nodes were found. Check that the export includes text layers.']);
+    setInputError([S.figmaSource === 'json'
+      ? 'Figma JSON parsed successfully, but no text nodes were found. Check that the export includes text layers.'
+      : 'Copy as Code parsed successfully, but no readable text nodes were found. Paste a selected frame/component with visible text.']);
     return;
   }
 
@@ -1062,6 +1282,11 @@ function runDiff() {
     const m = findMatch(fig, brows, used);
 
     if (!m) {
+      if (fig.source === 'figma-copy-as-code-css') {
+        r.coverage.ignored++;
+        addCheck(r, { element: label, type: fig.type||'TEXT', check: 'CSS layer not matched', expected: 'Optional text match', actual: 'No reliable browser match', diff: 'n/a', tolerance: 'limited CSS source', status: 'ignored', severity: 'Info', figmaPath: fig.path, rect: null });
+        return;
+      }
       if (dynamicOffer(fig.text, fig.path)) {
         r.coverage.warnings++;
         addCheck(r, { element: label, type: fig.type||'TEXT', check: 'Dynamic offer data', expected: 'Same offer state', actual: 'Different or not visible', diff: 'n/a', tolerance: 'n/a', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: null });
@@ -1091,14 +1316,14 @@ function runDiff() {
       addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Element match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score >= '+MATCH.minScore, status: 'passed', severity: 'Info', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
     }
 
-    if (conf === 'low') {
+    if (conf === 'low' && fig.source !== 'figma-copy-as-code-css') {
       r.coverage.warnings++;
       addCheck(r, { element: label, type: fig.type||m.b.tag, check: 'Low-confidence match', expected: fig.text, actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'review manually', status: 'warning', severity: 'Medium', figmaPath: fig.path, rect: m.b.rect, confidence: confText });
     }
 
     const visualChecksAllowed = shouldCheckVisuals(fig, m.b, m.score, actualText);
 
-    if (!visualChecksAllowed && (fig.fontSize || fig.color)) {
+    if (!visualChecksAllowed && (fig.fontSize || fig.color) && fig.source !== 'figma-copy-as-code-css') {
       r.coverage.warnings++;
       addCheck(r, { element: label, type: 'Visual validation', check: 'Visual checks skipped', expected: 'Reliable text match before style comparison', actual: actualText, diff: Math.round(m.score)+'%', tolerance: 'score >= '+MATCH.visualScore+' and same text/state', status: 'warning', severity: 'Low', figmaPath: fig.path, rect: m.b.rect, confidence: confText, why: 'Skipped font/color checks because the matched browser node is not reliable enough for visual comparison.' });
     }
@@ -1396,6 +1621,16 @@ function readFile(file, textareaId, isImage, drop) {
 
 function updateStatus(id) {
   try {
+    if (id === 'figInput' && S.figmaSource === 'code') {
+      const parsed = parseFigmaCode(byId(id).value || '');
+      if (parsed.figEls.length) {
+        const textCount = parsed.figEls.filter(x => x.text).length;
+        setChip('figStatus', 'Figma code: loaded - ' + textCount + ' text nodes', true);
+      } else {
+        setChip('figStatus', byId(id).value.trim() ? 'Figma code: no readable text yet' : 'Figma code: empty', false);
+      }
+      return;
+    }
     const obj = JSON.parse(byId(id).value||'{}');
     if (id === 'figInput') {
       const kind = detectKind(obj);
@@ -1403,14 +1638,14 @@ function updateStatus(id) {
         setChip('figStatus', '⚠ Figma field has Browser JSON — will auto-correct', false);
       } else {
         const c = obj.summary?.textNodes ?? obj.summary?.texts ?? '?';
-        setChip('figStatus', 'Figma JSON: loaded · ' + c + ' text nodes', true);
+        setChip('figStatus', 'Figma JSON: loaded - ' + c + ' text nodes', true);
       }
     } else {
       const kind = detectKind(obj);
       if (kind === 'figma') {
         setChip('browStatus', '⚠ Browser field has Figma JSON — will auto-correct', false);
       } else {
-        setChip('browStatus', 'Browser JSON: loaded · ' + (obj.elements||[]).length + ' elements', true);
+        setChip('browStatus', 'Browser JSON: loaded - ' + (obj.elements||[]).length + ' elements', true);
       }
     }
   } catch(e) {
@@ -1431,7 +1666,7 @@ function clearInput(which) {
   if (which === 'fig') {
     byId('figInput').value = ''; byId('figFile').value = '';
     resetJsonInput('figInput');
-    setChip('figStatus', 'Figma JSON: empty', false);
+    setChip('figStatus', S.figmaSource === 'code' ? 'Figma code: empty' : 'Figma JSON: empty', false);
   }
   if (which === 'brow') {
     byId('browInput').value = ''; byId('browFile').value = '';
