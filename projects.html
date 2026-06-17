@@ -215,6 +215,41 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 
 </main>
 
+<!-- Lightbox overlay -->
+<div class="lightbox" id="lb">
+  <div class="lb-toolbar">
+    <button class="lb-btn" onclick="zoomIn()">+</button>
+    <button class="lb-btn" onclick="zoomOut()">&minus;</button>
+    <button class="lb-btn" onclick="zoomReset()">&#8635;</button>
+    <button class="lb-btn" onclick="closeLb()">&#10005;</button>
+  </div>
+  <div class="lb-zoom-info" id="lbZoomInfo">100%</div>
+  <div class="lb-stage" id="lbStage" onclick="stageClick(event)">
+    <img class="lb-img" id="lbImg" src="" alt="">
+  </div>
+  <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<!-- Password modal -->
+<div class="modal-overlay" id="pwModal">
+  <div class="modal">
+    <div class="modal-title">Unlock Access</div>
+    <div class="modal-sub">Enter password to continue</div>
+    <input type="password" id="pwInput" placeholder="Password" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="modal-err" id="pwErr"></div>
+    <div class="modal-actions">
+      <button class="modal-btn ok" onclick="checkPw()">Unlock</button>
+      <button class="modal-btn cancel" onclick="closePw()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit mode save banner -->
+<div class="save-banner" id="saveBanner">
+  <span>Edit mode</span>
+  <button class="save-btn" onclick="exitEdit()">Exit</button>
+</div>
+
 <script>
 // ── Lightbox with zoom ──
 var lbZoom = 1, lbPanX = 0, lbPanY = 0, lbDragStart = null;
@@ -341,7 +376,7 @@ function unlockWorkFiles(){
       <a href="mailto:Aviorh@gmail.com">&#9993; Email</a>
       <a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">&#8599; LinkedIn</a>
       <a href="https://wa.me/972545959059" target="_blank">&#128222; 054-595-9059</a>
-      <a href="https://aviorh-world.github.io/QAME/cv.html">&#128196; View CV</a>
+      <a href="cv.html">&#128196; View CV</a>
     </div>
   </div>
   <hr class="sf-div"/>
