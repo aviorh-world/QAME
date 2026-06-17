@@ -1,0 +1,9 @@
+# gstack runtime files (generated per-session, not for version control)
+.gstack/browse-audit.jsonl
+.gstack/browse-console.log
+.gstack/browse-network.log
+.gstack/browse.json
+.gstack/claude-available.json
+.gstack/terminal-agent-pid
+.gstack/terminal-internal-token
+.gstack/terminal-port
