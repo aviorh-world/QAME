@@ -3,605 +3,178 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Avior Hadad — QA Engineer</title>
+<title>Avior Hadad - QA Engineer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Mono:wght@400;500;700&family=Lora:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-/* ── DESIGN TOKENS ── */
-:root{
-  --bg:#0A0A0A;
-  --surface:#111111;
-  --glass:rgba(255,255,255,0.04);
-  --glass-md:rgba(255,255,255,0.06);
-  --border:rgba(255,255,255,0.08);
-  --border-blue:rgba(59,130,246,0.35);
-  --blue:#3B82F6;
-  --blue-dim:rgba(59,130,246,0.10);
-  --blue-glow:0 0 30px rgba(59,130,246,0.18);
-  --blue-glow-lg:0 0 50px rgba(59,130,246,0.25);
-  --indigo:#6366F1;
-  --text:#F1F5F9;
-  --text2:#CBD5E1;
-  --muted:#64748B;
-  --white:#FFFFFF;
-  --nav-h:60px;
-  --max-w:1120px;
-  --radius:14px;
-  --ff-head:'Syne',sans-serif;
-  --ff-body:'Inter',sans-serif;
-  --ff-mono:'DM Mono',monospace;
-}
-
-/* ── RESET ── */
+:root{--navy:#10243a;--navy2:#07111f;--blue:#2f7da7;--paper:#fffdf8;--cream:#f6f2ea;--text:#233244;--muted:#66788f;--accent:#e8a952;--line:rgba(16,36,58,.14);--shadow:0 18px 45px rgba(16,36,58,.10);--white:#fff;}
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;overflow-x:hidden;color-scheme:dark}
-body{
-  font-family:var(--ff-body);background:var(--bg);color:var(--text);
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.6;
-}
-a{color:inherit;text-decoration:none}
-@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-
-/* ── NAV ── */
-.topbar{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  height:var(--nav-h);display:flex;align-items:stretch;
-  background:rgba(10,10,10,0.88);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border-bottom:1px solid var(--border);
-}
-.brand{
-  font:700 11px var(--ff-mono);letter-spacing:3px;text-transform:uppercase;
-  color:rgba(255,255,255,0.5);padding:0 28px;
-  border-right:1px solid var(--border);white-space:nowrap;
-  display:flex;align-items:center;transition:color .2s;
-}
-.brand:hover{color:var(--blue)}
-.nav{display:flex;align-items:stretch}
-.nav a{
-  font:600 11px var(--ff-mono);letter-spacing:2px;text-transform:uppercase;
-  color:rgba(255,255,255,0.45);padding:0 22px;
-  display:flex;align-items:center;
-  border-bottom:2px solid transparent;
-  transition:color .2s,border-color .2s;white-space:nowrap;
-}
-.nav a:hover,.nav a.current{color:var(--blue);border-bottom-color:var(--blue)}
-
-/* ── HERO ── */
-.hero{
-  min-height:100svh;
-  padding:calc(var(--nav-h) + 72px) 40px 72px;
-  position:relative;overflow:hidden;background:var(--bg);
-}
-/* Gradient mesh */
-.hero::before{
-  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 10%,rgba(59,130,246,0.14) 0,transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 85%,rgba(99,102,241,0.09) 0,transparent 55%),
-    radial-gradient(ellipse 40% 40% at 55% 50%,rgba(59,130,246,0.04) 0,transparent 60%);
-}
-/* Dot grid */
-.hero::after{
-  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
-  background-image:radial-gradient(circle,rgba(255,255,255,0.07) 1px,transparent 1px);
-  background-size:32px 32px;
-  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);
-  -webkit-mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 30%,transparent 100%);
-}
-.hero-inner{
-  position:relative;z-index:1;
-  width:100%;max-width:var(--max-w);margin:0 auto;
-  display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,330px);
-  gap:56px;align-items:center;
-}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{width:100%;overflow-x:hidden;font-family:'Lora',Georgia,serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;background:rgba(7,17,31,.96);border-bottom:1px solid rgba(255,255,255,.08)}
+.brand{font:700 11px 'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.68);text-decoration:none;padding:18px 28px;border-right:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.nav{display:flex;min-width:0}
+.nav a{font:700 11px 'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55);text-decoration:none;padding:18px 22px;border-bottom:2px solid transparent;white-space:nowrap}
+.nav a:hover,.nav a.current{color:var(--accent);border-bottom-color:var(--accent)}
+.hero{margin-top:0;background:linear-gradient(135deg,#07111f 0%,#12283f 100%);color:var(--white);padding:76px 40px 64px}
+.hero-inner{width:100%;max-width:1120px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,360px);gap:48px;align-items:end}
 .hero-inner>*{min-width:0}
-.eyebrow{
-  font:600 11px var(--ff-mono);letter-spacing:4px;text-transform:uppercase;
-  color:var(--blue);margin-bottom:24px;
-  display:flex;align-items:center;gap:12px;
-}
-.eyebrow::before{content:'';width:32px;height:1px;background:var(--blue);flex-shrink:0}
-/* Status dot */
-.eyebrow-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:#22C55E;
-  box-shadow:0 0 10px rgba(34,197,94,0.7);
-  flex-shrink:0;
-}
-.hero h1{
-  font-family:var(--ff-head);font-size:clamp(52px,7.5vw,92px);
-  font-weight:800;line-height:1;letter-spacing:-0.025em;color:var(--white);
-}
-.hero h1 .line2{display:block;color:var(--blue)}
-.hero-desc{
-  font-size:clamp(15px,1.8vw,18px);line-height:1.75;
-  color:var(--text2);max-width:580px;margin-top:20px;font-weight:400;
-}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:36px}
-.btn{
-  display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-  border-radius:10px;padding:13px 22px;
-  font:600 11px var(--ff-mono);letter-spacing:2px;text-transform:uppercase;
-  border:1px solid var(--border);color:var(--text2);
-  background:var(--glass);backdrop-filter:blur(10px);
-  transition:border-color .2s,color .2s,background .2s,box-shadow .2s;
-}
-.btn:hover{border-color:var(--border-blue);color:var(--blue);background:var(--blue-dim);box-shadow:var(--blue-glow)}
-.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
-.btn.primary:hover{background:#2563EB;border-color:#2563EB;box-shadow:var(--blue-glow-lg)}
-
-/* Stats panel */
-.stats-panel{
-  background:rgba(255,255,255,0.035);
-  border:1px solid var(--border);border-radius:var(--radius);
-  padding:22px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-  box-shadow:0 24px 64px rgba(0,0,0,0.4);
-}
-.stat-row{
-  display:flex;justify-content:space-between;align-items:center;gap:16px;
-  padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.055);
-  font:500 11px var(--ff-mono);color:var(--muted);letter-spacing:1px;
-}
-.stat-row:last-child{border-bottom:0}
-.stat-val{
-  font-family:var(--ff-head);font-size:18px;font-weight:700;
-  color:var(--white);text-align:right;
-}
-
-/* ── MAIN WRAP ── */
-.wrap{width:100%;max-width:var(--max-w);margin:0 auto;padding:0 40px 80px}
-
-/* ── METRICS ── */
-.metrics-row{
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;
-  margin-top:56px;
-}
-.metric{
-  background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
-  padding:22px 18px;text-align:center;
-  transition:border-color .25s,box-shadow .25s,background .25s;
-  cursor:default;
-}
-.metric:hover{border-color:var(--border-blue);box-shadow:var(--blue-glow);background:var(--blue-dim)}
-.metric strong{
-  display:block;font:800 38px var(--ff-head);color:var(--blue);
-  line-height:1;margin-bottom:7px;
-}
-.metric span{
-  display:block;font:600 9px var(--ff-mono);
-  letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);
-  line-height:1.4;
-}
-
-/* ── SECTIONS ── */
-.section{margin-top:80px}
-.section-label{
-  font:600 11px var(--ff-mono);letter-spacing:4px;text-transform:uppercase;
-  color:var(--blue);margin-bottom:10px;
-  display:flex;align-items:center;gap:12px;
-}
-.section-label::after{
-  content:'';flex:1;height:1px;
-  background:linear-gradient(to right,rgba(59,130,246,0.25),transparent);
-}
-.section-title{
-  font:800 clamp(24px,3vw,32px) var(--ff-head);color:var(--text);
-  margin-bottom:28px;line-height:1.2;
-}
-
-/* ── GLASS CARD ── */
-.gc{
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:var(--radius);padding:28px;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  transition:border-color .25s,box-shadow .25s,background .25s;
-}
-.gc:hover{border-color:var(--border-blue);box-shadow:var(--blue-glow);background:var(--glass-md)}
-
-/* ── GRIDS ── */
-.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.eyebrow{font:700 12px 'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:18px}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(42px,6vw,76px);line-height:1.02;letter-spacing:0;max-width:780px}
+.hero p{font-size:19px;line-height:1.75;color:#dbeaf3;max-width:680px;margin-top:22px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:12px 18px;text-decoration:none;font:700 11px 'DM Mono',monospace;letter-spacing:1.7px;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);color:#e7f2f8}
+.btn.primary{background:transparent;border-color:rgba(255,255,255,.18);color:#e7f2f8}
+.btn.active-page{background:var(--accent);border-color:var(--accent);color:#07111f}
+.fact-panel{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:14px;padding:22px}
+.fact{display:flex;justify-content:space-between;gap:20px;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.09);font:500 12px 'DM Mono',monospace;color:#dbeaf3}
+.fact:last-child{border-bottom:0}
+.fact strong{min-width:0;text-align:right;font-family:'Syne',sans-serif;font-size:20px;color:#fff}
+.wrap{width:100%;max-width:1120px;margin:0 auto;padding:58px 40px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:-94px;position:relative}
+.metric{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.metric strong{display:block;font:800 34px 'Syne',sans-serif;color:var(--navy)}
+.metric span{display:block;font:700 10px 'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+section{margin-top:54px}
+.label{font:700 11px 'DM Mono',monospace;letter-spacing:3px;text-transform:uppercase;color:var(--blue);margin-bottom:10px;text-align:center}
+h2{font:800 30px 'Syne',sans-serif;color:var(--navy);margin-bottom:22px;text-align:center}
+.split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-
-/* ── CARD INTERNALS ── */
-.card-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font:600 10px var(--ff-mono);letter-spacing:2px;text-transform:uppercase;
-  color:var(--blue);margin-bottom:14px;
-  background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);
-  border-radius:6px;padding:5px 10px;
+.card{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 10px 26px rgba(16,36,58,.06)}
+.tag{display:inline-block;font:700 10px 'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.card h3{font:800 18px 'Syne',sans-serif;color:var(--navy);margin-bottom:8px}
+.card p,.copy p{font-size:15px;line-height:1.75;color:var(--muted)}
+.copy{min-width:0;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:26px;box-shadow:var(--shadow)}
+.copy p{font-size:16px;color:var(--text);margin-bottom:14px}
+.quote{border-left:4px solid var(--accent);padding-left:18px;margin-top:14px;color:var(--muted);font-size:15px;line-height:1.7}
+.reviews{background:var(--navy);border-radius:14px;padding:30px;color:#fff;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.reviews::before{content:'"';position:absolute;top:-20px;left:22px;font-family:'Lora',serif;font-size:150px;line-height:1;color:rgba(255,255,255,.06)}
+.review-card{position:relative;z-index:1;min-height:210px;display:flex;flex-direction:column;justify-content:center}
+.review-text{font-size:18px;line-height:1.85;color:#dbeaf3;font-style:italic;transition:opacity .25s ease}
+.review-meta{display:flex;gap:10px;align-items:center;margin-top:20px;font:700 11px 'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);transition:opacity .25s ease}
+.review-meta span:last-child{color:rgba(255,255,255,.48);font-weight:500}
+.review-dots{display:flex;justify-content:center;gap:8px;margin-top:22px;position:relative;z-index:1}
+.review-dot{width:9px;height:9px;border-radius:50%;border:0;background:rgba(255,255,255,.22);cursor:pointer}
+.review-dot.active{background:var(--accent);transform:scale(1.2)}
+.card-link{display:inline-block;margin-top:16px;font:700 11px 'DM Mono',monospace;letter-spacing:1.6px;text-transform:uppercase;color:var(--blue);text-decoration:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 11px 'DM Mono',monospace;color:var(--navy);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 10px}
+.contact{display:flex;gap:12px;flex-wrap:wrap}
+.contact a{background:var(--navy);color:#fff;text-decoration:none;border-radius:10px;padding:13px 16px;font:700 12px 'DM Mono',monospace;letter-spacing:1px}
+.footer{background:var(--navy2);color:rgba(255,255,255,.55);padding:34px 40px;margin-top:40px}
+.footer-inner{max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;gap:20px;align-items:center;font:500 11px 'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase}
+.footer a{color:rgba(255,255,255,.7);text-decoration:none;margin-left:18px}
+@media(max-width:900px){
+  .hero-inner,.split{grid-template-columns:1fr}
+  .fact-panel{max-width:440px}
+  .metrics,.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-.card-tag svg{flex-shrink:0}
-.card-title{
-  font:700 17px var(--ff-head);color:var(--text);margin-bottom:10px;line-height:1.3;
-}
-.card-text{font-size:14px;line-height:1.78;color:var(--muted)}
-.card-link{
-  display:inline-flex;align-items:center;gap:7px;
-  margin-top:18px;font:600 11px var(--ff-mono);letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--blue);transition:color .2s,gap .2s;
-}
-.card-link span{transition:transform .2s}
-.card-link:hover{color:#93C5FD}
-.card-link:hover span{transform:translateX(4px)}
-.copy-title{font:700 19px var(--ff-head);color:var(--text);margin-bottom:16px}
-.copy-text{font-size:15px;line-height:1.82;color:var(--text2);margin-bottom:12px}
-.copy-text:last-child{margin-bottom:0}
-
-/* ── REVIEWS ── */
-.reviews-outer{
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:var(--radius);padding:36px;
-  backdrop-filter:blur(12px);position:relative;overflow:hidden;
-}
-.reviews-outer::before{
-  content:'\201C';position:absolute;top:-10px;left:22px;
-  font:400 160px Georgia,serif;line-height:1;color:rgba(59,130,246,0.08);
-  pointer-events:none;
-}
-.review-card{position:relative;z-index:1;min-height:160px;display:flex;flex-direction:column;justify-content:center}
-.review-text{
-  font-size:17px;line-height:1.88;color:var(--text2);font-style:italic;
-  transition:opacity .22s ease;
-}
-.review-meta{
-  display:flex;gap:10px;align-items:center;margin-top:22px;
-  font:600 11px var(--ff-mono);letter-spacing:1.5px;text-transform:uppercase;
-  color:var(--blue);transition:opacity .22s ease;
-}
-.review-meta .review-role{color:var(--muted);font-weight:400}
-.review-dots{display:flex;justify-content:center;gap:8px;margin-top:26px}
-.rdot{
-  width:8px;height:8px;border-radius:50%;border:0;cursor:pointer;
-  background:rgba(255,255,255,0.15);transition:background .2s,transform .2s;
-}
-.rdot.active{background:var(--blue);transform:scale(1.35)}
-.rdot:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
-
-/* ── CHIPS ── */
-.chips{display:flex;flex-wrap:wrap;gap:9px}
-.chip{
-  font:500 11px var(--ff-mono);color:var(--text2);
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:999px;padding:8px 15px;cursor:default;
-  transition:border-color .2s,color .2s,background .2s;
-}
-.chip:hover{border-color:var(--border-blue);color:var(--blue);background:var(--blue-dim)}
-
-/* ── CONTACT ── */
-.contact-row{display:flex;gap:12px;flex-wrap:wrap}
-.contact-btn{
-  display:inline-flex;align-items:center;gap:10px;
-  background:var(--glass);border:1px solid var(--border);
-  border-radius:10px;padding:14px 22px;
-  font:600 12px var(--ff-mono);letter-spacing:1px;color:var(--text2);
-  transition:border-color .2s,color .2s,background .2s,box-shadow .2s;
-}
-.contact-btn:hover{border-color:var(--border-blue);color:var(--blue);background:var(--blue-dim);box-shadow:var(--blue-glow)}
-.contact-btn svg{width:16px;height:16px;flex-shrink:0}
-
-/* ── FOOTER ── */
-.footer{
-  background:#060606;border-top:1px solid var(--border);
-  padding:28px 40px;margin-top:80px;
-}
-.footer-inner{
-  max-width:var(--max-w);margin:0 auto;
-  display:flex;justify-content:space-between;align-items:center;
-  font:500 11px var(--ff-mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);
-}
-.footer-inner a{color:rgba(255,255,255,0.42);margin-left:20px;transition:color .2s}
-.footer-inner a:hover{color:var(--blue)}
-
-/* ── FADE-IN ── */
-.fi{opacity:0;transform:translateY(22px);transition:opacity .65s ease,transform .65s ease}
-.fi.vis{opacity:1;transform:none}
-.fi[data-d="1"]{transition-delay:.1s}
-.fi[data-d="2"]{transition-delay:.2s}
-.fi[data-d="3"]{transition-delay:.3s}
-
-/* ── RESPONSIVE ── */
-@media(max-width:960px){
-  .hero-inner{grid-template-columns:1fr}
-  .stats-panel{max-width:400px}
-  .metrics-row,.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:680px){
+@media(max-width:900px){
   .brand{display:none}
-  .nav{width:100%;display:grid;grid-template-columns:repeat(3,1fr)}
-  .nav a{justify-content:center;padding:0 4px;font-size:9px;letter-spacing:1px}
-  .hero{padding:calc(var(--nav-h) + 44px) 20px 56px}
-  .hero h1{font-size:clamp(42px,11vw,56px)}
-  .hero-desc{font-size:15px}
-  .hero-actions{flex-direction:column}
-  .btn{width:100%;justify-content:center}
-  .wrap{padding:0 20px 60px}
-  .metrics-row{grid-template-columns:repeat(2,1fr);margin-top:36px}
-  .section{margin-top:60px}
-  .section-title{font-size:24px;margin-bottom:20px}
-  .split,.card-grid{grid-template-columns:1fr}
-  .reviews-outer{padding:24px 20px}
-  .review-card{min-height:200px}
-  .review-text{font-size:15px}
-  .footer{padding:22px 20px}
-  .footer-inner{flex-direction:column;gap:14px;text-align:center}
-  .footer-inner a{margin:0 10px}
+  .topbar{display:block;width:100%}
+  .nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  .nav a{text-align:center;padding:15px 4px;font-size:10px;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis}
+  .hero{padding:42px 18px 76px}
+  .hero-inner{display:block;max-width:100%}
+  .eyebrow{font-size:10px;letter-spacing:2px;margin-bottom:14px}
+  .hero h1{font-size:34px}
+  .hero p{font-size:15px;line-height:1.65;max-width:100%;overflow-wrap:break-word}
+  .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:24px}
+  .btn{width:100%;padding:12px 10px}
+  .fact-panel{max-width:100%;margin-top:26px;padding:18px}
+  .fact{display:block;padding:11px 0}
+  .fact strong{display:block;text-align:left;margin-top:5px;font-size:18px}
+  .wrap{padding:30px 18px}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:-54px}
+  .metric{padding:15px}
+  .metric strong{font-size:27px}
+  .metric span{font-size:9px;letter-spacing:1px;line-height:1.35}
+  section{margin-top:42px}
+  h2{font-size:25px}
+  .card-grid{grid-template-columns:1fr}
+  .copy,.card{padding:20px}
+  .reviews{padding:24px 20px}
+  .review-card{min-height:260px}
+  .review-text{font-size:16px;line-height:1.75}
+  .review-meta{align-items:flex-start;flex-direction:column;gap:4px}
+  .contact{display:grid;grid-template-columns:1fr}
+  .contact a{text-align:center;overflow-wrap:anywhere}
+  .footer{padding:28px 18px}
+  .footer-inner{flex-direction:column;text-align:center}
+  .footer a{margin:0 8px}
 }
 </style>
-<noscript><style>.fi{opacity:1!important;transform:none!important;transition:none!important}</style></noscript>
 </head>
 <body>
-
-<!-- NAV -->
-<header class="topbar">
-  <a class="brand" href="index.html">Avior Hadad / QA</a>
-  <nav class="nav" aria-label="Main navigation">
-    <a class="current" href="index.html">Home</a>
-    <a href="projects.html">Projects</a>
-    <a href="cv.html">CV</a>
-  </nav>
-</header>
-
-<!-- HERO -->
-<section class="hero" aria-label="Introduction">
-  <div class="hero-inner">
-    <div>
-      <div class="eyebrow">
-        <span class="eyebrow-dot" aria-hidden="true"></span>
-        QA Engineer / Manual + Automation
-      </div>
-      <h1>Avior<span class="line2">Hadad</span></h1>
-      <p class="hero-desc">QA Engineer with 10+ years of hands-on testing across fintech, travel, and retail. I focus on integrations, APIs, logs, data validation, and clear bug evidence developers can act on.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="projects.html">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707L13 10.414V15a1 1 0 01-.553.894l-4 2A1 1 0 017 17v-6.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
-          View Projects
-        </a>
-        <a class="btn" href="cv.html">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
-          View CV
-        </a>
-        <a class="btn" href="#contact">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-          Contact
-        </a>
-      </div>
-    </div>
-    <aside class="stats-panel" aria-label="Quick facts">
-      <div class="stat-row"><span>Current</span><span class="stat-val">Jifiti</span></div>
-      <div class="stat-row"><span>Experience</span><span class="stat-val">10+ yrs</span></div>
-      <div class="stat-row"><span>Integrations</span><span class="stat-val">5+</span></div>
-      <div class="stat-row"><span>Direction</span><span class="stat-val">Automation</span></div>
-    </aside>
-  </div>
-</section>
-
-<!-- MAIN CONTENT -->
+<header class="topbar"><a class="brand" href="index.html">Avior Hadad / QA</a><nav class="nav"><a class="current" href="index.html">Home</a><a href="projects.html">Projects</a><a href="cv.html">CV</a></nav></header>
+<section class="hero"><div class="hero-inner"><div><div class="eyebrow">QA Engineer / Manual + Automation</div><h1>Avior Hadad</h1><p>QA Engineer with 10+ years of hands-on testing across fintech, travel, and retail. I focus on integrations, APIs, logs, data validation, and clear bug evidence developers can act on.</p><div class="actions"><a class="btn" href="projects.html">View Projects</a><a class="btn" href="cv.html">View CV</a><a class="btn" href="#contact">Contact</a></div></div><aside class="fact-panel"><div class="fact"><span>Current</span><strong>Jifiti</strong></div><div class="fact"><span>Experience</span><strong>10+ yrs</strong></div><div class="fact"><span>Integrations</span><strong>5+</strong></div><div class="fact"><span>Direction</span><strong>Automation</strong></div></aside></div></section>
 <main class="wrap">
-
-  <!-- METRICS -->
-  <div class="metrics-row fi" aria-label="Key stats">
-    <div class="metric" data-d="1"><strong>10+</strong><span>Years QA</span></div>
-    <div class="metric" data-d="2"><strong>4</strong><span>Companies</span></div>
-    <div class="metric" data-d="3"><strong>5+</strong><span>Integrations</span></div>
-    <div class="metric"><strong>QA</strong><span>Root-cause mindset</span></div>
-  </div>
-
-  <!-- PROFILE -->
-  <div class="section fi" id="about">
-    <div class="section-label">Profile</div>
-    <h2 class="section-title">What I actually do</h2>
-    <div class="split">
-      <div class="gc">
-        <div class="copy-title">How I work</div>
-        <p class="copy-text">I test business-critical flows across UI, API, backend behavior, third-party lenders, and data. My value is not only finding the bug; it is narrowing the problem until the team knows where to look.</p>
-        <p class="copy-text">I work in a C#/.NET environment at test level: reading code, checking configuration, tracing logs, validating SQL data, reviewing CI/CD signals, and writing precise reports.</p>
-      </div>
-      <div class="gc">
-        <div class="copy-title">Current focus</div>
-        <p class="copy-text">At Jifiti I own QA for consumer-financing integrations, run and analyze Cloudbeat automation, document internal QA knowledge, and build small AI-assisted tools for repeated testing work.</p>
-        <p class="copy-text">Growing toward automation-heavy QA/SDET work with Playwright and JavaScript, with practical exposure to CI/CD workflows and DWH checks.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- REVIEWS -->
-  <div class="section fi" id="reviews">
-    <div class="section-label">Reviews</div>
-    <h2 class="section-title">What managers say</h2>
-    <div class="reviews-outer">
-      <div class="review-card">
-        <p class="review-text" id="reviewText" aria-live="polite"></p>
-        <div class="review-meta" id="reviewMeta">
-          <strong id="reviewAuthor"></strong>
-          <span class="review-role" id="reviewRole"></span>
-        </div>
-      </div>
-      <div class="review-dots" id="reviewDots" role="tablist" aria-label="Select review"></div>
-    </div>
-  </div>
-
-  <!-- STRENGTHS -->
-  <div class="section fi">
-    <div class="section-label">Strengths</div>
-    <h2 class="section-title">Where I bring evidence</h2>
-    <div class="card-grid">
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-          Integration QA
-        </div>
-        <div class="card-title">Merchant and lender flows</div>
-        <p class="card-text">Ownership across 5+ integrations, including lender API behavior, account flows, loan origination, configuration, and regression risk.</p>
-      </div>
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          Debugging
-        </div>
-        <div class="card-title">Logs, APIs, data</div>
-        <p class="card-text">Coralogix, Kibana, Stackify, Postman, Swagger, Fiddler, SQL Server, MongoDB, and environment comparisons.</p>
-      </div>
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          Documentation
-        </div>
-        <div class="card-title">Team knowledge</div>
-        <p class="card-text">Jifipedia/Confluence guides, E2E templates, validation procedures, and onboarding material that reduce repeated questions.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- SELECTED WORK -->
-  <div class="section fi">
-    <div class="section-label">Selected work</div>
-    <h2 class="section-title">Proof, not buzzwords</h2>
-    <div class="card-grid">
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          Tool
-        </div>
-        <div class="card-title">UI Design Diff</div>
-        <p class="card-text">Compares Figma design data with browser output for pixel-level visual QA checks.</p>
-        <a class="card-link" href="projects.html#uidiff">Open project <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          Tool
-        </div>
-        <div class="card-title">QA Extractor Pro</div>
-        <p class="card-text">Bookmarklet flow that extracts page structure and helps generate Playwright test steps.</p>
-        <a class="card-link" href="projects.html#qaextractor">Open project <span aria-hidden="true">→</span></a>
-      </div>
-      <div class="gc">
-        <div class="card-tag">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-          Docs
-        </div>
-        <div class="card-title">Jifipedia Articles</div>
-        <p class="card-text">Internal QA procedures and integration validation guides written for Jifiti teams.</p>
-        <a class="card-link" href="projects.html#docs">View samples <span aria-hidden="true">→</span></a>
-      </div>
-    </div>
-  </div>
-
-  <!-- STACK -->
-  <div class="section fi">
-    <div class="section-label">Stack</div>
-    <h2 class="section-title">Tools I use</h2>
-    <div class="chips">
-      <span class="chip">Cloudbeat</span><span class="chip">Playwright</span>
-      <span class="chip">Selenium</span><span class="chip">Postman</span>
-      <span class="chip">Swagger</span><span class="chip">Fiddler</span>
-      <span class="chip">Coralogix</span><span class="chip">Kibana</span>
-      <span class="chip">Stackify</span><span class="chip">SQL Server</span>
-      <span class="chip">MongoDB</span><span class="chip">C#/.NET</span>
-      <span class="chip">Azure DevOps</span><span class="chip">CI/CD</span>
-      <span class="chip">DWH checks</span><span class="chip">Power BI</span>
-      <span class="chip">Jira</span><span class="chip">Confluence</span>
-      <span class="chip">Claude</span><span class="chip">Codex</span>
-      <span class="chip">NotebookLM</span>
-    </div>
-  </div>
-
-  <!-- CONTACT -->
-  <div class="section fi" id="contact">
-    <div class="section-label">Contact</div>
-    <h2 class="section-title">Get in touch</h2>
-    <div class="contact-row">
-      <a class="contact-btn" href="mailto:Aviorh@gmail.com">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 01-2.06 0L2 7"/></svg>
-        Aviorh@gmail.com
-      </a>
-      <a class="contact-btn" href="https://wa.me/972545959059" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 014.69 12 19.79 19.79 0 011.64 3.42 2 2 0 013.6 1.24h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L7.91 8.91a16 16 0 006 6l.91-.91a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-        054-595-9059
-      </a>
-      <a class="contact-btn" href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-        LinkedIn
-      </a>
-    </div>
-  </div>
-
+<div class="metrics"><div class="metric"><strong>10+</strong><span>Years QA</span></div><div class="metric"><strong>4</strong><span>Companies</span></div><div class="metric"><strong>5+</strong><span>Integrations</span></div><div class="metric"><strong>QA</strong><span>Root-cause mindset</span></div></div>
+<section id="about"><div class="label">Profile</div><div class="split"><div class="copy"><h2>What I actually do</h2><p>I test business-critical flows across UI, API, backend behavior, third-party lenders, and data. My value is not only finding the bug; it is narrowing the problem until the team knows where to look.</p><p>I work in a C#/.NET environment at test level: reading code, checking configuration, tracing logs, validating SQL data, reviewing CI/CD signals, and writing precise reports.</p></div><div class="copy"><h2>Current focus</h2><p>At Jifiti I own QA for consumer-financing integrations, run and analyze Cloudbeat automation, document internal QA knowledge, and build small AI-assisted tools for repeated testing work.</p><p>I am an early-stage automation developer growing toward automation-heavy QA/SDET work, mainly with Playwright and JavaScript, with practical exposure to CI/CD workflows and DWH checks.</p></div></div></section>
+<section id="reviews"><div class="label">Reviews</div><h2>What managers say</h2><div class="reviews"><div class="review-card"><p class="review-text" id="reviewText"></p><div class="review-meta" id="reviewMeta"><strong id="reviewAuthor"></strong><span id="reviewRole"></span></div></div><div class="review-dots" id="reviewDots"></div></div></section>
+<section><div class="label">Strengths</div><h2>Where I bring evidence</h2><div class="card-grid"><div class="card"><span class="tag">Integration QA</span><h3>Merchant and lender flows</h3><p>Ownership across 5+ integrations, including lender API behavior, account flows, loan origination, configuration, and regression risk.</p></div><div class="card"><span class="tag">Debugging</span><h3>Logs, APIs, data</h3><p>Coralogix, Kibana, Stackify, Postman, Swagger, Fiddler, SQL Server, MongoDB, and environment comparisons.</p></div><div class="card"><span class="tag">Documentation</span><h3>Team knowledge</h3><p>Jifipedia/Confluence guides, E2E templates, validation procedures, and onboarding material that reduce repeated questions.</p></div></div></section>
+<section><div class="label">Selected work</div><h2>Proof, not buzzwords</h2><div class="card-grid"><div class="card"><span class="tag">Tool</span><h3>UI Design Diff</h3><p>Compares Figma design data with browser output for visual QA checks.</p><a class="card-link" href="projects.html#uidiff">Open project</a></div><div class="card"><span class="tag">Tool</span><h3>QA Extractor Pro</h3><p>Bookmarklet flow that extracts page structure and helps generate Playwright test steps.</p><a class="card-link" href="projects.html#qaextractor">Open project</a></div><div class="card"><span class="tag">Docs</span><h3>Jifipedia Articles</h3><p>Internal QA procedures and integration validation guides written for Jifiti teams.</p><a class="card-link" href="projects.html#docs">View samples</a></div></div></section>
+<section><div class="label">Stack</div><h2>Tools I use</h2><div class="chips"><span class="chip">Cloudbeat</span><span class="chip">Playwright</span><span class="chip">Selenium</span><span class="chip">Postman</span><span class="chip">Swagger</span><span class="chip">Fiddler</span><span class="chip">Coralogix</span><span class="chip">Kibana</span><span class="chip">Stackify</span><span class="chip">SQL Server</span><span class="chip">MongoDB</span><span class="chip">C#/.NET test-facing</span><span class="chip">Azure DevOps</span><span class="chip">CI/CD</span><span class="chip">DWH checks</span><span class="chip">Power BI</span><span class="chip">Jira</span><span class="chip">Confluence</span><span class="chip">Claude</span><span class="chip">Codex</span><span class="chip">NotebookLM</span></div></section>
+<section id="contact"><div class="label">Contact</div><h2>Contact</h2><div class="contact"><a href="mailto:Aviorh@gmail.com">Aviorh@gmail.com</a><a href="https://wa.me/972545959059" target="_blank">054-595-9059</a><a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">LinkedIn</a></div></section>
 </main>
-
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="footer-inner">
-    <span>&copy; 2026 Avior Hadad</span>
-    <nav aria-label="Footer navigation">
-      <a href="index.html">Home</a>
-      <a href="projects.html">Projects</a>
-      <a href="cv.html">CV</a>
-    </nav>
-  </div>
-</footer>
-
+<footer class="footer"><div class="footer-inner"><span>&copy; 2026 Avior Hadad</span><span><a href="index.html">Home</a><a href="projects.html">Projects</a><a href="cv.html">CV</a></span></div></footer>
 <script>
-/* ── REVIEW CAROUSEL ── */
-var reviews=[
-  {text:"You see the project as a whole. You take ownership and people trust you and rely on you.",author:"T.R",role:"QA & Integration Manager"},
-  {text:"Avior has made great progress in automation testing by starting to write automation tests, which has added value to the team's testing efforts.",author:"A.S",role:"Software Team Leader"},
-  {text:"He has developed a strong understanding of the overall system, including logs and database management, which has contributed to his thorough testing approach.",author:"A.S",role:"Software Team Leader"},
-  {text:"You are a great QA engineer and team player. You have great time management.",author:"T.R",role:"QA & Integration Manager"},
-  {text:"Creating the E2E template was a huge win.",author:"T.R",role:"QA & Integration Manager"},
-  {text:"He has become the team's expert on F***, providing valuable insights and expertise. His contribution in this area is greatly appreciated.",author:"A.S",role:"Software Team Leader"},
-  {text:"You write high quality automation requirements.",author:"T.R",role:"QA & Integration Manager"},
-  {text:"He actively engages with the developers' pull requests to gain more context, helping him better understand the development process and improving the quality of his testing.",author:"A.S",role:"Software Team Leader"}
+var reviews = [
+  {text:"You see the project as a whole. You take ownership and people trust you and rely on you.", author:"T.R", role:"QA & Integration Manager"},
+  {text:"Avior has made great progress in automation testing by starting to write automation tests, which has added value to the team's testing efforts.", author:"A.S", role:"Software Team Leader"},
+  {text:"He has developed a strong understanding of the overall system, including logs and database management, which has contributed to his thorough testing approach.", author:"A.S", role:"Software Team Leader"},
+  {text:"You are a great QA engineer and team player. You have great time management.", author:"T.R", role:"QA & Integration Manager"},
+  {text:"Creating the E2E template was a huge win.", author:"T.R", role:"QA & Integration Manager"},
+  {text:"He has become the team's expert on F***, providing valuable insights and expertise. His contribution in this area is greatly appreciated.", author:"A.S", role:"Software Team Leader"},
+  {text:"You write high quality automation requirements.", author:"T.R", role:"QA & Integration Manager"},
+  {text:"He actively engages with the developers' pull requests to gain more context, helping him better understand the development process and improving the quality of his testing.", author:"A.S", role:"Software Team Leader"}
 ];
-var ri=0;
-var rText=document.getElementById('reviewText');
-var rAuthor=document.getElementById('reviewAuthor');
-var rRole=document.getElementById('reviewRole');
-var rMeta=document.getElementById('reviewMeta');
-var rDots=document.getElementById('reviewDots');
-
-function showReview(i,instant){
-  var r=reviews[i];
-  if(instant){
-    rText.textContent=r.text;rAuthor.textContent=r.author;rRole.textContent=r.role;
-    rText.style.opacity='1';rMeta.style.opacity='1';
+var reviewIndex = 0;
+var reviewText = document.getElementById('reviewText');
+var reviewAuthor = document.getElementById('reviewAuthor');
+var reviewRole = document.getElementById('reviewRole');
+var reviewDots = document.getElementById('reviewDots');
+function renderReview(index){
+  var item = reviews[index];
+  if (!reviewText.textContent) {
+    reviewText.textContent = item.text;
+    reviewAuthor.textContent = item.author;
+    reviewRole.textContent = item.role;
+    reviewText.style.opacity = '1';
+    document.getElementById('reviewMeta').style.opacity = '1';
     return;
   }
-  rText.style.opacity='0';rMeta.style.opacity='0';
+  reviewText.style.opacity = '0';
+  document.getElementById('reviewMeta').style.opacity = '0';
   setTimeout(function(){
-    rText.textContent=r.text;rAuthor.textContent=r.author;rRole.textContent=r.role;
-    rDots.querySelectorAll('.rdot').forEach(function(d,j){
-      d.classList.toggle('active',j===i);
-      d.setAttribute('aria-selected',j===i?'true':'false');
-    });
-    rText.style.opacity='1';rMeta.style.opacity='1';
-  },200);
+    reviewText.textContent = item.text;
+    reviewAuthor.textContent = item.author;
+    reviewRole.textContent = item.role;
+    reviewDots.querySelectorAll('.review-dot').forEach(function(dot, i){dot.classList.toggle('active', i === index);});
+    reviewText.style.opacity = '1';
+    document.getElementById('reviewMeta').style.opacity = '1';
+  }, 180);
 }
-reviews.forEach(function(_,i){
-  var d=document.createElement('button');
-  d.className='rdot'+(i===0?' active':'');
-  d.type='button';
-  d.setAttribute('aria-label','Show review '+(i+1));
-  d.setAttribute('role','tab');
-  d.setAttribute('aria-selected',i===0?'true':'false');
-  d.addEventListener('click',function(){
-    ri=i;showReview(ri,false);
-    clearInterval(timer);timer=setInterval(next,8000);
+reviews.forEach(function(_, index){
+  var dot = document.createElement('button');
+  dot.className = 'review-dot' + (index === 0 ? ' active' : '');
+  dot.type = 'button';
+  dot.setAttribute('aria-label', 'Show review ' + (index + 1));
+  dot.addEventListener('click', function(){
+    reviewIndex = index;
+    renderReview(reviewIndex);
+    clearInterval(reviewTimer);
+    reviewTimer = setInterval(nextReview, 8000);
   });
-  rDots.appendChild(d);
+  reviewDots.appendChild(dot);
 });
-function next(){ri=(ri+1)%reviews.length;showReview(ri,false);}
-showReview(0,true);
-var timer=setInterval(next,8000);
-
-/* ── INTERSECTION OBSERVER (fade-in) ── */
-var obs=new IntersectionObserver(function(entries){
-  entries.forEach(function(e){
-    if(e.isIntersecting){e.target.classList.add('vis');obs.unobserve(e.target);}
-  });
-},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.fi').forEach(function(el){obs.observe(el);});
+function nextReview(){
+  reviewIndex = (reviewIndex + 1) % reviews.length;
+  renderReview(reviewIndex);
+}
+renderReview(0);
+var reviewTimer = setInterval(nextReview, 8000);
 </script>
 </body>
 </html>
