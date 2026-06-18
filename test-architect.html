@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Architect — Playwright Wizard</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+:root {
+  --primary:#6366f1; --bg:#0f172a; --panel:#1e293b; --text:#e2e8f0;
+  --muted:#64748b; --success:#10b981; --warn:#fbbf24; --accent:#38bdf8;
+  --border:#334155; --danger:#ef4444; --orange:#f97316;
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:24px;min-height:100vh;}
+.container{max-width:960px;margin:0 auto;}
+h1{font-size:1.6rem;font-weight:700;margin:0 0 4px;}
+.subtitle{color:var(--muted);font-size:0.9rem;margin-bottom:28px;}
+
+/* Progress Bar */
+.progress-bar{display:flex;align-items:center;margin-bottom:32px;gap:0;}
+.step-indicator{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;}
+.step-circle{width:36px;height:36px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;color:var(--muted);background:var(--panel);transition:all .3s;}
+.step-circle.active{border-color:var(--primary);color:var(--primary);background:rgba(99,102,241,0.1);}
+.step-circle.done{border-color:var(--success);color:var(--success);background:rgba(16,185,129,0.1);}
+.step-label{font-size:0.75rem;color:var(--muted);white-space:nowrap;}
+.step-label.active{color:var(--text);}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 8px;margin-bottom:22px;transition:background .3s;}
+.step-line.done{background:var(--success);}
+
+/* Cards */
+.card{background:var(--panel);border-radius:10px;padding:20px;border:1px solid var(--border);margin-bottom:16px;}
+.card-title{font-weight:600;font-size:1rem;margin:0 0 16px;display:flex;align-items:center;gap:8px;}
+.card-title span.badge{font-size:0.7rem;padding:2px 8px;border-radius:99px;background:rgba(99,102,241,0.15);color:var(--primary);font-weight:500;}
+
+/* Inputs */
+input[type=text],input[type=url],select{background:#020617;border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:0.875rem;outline:none;transition:border-color .2s;}
+input[type=text]:focus,input[type=url]:focus,select:focus{border-color:var(--primary);}
+input[type=text]::placeholder,input[type=url]::placeholder{color:var(--muted);}
+label{font-size:0.8rem;color:var(--muted);display:block;margin-bottom:4px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.form-group{display:flex;flex-direction:column;}
+.form-group input{width:100%;}
+
+/* Actions Table */
+.actions-header{display:grid;grid-template-columns:160px 1fr 1fr 80px 40px;gap:8px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.03);margin-bottom:6px;}
+.actions-header span{font-size:0.72rem;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.05em;}
+.action-row{display:grid;grid-template-columns:160px 1fr 1fr 80px 40px;gap:8px;align-items:center;padding:6px 4px;border-bottom:1px solid rgba(51,65,85,0.4);}
+.action-row:last-child{border-bottom:none;}
+.action-row select,.action-row input{font-size:0.8rem;padding:6px 8px;}
+.action-row select{background:#020617;}
+.td-check{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.65rem;color:var(--muted);}
+.td-check input[type=checkbox]{accent-color:var(--primary);width:14px;height:14px;}
+.btn-del{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--danger);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:0.75rem;transition:all .2s;}
+.btn-del:hover{background:rgba(239,68,68,0.2);}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;border:none;cursor:pointer;font-size:0.875rem;font-weight:500;transition:all .2s;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:#5558e3;}
+.btn-secondary{background:rgba(255,255,255,0.07);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{background:rgba(255,255,255,0.12);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#0ea472;}
+.btn-sm{padding:5px 10px;font-size:0.75rem;}
+.btn-add{background:rgba(99,102,241,0.1);border:1px dashed rgba(99,102,241,0.4);color:var(--primary);border-radius:7px;padding:8px 16px;cursor:pointer;font-size:0.85rem;width:100%;margin-top:8px;transition:all .2s;}
+.btn-add:hover{background:rgba(99,102,241,0.2);}
+.step-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+
+/* Code */
+.code-block{background:#020617;border:1px solid var(--border);border-left:4px solid var(--primary);border-radius:8px;padding:14px 16px;font-family:ui-monospace,Consolas,monospace;font-size:12px;overflow-x:auto;white-space:pre;line-height:1.6;position:relative;}
+.code-wrapper{position:relative;}
+.copy-btn{position:absolute;top:8px;right:8px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);color:var(--primary);border-radius:5px;padding:4px 10px;cursor:pointer;font-size:0.7rem;font-family:system-ui,sans-serif;transition:all .2s;}
+.copy-btn:hover{background:rgba(99,102,241,0.3);}
+.copy-btn.copied{background:rgba(16,185,129,0.15);border-color:rgba(16,185,129,0.3);color:var(--success);}
+
+/* File Tree Layout */
+.step2-layout{display:grid;grid-template-columns:220px 1fr;gap:16px;align-items:start;}
+.file-tree{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px;position:sticky;top:24px;}
+.tree-title{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;padding:0 4px;}
+.folder-item{padding:5px 8px;font-family:ui-monospace,monospace;font-size:0.72rem;color:var(--muted);display:flex;align-items:center;gap:5px;}
+.file-item{padding:6px 12px;border-radius:6px;font-family:ui-monospace,monospace;font-size:0.72rem;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;margin:1px 0;}
+.file-item:hover{background:rgba(99,102,241,0.08);}
+.file-item.active{background:rgba(99,102,241,0.15);color:var(--primary);}
+.file-item .fi-icon{font-size:0.65rem;}
+
+.code-panel{}
+.file-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.file-path{font-family:ui-monospace,monospace;font-size:0.8rem;color:var(--accent);}
+
+/* Summary card */
+.summary-card{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.2);border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:0.85rem;}
+.summary-stats{display:flex;gap:24px;flex-wrap:wrap;margin-top:10px;}
+.stat{display:flex;flex-direction:column;gap:2px;}
+.stat-val{font-size:1.3rem;font-weight:700;color:var(--primary);}
+.stat-label{font-size:0.72rem;color:var(--muted);}
+
+/* Scenario Grid */
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.scenario-grid{grid-template-columns:1fr;}}
+.scenario-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.scenario-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:0.7rem;font-weight:600;margin-bottom:10px;}
+.badge-green{background:rgba(16,185,129,0.15);color:var(--success);}
+.badge-red{background:rgba(239,68,68,0.15);color:var(--danger);}
+.badge-yellow{background:rgba(251,191,36,0.15);color:var(--warn);}
+.badge-orange{background:rgba(249,115,22,0.15);color:var(--orange);}
+.badge-blue{background:rgba(56,189,248,0.15);color:var(--accent);}
+.scenario-title{font-weight:600;font-size:0.9rem;margin-bottom:4px;}
+.scenario-desc{font-size:0.78rem;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+
+/* Step visibility */
+.step-section{display:none;}
+.step-section.active{display:block;}
+
+/* Back link */
+.back-link{display:block;text-align:center;margin-top:32px;color:var(--muted);font-size:12px;text-decoration:none;}
+.back-link:hover{color:var(--text);}
+
+/* Download all */
+.download-bar{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+.download-bar-info{font-size:0.875rem;color:var(--text);}
+.download-bar-info strong{color:var(--success);}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🧪 Test Architect</h1>
+  <p class="subtitle">Describe your feature once — get a complete, decomposed Playwright test suite.</p>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar">
+    <div class="step-indicator">
+      <div class="step-circle active" id="circle-1">1</div>
+      <div class="step-label active" id="label-1">Define Feature</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-indicator">
+      <div class="step-circle" id="circle-2">2</div>
+      <div class="step-label" id="label-2">File Structure</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-indicator">
+      <div class="step-circle" id="circle-3">3</div>
+      <div class="step-label" id="label-3">Scenarios</div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-section active" id="step-1">
+    <div class="card">
+      <div class="card-title">Step 1 — Define the Feature <span class="badge">Start here</span></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="feature-name">Feature Name</label>
+          <input type="text" id="feature-name" placeholder="e.g. User Login" value="User Login">
+        </div>
+        <div class="form-group">
+          <label for="base-url">Base URL</label>
+          <input type="url" id="base-url" placeholder="https://app.example.com" value="https://app.example.com">
+        </div>
+      </div>
+
+      <label style="margin-bottom:10px;display:block;">Actions Sequence</label>
+      <div class="actions-header">
+        <span>Action Type</span>
+        <span>Selector</span>
+        <span>Value</span>
+        <span>Test Data?</span>
+        <span></span>
+      </div>
+      <div id="actions-list"></div>
+      <button class="btn-add" onclick="addAction()">+ Add Action</button>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn btn-primary" onclick="goToStep2()">Decompose &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-section" id="step-2">
+    <div id="summary-card" class="summary-card"></div>
+    <div class="step2-layout">
+      <div class="file-tree" id="file-tree"></div>
+      <div class="code-panel">
+        <div class="file-header">
+          <span class="file-path" id="active-file-path">Select a file &rarr;</span>
+          <button class="btn btn-sm btn-secondary" id="panel-copy-btn" onclick="copyPanelCode()">Copy</button>
+        </div>
+        <div class="code-wrapper">
+          <div class="code-block" id="code-display">Select a file from the tree to view its contents.</div>
+        </div>
+      </div>
+    </div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" onclick="goToStep(1)">&larr; Back</button>
+      <button class="btn btn-primary" onclick="goToStep3()">Generate Scenarios &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-section" id="step-3">
+    <div class="download-bar">
+      <div class="download-bar-info"><strong>All files ready.</strong> Download the complete test suite as a ZIP.</div>
+      <button class="btn btn-success" onclick="downloadZip()">&#11015; Download All as ZIP</button>
+    </div>
+    <div id="scenario-grid" class="scenario-grid"></div>
+    <div class="step-actions">
+      <button class="btn btn-secondary" onclick="goToStep(2)">&larr; Back</button>
+    </div>
+  </div>
+
+  <a class="back-link" href="qa-engine.html">&larr; Back to QA Flow Runner</a>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+var actions = [];
+var generatedFiles = {};
+var currentStep = 1;
+var activeFilePath = null;
+
+// ─── Utilities ───────────────────────────────────────────────────────────────
+function toPascalCase(str) {
+  if (!str) return 'Feature';
+  return str
+    .replace(/[^a-zA-Z0-9 _-]+/g, ' ')
+    .replace(/[\s_-]+(.)/g, function(_, c) { return c.toUpperCase(); })
+    .replace(/^(.)/, function(c) { return c.toUpperCase(); })
+    .replace(/[^a-zA-Z0-9]/g, '');
+}
+
+function toCamelCase(str) {
+  var p = toPascalCase(str);
+  return p.charAt(0).toLowerCase() + p.slice(1);
+}
+
+function selectorToName(selector) {
+  if (!selector || selector.trim() === '') return 'element';
+  var s = selector.trim();
+
+  // text= prefix
+  if (s.indexOf('text=') === 0) {
+    return toCamelCase(s.replace('text=', '').replace(/[^a-zA-Z0-9 ]/g, ' ').trim()) + 'Text';
+  }
+  // getByRole / getByLabel etc.
+  if (s.indexOf('getBy') === 0) {
+    var m = s.match(/getBy\w+\(['"]([^'"]+)['"]/);
+    if (m) return toCamelCase(m[1]);
+  }
+  // ID selector
+  var idMatch = s.match(/^#([a-zA-Z0-9_-]+)/);
+  if (idMatch) return toCamelCase(idMatch[1].replace(/-/g, ' '));
+  // data-testid
+  var testIdMatch = s.match(/data-testid=['"]?([a-zA-Z0-9_-]+)/);
+  if (testIdMatch) return toCamelCase(testIdMatch[1].replace(/-/g, ' '));
+  // type attribute e.g. button[type=submit]
+  var typeAttr = s.match(/(\w+)\[type=['"]?([a-zA-Z]+)/);
+  if (typeAttr) return toCamelCase(typeAttr[2] + ' ' + typeAttr[1]);
+  // name attribute
+  var nameAttr = s.match(/\[name=['"]?([a-zA-Z0-9_-]+)/);
+  if (nameAttr) return toCamelCase(nameAttr[1].replace(/-/g, ' '));
+  // class
+  var classMatch = s.match(/\.([a-zA-Z0-9_-]+)/);
+  if (classMatch) return toCamelCase(classMatch[1].replace(/-/g, ' '));
+  // tag with attribute
+  var tagAttr = s.match(/^([a-zA-Z]+)\[([a-zA-Z-]+)/);
+  if (tagAttr) return toCamelCase(tagAttr[1] + ' ' + tagAttr[2]);
+  // plain tag
+  var tagMatch = s.match(/^([a-zA-Z]+)/);
+  if (tagMatch) return toCamelCase(tagMatch[1]);
+  return 'element';
+}
+
+function groupActions(acts) {
+  return {
+    navigates: acts.filter(function(a) { return a.type === 'navigate'; }),
+    fills:     acts.filter(function(a) { return a.type === 'fill'; }),
+    clicks:    acts.filter(function(a) { return a.type === 'click'; }),
+    hovers:    acts.filter(function(a) { return a.type === 'hover'; }),
+    checks:    acts.filter(function(a) { return a.type === 'check'; }),
+    uploads:   acts.filter(function(a) { return a.type === 'upload'; }),
+    selects:   acts.filter(function(a) { return a.type === 'select'; }),
+    asserts:   acts.filter(function(a) { return a.type === 'assert_text' || a.type === 'assert_visible' || a.type === 'assert_url'; }),
+    waits:     acts.filter(function(a) { return a.type === 'wait'; }),
+  };
+}
+
+function dedup(arr, keyFn) {
+  var seen = {};
+  return arr.filter(function(item) {
+    var k = keyFn(item);
+    if (seen[k]) return false;
+    seen[k] = true;
+    return true;
+  });
+}
+
+function escStr(s) {
+  return (s || '').replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/'/g, "\\'");
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── Action Row UI ────────────────────────────────────────────────────────────
+var ACTION_TYPES = ['navigate','fill','click','select','check','assert_text','assert_visible','assert_url','wait','hover','upload'];
+
+function renderActions() {
+  var container = document.getElementById('actions-list');
+  container.innerHTML = '';
+  actions.forEach(function(a, i) {
+    var row = document.createElement('div');
+    row.className = 'action-row';
+    var opts = ACTION_TYPES.map(function(t) {
+      return '<option value="' + t + '"' + (t === a.type ? ' selected' : '') + '>' + t + '</option>';
+    }).join('');
+    row.innerHTML =
+      '<select onchange="updateAction(' + i + ',\'type\',this.value)">' + opts + '</select>' +
+      '<input type="text" placeholder="Selector (e.g. #email)" value="' + escHtml(a.selector) + '" oninput="updateAction(' + i + ',\'selector\',this.value)">' +
+      '<input type="text" placeholder="Value" value="' + escHtml(a.value) + '" oninput="updateAction(' + i + ',\'value\',this.value)">' +
+      '<div class="td-check"><input type="checkbox" ' + (a.testData ? 'checked' : '') + ' onchange="updateAction(' + i + ',\'testData\',this.checked)"><span>Test data</span></div>' +
+      '<button class="btn-del" onclick="removeAction(' + i + ')">&#10005;</button>';
+    container.appendChild(row);
+  });
+}
+
+function addAction(type, selector, value, testData) {
+  actions.push({
+    type: type || 'click',
+    selector: selector || '',
+    value: value || '',
+    testData: testData || false
+  });
+  renderActions();
+}
+
+function updateAction(i, field, val) {
+  actions[i][field] = val;
+}
+
+function removeAction(i) {
+  actions.splice(i, 1);
+  renderActions();
+}
+
+// ─── Default pre-populate ─────────────────────────────────────────────────────
+function initDefaultActions() {
+  actions = [
+    {type:'navigate',    selector:'',                    value:'https://app.example.com/login', testData:false},
+    {type:'fill',        selector:'#email',              value:'user@test.com',                 testData:true},
+    {type:'fill',        selector:'#password',           value:'Secret123',                     testData:true},
+    {type:'click',       selector:'button[type=submit]', value:'',                              testData:false},
+    {type:'assert_url',  selector:'',                    value:'/dashboard',                    testData:false},
+  ];
+  renderActions();
+}
+
+// ─── Code Generation ──────────────────────────────────────────────────────────
+function generateFiles(featureName, baseURL, acts) {
+  var pascal = toPascalCase(featureName);
+  var camel  = toCamelCase(featureName);
+  var g = groupActions(acts);
+  var files = {};
+
+  files['playwright.config.ts'] = genConfig(baseURL);
+  files['pages/' + pascal + 'Page.ts'] = genPOM(pascal, camel, acts, g);
+  files['fixtures/' + camel + '.fixture.ts'] = genFixture(pascal, camel);
+
+  var testDataActs = acts.filter(function(a) { return a.testData && a.selector; });
+  if (testDataActs.length > 0) {
+    files['test-data/' + camel + '.data.ts'] = genTestData(pascal, camel, testDataActs);
+  }
+
+  files['helpers/' + camel + '.helpers.ts'] = genHelpers(camel);
+  files['tests/' + camel + '.spec.ts'] = genMainSpec(pascal, camel, acts, g, testDataActs.length > 0);
+
+  return files;
+}
+
+function genConfig(baseURL) {
+  return "import { defineConfig } from '@playwright/test';\n\nexport default defineConfig({\n  baseURL: '" + escStr(baseURL) + "',\n  use: {\n    headless: true,\n    screenshot: 'only-on-failure',\n    video: 'retain-on-failure',\n    trace: 'retain-on-failure',\n  },\n  testDir: './tests',\n  timeout: 30_000,\n  retries: process.env.CI ? 2 : 0,\n  reporter: [['html', { open: 'never' }], ['list']],\n  projects: [\n    { name: 'chromium', use: { browserName: 'chromium' } },\n    { name: 'firefox',  use: { browserName: 'firefox'  } },\n  ],\n});";
+}
+
+function genPOM(pascal, camel, acts, g) {
+  var lines = [];
+  var hasAsserts = acts.some(function(a) { return a.type === 'assert_text' || a.type === 'assert_visible' || a.type === 'assert_url'; });
+  if (hasAsserts) {
+    lines.push("import { Page, Locator, expect } from '@playwright/test';");
+  } else {
+    lines.push("import { Page, Locator } from '@playwright/test';");
+  }
+  lines.push('');
+  lines.push('export class ' + pascal + 'Page {');
+  lines.push('  readonly page: Page;');
+  lines.push('');
+
+  var selectorActs = acts.filter(function(a) {
+    return ['fill','click','check','hover','assert_visible','assert_text','select','upload'].indexOf(a.type) !== -1 && a.selector;
+  });
+  var uniqueSelectors = dedup(selectorActs, function(a) { return a.selector; });
+
+  uniqueSelectors.forEach(function(a) {
+    lines.push('  readonly ' + selectorToName(a.selector) + ': Locator;');
+  });
+
+  lines.push('');
+  lines.push('  constructor(page: Page) {');
+  lines.push('    this.page = page;');
+  uniqueSelectors.forEach(function(a) {
+    lines.push("    this." + selectorToName(a.selector) + " = page.locator('" + escStr(a.selector) + "');");
+  });
+  lines.push('  }');
+  lines.push('');
+
+  if (g.navigates.length > 0) {
+    var navVal = g.navigates[0].value || '/';
+    lines.push("  async navigateTo(path: string = '" + escStr(navVal) + "'): Promise<void> {");
+    lines.push('    await this.page.goto(path);');
+    lines.push('  }');
+    lines.push('');
+  }
+
+  dedup(g.fills, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(value: string): Promise<void> {');
+    lines.push("    await this.page.fill('" + escStr(a.selector) + "', value);");
+    lines.push('  }');
+    lines.push('');
+  });
+
+  dedup(g.selects, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'select' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(value: string): Promise<void> {');
+    lines.push("    await this.page.selectOption('" + escStr(a.selector) + "', value);");
+    lines.push('  }');
+    lines.push('');
+  });
+
+  dedup(g.clicks, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'click' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(): Promise<void> {');
+    lines.push("    await this.page.click('" + escStr(a.selector) + "');");
+    lines.push('  }');
+    lines.push('');
+  });
+
+  dedup(g.hovers, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'hover' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(): Promise<void> {');
+    lines.push("    await this.page.hover('" + escStr(a.selector) + "');");
+    lines.push('  }');
+    lines.push('');
+  });
+
+  dedup(g.checks, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'check' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(state: boolean = true): Promise<void> {');
+    lines.push('    if (state) {');
+    lines.push("      await this.page.check('" + escStr(a.selector) + "');");
+    lines.push('    } else {');
+    lines.push("      await this.page.uncheck('" + escStr(a.selector) + "');");
+    lines.push('    }');
+    lines.push('  }');
+    lines.push('');
+  });
+
+  dedup(g.uploads, function(a) { return a.selector; }).forEach(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'upload' + name.charAt(0).toUpperCase() + name.slice(1);
+    lines.push('  async ' + mName + '(filePath: string): Promise<void> {');
+    lines.push("    await this.page.setInputFiles('" + escStr(a.selector) + "', filePath);");
+    lines.push('  }');
+    lines.push('');
+  });
+
+  // assert methods
+  var assertActs = dedup(
+    acts.filter(function(a) { return a.type === 'assert_text' || a.type === 'assert_visible' || a.type === 'assert_url'; }),
+    function(a) { return a.type + '|' + a.selector + '|' + a.value; }
+  );
+  assertActs.forEach(function(a) {
+    if (a.type === 'assert_url') {
+      lines.push('  async assertCurrentUrl(expected: string): Promise<void> {');
+      lines.push('    await expect(this.page).toHaveURL(new RegExp(expected));');
+      lines.push('  }');
+    } else if (a.type === 'assert_text') {
+      var name = selectorToName(a.selector);
+      var mName = 'assert' + name.charAt(0).toUpperCase() + name.slice(1) + 'Text';
+      lines.push('  async ' + mName + '(expected: string): Promise<void> {');
+      lines.push("    await expect(this.page.locator('" + escStr(a.selector) + "')).toHaveText(expected);");
+      lines.push('  }');
+    } else if (a.type === 'assert_visible') {
+      var sel = a.selector || a.value;
+      var name2 = selectorToName(sel || 'element');
+      var mName2 = 'assert' + name2.charAt(0).toUpperCase() + name2.slice(1) + 'Visible';
+      lines.push('  async ' + mName2 + '(): Promise<void> {');
+      lines.push("    await expect(this.page.locator('" + escStr(sel) + "')).toBeVisible();");
+      lines.push('  }');
+    }
+    lines.push('');
+  });
+
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function genFixture(pascal, camel) {
+  return "import { test as base } from '@playwright/test';\nimport { " + pascal + "Page } from '../pages/" + pascal + "Page';\n\ntype " + pascal + "Fixtures = {\n  " + camel + "Page: " + pascal + "Page;\n};\n\nexport const test = base.extend<" + pascal + "Fixtures>({\n  " + camel + "Page: async ({ page }, use) => {\n    const " + camel + "Page = new " + pascal + "Page(page);\n    await use(" + camel + "Page);\n  },\n});\n\nexport { expect } from '@playwright/test';";
+}
+
+function genTestData(pascal, camel, testDataActs) {
+  var fields = dedup(testDataActs.filter(function(a) { return a.selector; }), function(a) { return a.selector; });
+
+  function makeObj(valueFn, indent) {
+    return fields.map(function(a) {
+      return indent + selectorToName(a.selector) + ': ' + valueFn(a);
+    }).join(',\n');
+  }
+
+  var interfaceFields = fields.map(function(a) { return '  ' + selectorToName(a.selector) + ': string;'; }).join('\n');
+
+  var validFields = makeObj(function(a) { return "'" + escStr(a.value) + "'"; }, '    ');
+  var invalidFields = makeObj(function(a) {
+    var n = selectorToName(a.selector).toLowerCase();
+    if (n.indexOf('email') !== -1) return "'not-an-email'";
+    if (n.indexOf('pass') !== -1 || n.indexOf('pwd') !== -1) return "'123'";
+    if (n.indexOf('phone') !== -1) return "'abc'";
+    if (n.indexOf('url') !== -1) return "'not a url'";
+    return "'INVALID_VALUE'";
+  }, '    ');
+  var emptyFields = makeObj(function() { return "''"; }, '    ');
+  var edgeFields = makeObj(function() { return "'<>\\'\\"&\\\\0'"; }, '    ');
+  var longFields = makeObj(function() { return "'A'.repeat(256)"; }, '    ');
+
+  return "// Test data for " + camel + " feature\n// Generated by Test Architect\n\nexport interface " + pascal + "TestData {\n" + interfaceFields + "\n}\n\nexport const testData = {\n  valid: {\n" + validFields + "\n  } as " + pascal + "TestData,\n\n  invalid: {\n" + invalidFields + "\n  } as " + pascal + "TestData,\n\n  empty: {\n" + emptyFields + "\n  } as " + pascal + "TestData,\n\n  edge: {\n" + edgeFields + "\n  } as " + pascal + "TestData,\n\n  longValues: {\n" + longFields + "\n  } as " + pascal + "TestData,\n};";
+}
+
+function genHelpers(camel) {
+  return "import { Page } from '@playwright/test';\nimport * as fs from 'fs';\nimport * as path from 'path';\n\n/**\n * Wait for network to reach idle state (no pending requests).\n * Useful after form submissions and navigation.\n */\nexport async function waitForNetworkIdle(page: Page, timeout = 5000): Promise<void> {\n  await page.waitForLoadState('networkidle', { timeout });\n}\n\n/**\n * Take a screenshot and save to test-results/<testName>-<timestamp>.png\n * Call this in afterEach on failure for visual debugging.\n */\nexport async function takeScreenshotOnFail(\n  page: Page,\n  testName: string,\n  failed: boolean = true\n): Promise<void> {\n  if (!failed) return;\n  const dir = path.join(process.cwd(), 'test-results', 'screenshots');\n  fs.mkdirSync(dir, { recursive: true });\n  const ts = new Date().toISOString().replace(/[:.]/g, '-');\n  const file = path.join(dir, `${testName.replace(/\\s+/g, '_')}-${ts}.png`);\n  await page.screenshot({ path: file, fullPage: true });\n  console.log(`Screenshot saved: ${file}`);\n}\n\n/**\n * Dismiss any open dialog (alert/confirm/prompt) automatically.\n */\nexport function dismissDialogs(page: Page): void {\n  page.on('dialog', dialog => dialog.dismiss());\n}\n\n/**\n * Accept any open dialog automatically.\n */\nexport function acceptDialogs(page: Page): void {\n  page.on('dialog', dialog => dialog.accept());\n}\n\n/**\n * Retry an async action up to maxRetries times with delay between attempts.\n */\nexport async function retry<T>(\n  fn: () => Promise<T>,\n  maxRetries = 3,\n  delayMs = 500\n): Promise<T> {\n  let lastError: unknown;\n  for (let i = 0; i < maxRetries; i++) {\n    try {\n      return await fn();\n    } catch (e) {\n      lastError = e;\n      if (i < maxRetries - 1) {\n        await new Promise(r => setTimeout(r, delayMs));\n      }\n    }\n  }\n  throw lastError;\n}";
+}
+
+function genMainSpec(pascal, camel, acts, g, hasTestData) {
+  var lines = [];
+  lines.push("import { test, expect } from '../fixtures/" + camel + ".fixture';");
+  if (hasTestData) {
+    lines.push("import { testData } from '../test-data/" + camel + ".data';");
+  }
+  lines.push("import { waitForNetworkIdle, takeScreenshotOnFail } from '../helpers/" + camel + ".helpers';");
+  lines.push('');
+  lines.push("test.describe('" + pascal + "', () => {");
+  lines.push('');
+  lines.push('  test.afterEach(async ({ page }, testInfo) => {');
+  lines.push("    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');");
+  lines.push('  });');
+  lines.push('');
+  lines.push("  test('happy flow — completes " + camel + " successfully', async ({ page, " + camel + "Page }) => {");
+
+  acts.forEach(function(a) {
+    switch (a.type) {
+      case 'navigate':
+        lines.push("    await " + camel + "Page.navigateTo('" + escStr(a.value) + "');");
+        lines.push('    await waitForNetworkIdle(page);');
+        break;
+      case 'fill': {
+        var name = selectorToName(a.selector);
+        var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+        var val = (hasTestData && a.testData) ? 'testData.valid.' + name : "'" + escStr(a.value) + "'";
+        lines.push('    await ' + camel + 'Page.' + mName + '(' + val + ');');
+        break;
+      }
+      case 'click': {
+        var name = selectorToName(a.selector);
+        var mName = 'click' + name.charAt(0).toUpperCase() + name.slice(1);
+        lines.push('    await ' + camel + 'Page.' + mName + '();');
+        lines.push('    await waitForNetworkIdle(page);');
+        break;
+      }
+      case 'select': {
+        var name = selectorToName(a.selector);
+        var mName = 'select' + name.charAt(0).toUpperCase() + name.slice(1);
+        lines.push("    await " + camel + "Page." + mName + "('" + escStr(a.value) + "');");
+        break;
+      }
+      case 'check': {
+        var name = selectorToName(a.selector);
+        var mName = 'check' + name.charAt(0).toUpperCase() + name.slice(1);
+        lines.push('    await ' + camel + 'Page.' + mName + '(true);');
+        break;
+      }
+      case 'hover': {
+        var name = selectorToName(a.selector);
+        var mName = 'hover' + name.charAt(0).toUpperCase() + name.slice(1);
+        lines.push('    await ' + camel + 'Page.' + mName + '();');
+        break;
+      }
+      case 'assert_url':
+        lines.push("    await " + camel + "Page.assertCurrentUrl('" + escStr(a.value) + "');");
+        break;
+      case 'assert_text': {
+        var name = selectorToName(a.selector);
+        var mName = 'assert' + name.charAt(0).toUpperCase() + name.slice(1) + 'Text';
+        lines.push("    await " + camel + "Page." + mName + "('" + escStr(a.value) + "');");
+        break;
+      }
+      case 'assert_visible': {
+        var sel = a.selector || a.value;
+        var name = selectorToName(sel || 'element');
+        var mName = 'assert' + name.charAt(0).toUpperCase() + name.slice(1) + 'Visible';
+        lines.push('    await ' + camel + 'Page.' + mName + '();');
+        break;
+      }
+      case 'upload': {
+        var name = selectorToName(a.selector);
+        var mName = 'upload' + name.charAt(0).toUpperCase() + name.slice(1);
+        lines.push("    await " + camel + "Page." + mName + "('" + escStr(a.value || './test-assets/sample.pdf') + "');");
+        break;
+      }
+      case 'wait':
+        lines.push('    await page.waitForTimeout(' + (a.value || 1000) + ');');
+        break;
+    }
+  });
+
+  lines.push('  });');
+  lines.push('});');
+  return lines.join('\n');
+}
+
+// ─── Scenario Generation ──────────────────────────────────────────────────────
+function generateScenarios(featureName, baseURL, acts) {
+  var pascal = toPascalCase(featureName);
+  var camel  = toCamelCase(featureName);
+  var g = groupActions(acts);
+  var testDataActs = acts.filter(function(a) { return a.testData && a.selector; });
+  var hasTestData = testDataActs.length > 0;
+  var scenarios = [];
+
+  scenarios.push({
+    id: 'happy',
+    title: 'Happy Flow',
+    desc: 'Uses valid test data, executes the complete flow, and asserts the expected success state.',
+    badgeClass: 'badge-green',
+    fileName: 'tests/' + camel + '.happy.spec.ts',
+    code: genScenarioHappy(pascal, camel, acts, g, hasTestData, testDataActs)
+  });
+
+  if (hasTestData) {
+    scenarios.push({
+      id: 'invalid',
+      title: 'Negative — Invalid Input',
+      desc: 'Submits clearly wrong values for all test-data fields and asserts error messages are shown.',
+      badgeClass: 'badge-red',
+      fileName: 'tests/' + camel + '.invalid.spec.ts',
+      code: genScenarioInvalid(pascal, camel, acts, g, testDataActs)
+    });
+
+    scenarios.push({
+      id: 'empty',
+      title: 'Negative — Empty Required Fields',
+      desc: 'Leaves all required fields blank, submits, and asserts field-level validation messages appear.',
+      badgeClass: 'badge-red',
+      fileName: 'tests/' + camel + '.empty-fields.spec.ts',
+      code: genScenarioEmpty(pascal, camel, acts, g, testDataActs)
+    });
+
+    scenarios.push({
+      id: 'edge',
+      title: 'Edge Case — Boundary Values',
+      desc: 'Inputs extreme values (very long strings, special characters, HTML injection) to probe robustness.',
+      badgeClass: 'badge-yellow',
+      fileName: 'tests/' + camel + '.edge.spec.ts',
+      code: genScenarioEdge(pascal, camel, acts, g, testDataActs)
+    });
+  }
+
+  var navVal = g.navigates.length > 0 ? g.navigates[0].value : baseURL;
+  scenarios.push({
+    id: 'no-auth',
+    title: 'Negative — Navigation Without Auth',
+    desc: 'Directly navigates to the protected URL without authenticating and asserts redirect to login or 401.',
+    badgeClass: 'badge-orange',
+    fileName: 'tests/' + camel + '.no-auth.spec.ts',
+    code: genScenarioNoAuth(pascal, camel, navVal, baseURL)
+  });
+
+  scenarios.push({
+    id: 'smoke',
+    title: 'Smoke Test',
+    desc: 'Minimal check: navigates and asserts the page loads with key elements visible.',
+    badgeClass: 'badge-blue',
+    fileName: 'tests/' + camel + '.smoke.spec.ts',
+    code: genScenarioSmoke(pascal, camel, acts, g)
+  });
+
+  return scenarios;
+}
+
+function hdr(pascal, camel) {
+  return "import { test, expect } from '../fixtures/" + camel + ".fixture';\nimport { testData } from '../test-data/" + camel + ".data';\nimport { waitForNetworkIdle, takeScreenshotOnFail } from '../helpers/" + camel + ".helpers';\n\n";
+}
+
+function hdrNoData(camel) {
+  return "import { test, expect } from '../fixtures/" + camel + ".fixture';\nimport { waitForNetworkIdle, takeScreenshotOnFail } from '../helpers/" + camel + ".helpers';\n\n";
+}
+
+function navLine(g, camel) {
+  if (!g.navigates.length) return '';
+  return "    await " + camel + "Page.navigateTo('" + escStr(g.navigates[0].value) + "');\n    await waitForNetworkIdle(page);\n";
+}
+
+function clickLines(g, camel) {
+  return g.clicks.map(function(a) {
+    var name = selectorToName(a.selector);
+    var mName = 'click' + name.charAt(0).toUpperCase() + name.slice(1);
+    return '    await ' + camel + 'Page.' + mName + '();\n    await waitForNetworkIdle(page);';
+  }).join('\n');
+}
+
+function fillLines(testDataActs, camel, dataKey) {
+  return dedup(testDataActs.filter(function(a) { return a.type === 'fill'; }), function(a) { return a.selector; })
+    .map(function(a) {
+      var name = selectorToName(a.selector);
+      var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+      return '    await ' + camel + 'Page.' + mName + '(testData.' + dataKey + '.' + name + ');';
+    }).join('\n');
+}
+
+function genScenarioHappy(pascal, camel, acts, g, hasTestData, testDataActs) {
+  var urlAssert = g.asserts.find(function(a) { return a.type === 'assert_url'; });
+  var urlLine = urlAssert
+    ? "    await " + camel + "Page.assertCurrentUrl('" + escStr(urlAssert.value) + "');"
+    : "    await expect(page).not.toHaveURL(/error|login/);";
+
+  var allFills = '';
+  if (hasTestData) {
+    allFills = fillLines(testDataActs, camel, 'valid');
+  } else {
+    allFills = g.fills.map(function(a) {
+      var name = selectorToName(a.selector);
+      var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+      return "    await " + camel + "Page." + mName + "('" + escStr(a.value) + "');";
+    }).join('\n');
+  }
+
+  return hdr(pascal, camel) +
+    "test.describe('" + pascal + " — Happy Flow', () => {\n\n" +
+    "  test.afterEach(async ({ page }, testInfo) => {\n" +
+    "    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');\n" +
+    "  });\n\n" +
+    "  test('completes " + camel + " with valid data and reaches success state', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    // Fill all fields with valid data\n" +
+    allFills + "\n\n" +
+    "    // Submit\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Assert success state\n" +
+    urlLine + "\n" +
+    "  });\n});";
+}
+
+function genScenarioInvalid(pascal, camel, acts, g, testDataActs) {
+  var invalidFills = fillLines(testDataActs, camel, 'invalid');
+  var perFieldTests = dedup(testDataActs.filter(function(a) { return a.type === 'fill'; }), function(a) { return a.selector; })
+    .map(function(a) {
+      var name = selectorToName(a.selector);
+      var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+      return '    // Invalid ' + name + '\n    await ' + camel + 'Page.' + mName + '(testData.invalid.' + name + ');';
+    }).join('\n');
+
+  return hdr(pascal, camel) +
+    "test.describe('" + pascal + " — Invalid Input', () => {\n\n" +
+    "  test.afterEach(async ({ page }, testInfo) => {\n" +
+    "    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');\n" +
+    "  });\n\n" +
+    "  test('shows error messages when invalid data is submitted', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    // Fill fields with clearly invalid values\n" +
+    invalidFills + "\n\n" +
+    "    // Submit\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Assert error feedback is shown\n" +
+    "    await expect(\n" +
+    "      page.locator('[data-testid=\"error\"], .error, [role=\"alert\"], .error-message').first()\n" +
+    "    ).toBeVisible();\n" +
+    "  });\n\n" +
+    "  test('does not navigate to success page on invalid input', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    perFieldTests + "\n\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Should remain on the same page or show an error\n" +
+    "    const errorCount = await page.locator('[data-testid=\"error\"], .error, [role=\"alert\"]').count();\n" +
+    "    expect(errorCount).toBeGreaterThan(0);\n" +
+    "  });\n});";
+}
+
+function genScenarioEmpty(pascal, camel, acts, g, testDataActs) {
+  var emptyFills = fillLines(testDataActs, camel, 'empty');
+  return hdr(pascal, camel) +
+    "test.describe('" + pascal + " — Empty Required Fields', () => {\n\n" +
+    "  test.afterEach(async ({ page }, testInfo) => {\n" +
+    "    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');\n" +
+    "  });\n\n" +
+    "  test('shows validation errors when required fields are left blank', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    // Fill with empty strings to trigger required-field validation\n" +
+    emptyFills + "\n\n" +
+    "    // Submit without filling anything meaningful\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Should not advance to success state\n" +
+    "    await expect(page).not.toHaveURL(/dashboard|success|home/);\n\n" +
+    "    // Validation messages should be visible\n" +
+    "    const errorLocator = page.locator(\n" +
+    "      '[data-testid=\"error\"], .error, [role=\"alert\"], .field-error, .validation-message'\n" +
+    "    );\n" +
+    "    await expect(errorLocator.first()).toBeVisible();\n" +
+    "  });\n\n" +
+    "  test('does not submit the form when all required fields are empty', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    // Attempt submit without filling anything\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Page should stay on same or show validation\n" +
+    "    const currentURL = page.url();\n" +
+    "    expect(currentURL).not.toMatch(/dashboard|success/);\n" +
+    "  });\n});";
+}
+
+function genScenarioEdge(pascal, camel, acts, g, testDataActs) {
+  var edgeFills = fillLines(testDataActs, camel, 'edge');
+  var longFills = fillLines(testDataActs, camel, 'longValues');
+  return hdr(pascal, camel) +
+    "test.describe('" + pascal + " — Edge Cases & Boundary Values', () => {\n\n" +
+    "  test.afterEach(async ({ page }, testInfo) => {\n" +
+    "    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');\n" +
+    "  });\n\n" +
+    "  test('handles special characters in input fields without crashing', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    edgeFills + "\n\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // App should handle gracefully\n" +
+    "    await expect(page.locator('body')).not.toContainText('Internal Server Error');\n" +
+    "    await expect(page.locator('body')).not.toContainText('TypeError');\n" +
+    "  });\n\n" +
+    "  test('handles very long string inputs without layout breaking', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    longFills + "\n\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // Page layout should remain intact\n" +
+    "    await expect(page.locator('body')).toBeVisible();\n" +
+    "  });\n\n" +
+    "  test('handles XSS injection attempt in input fields', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    const xssPayload = '<script>window.__xss=true<\\/script>';\n" +
+    dedup(testDataActs.filter(function(a) { return a.type === 'fill'; }), function(a) { return a.selector; }).map(function(a) {
+      var name = selectorToName(a.selector);
+      var mName = 'fill' + name.charAt(0).toUpperCase() + name.slice(1);
+      return '    await ' + camel + 'Page.' + mName + '(xssPayload);';
+    }).join('\n') + "\n\n" +
+    clickLines(g, camel) + "\n\n" +
+    "    // XSS should not execute\n" +
+    "    const xssExecuted = await page.evaluate(() => (window as any).__xss);\n" +
+    "    expect(xssExecuted).toBeFalsy();\n" +
+    "  });\n});";
+}
+
+function genScenarioNoAuth(pascal, camel, protectedPath, baseURL) {
+  return hdrNoData(camel) +
+    "test.describe('" + pascal + " — Access Without Authentication', () => {\n\n" +
+    "  test.afterEach(async ({ page }, testInfo) => {\n" +
+    "    await takeScreenshotOnFail(page, testInfo.title, testInfo.status === 'failed');\n" +
+    "  });\n\n" +
+    "  test('redirects to login when accessing protected page without authentication', async ({ page }) => {\n" +
+    "    // Navigate directly to protected URL without logging in\n" +
+    "    await page.goto('" + escStr(protectedPath) + "');\n" +
+    "    await waitForNetworkIdle(page);\n\n" +
+    "    // Should be redirected to login page\n" +
+    "    await expect(page).toHaveURL(/login|signin|auth/);\n" +
+    "  });\n\n" +
+    "  test('returns 401 or redirect when API is called without auth token', async ({ request }) => {\n" +
+    "    // Attempt API call without credentials\n" +
+    "    const response = await request.get('" + escStr(baseURL) + "/api/me');\n" +
+    "    expect([401, 403, 302]).toContain(response.status());\n" +
+    "  });\n\n" +
+    "  test('session is not preserved after clearing storage', async ({ page, context }) => {\n" +
+    "    // Clear all browser storage\n" +
+    "    await context.clearCookies();\n" +
+    "    await page.evaluate(() => {\n" +
+    "      localStorage.clear();\n" +
+    "      sessionStorage.clear();\n" +
+    "    });\n\n" +
+    "    await page.goto('" + escStr(protectedPath) + "');\n" +
+    "    await waitForNetworkIdle(page);\n\n" +
+    "    // Should not reach the protected page\n" +
+    "    await expect(page).not.toHaveURL(/dashboard|success/);\n" +
+    "  });\n});";
+}
+
+function genScenarioSmoke(pascal, camel, acts, g) {
+  var firstSelector = null;
+  for (var i = 0; i < acts.length; i++) {
+    if (acts[i].selector && ['fill','click','assert_visible'].indexOf(acts[i].type) !== -1) {
+      firstSelector = acts[i].selector;
+      break;
+    }
+  }
+  var visibleLine = firstSelector
+    ? "    await expect(page.locator('" + escStr(firstSelector) + "')).toBeVisible();"
+    : "    await expect(page.locator('body')).toBeVisible();";
+
+  return hdrNoData(camel) +
+    "test.describe('" + pascal + " — Smoke Test', () => {\n\n" +
+    "  test('page loads and key elements are present', async ({ page, " + camel + "Page }) => {\n" +
+    navLine(g, camel) + "\n" +
+    "    // Page must load without errors\n" +
+    "    await expect(page).not.toHaveURL(/error|404|500/);\n\n" +
+    "    // Key element must be visible\n" +
+    visibleLine + "\n\n" +
+    "    // Capture any JS console errors\n" +
+    "    const consoleErrors: string[] = [];\n" +
+    "    page.on('console', msg => {\n" +
+    "      if (msg.type() === 'error') consoleErrors.push(msg.text());\n" +
+    "    });\n" +
+    "    await page.waitForTimeout(500);\n" +
+    "    expect(consoleErrors.filter(e => !e.includes('favicon'))).toHaveLength(0);\n" +
+    "  });\n\n" +
+    "  test('page responds within acceptable time (< 5s)', async ({ page, " + camel + "Page }) => {\n" +
+    "    const start = Date.now();\n" +
+    navLine(g, camel) + "\n" +
+    "    const loadTime = Date.now() - start;\n" +
+    "    expect(loadTime).toBeLessThan(5000);\n" +
+    "  });\n});";
+}
+
+// ─── Step 2 UI ────────────────────────────────────────────────────────────────
+function renderFileTree(files) {
+  var tree = document.getElementById('file-tree');
+  tree.innerHTML = '<div class="tree-title">Project Structure</div>';
+
+  var folders = {};
+  Object.keys(files).forEach(function(p) {
+    var parts = p.split('/');
+    if (parts.length === 1) {
+      if (!folders['']) folders[''] = [];
+      folders[''].push(p);
+    } else {
+      var folder = parts[0];
+      if (!folders[folder]) folders[folder] = [];
+      folders[folder].push(p);
+    }
+  });
+
+  if (folders['']) {
+    folders[''].forEach(function(f) { tree.appendChild(makeFileItem(f, f)); });
+  }
+
+  ['pages','fixtures','test-data','helpers','tests'].forEach(function(folder) {
+    if (!folders[folder]) return;
+    var folderEl = document.createElement('div');
+    folderEl.className = 'folder-item';
+    folderEl.innerHTML = '&#128193; ' + folder + '/';
+    tree.appendChild(folderEl);
+    folders[folder].forEach(function(f) {
+      var item = makeFileItem(f, f.split('/').pop());
+      item.style.paddingLeft = '20px';
+      tree.appendChild(item);
+    });
+  });
+}
+
+function makeFileItem(fullPath, displayName) {
+  var item = document.createElement('div');
+  item.className = 'file-item';
+  item.dataset.path = fullPath;
+  item.innerHTML = '<span class="fi-icon">&#128196;</span>' + displayName;
+  item.addEventListener('click', function() { selectFile(fullPath); });
+  return item;
+}
+
+function selectFile(path) {
+  activeFilePath = path;
+  document.querySelectorAll('.file-item').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.path === path);
+  });
+  document.getElementById('active-file-path').textContent = path;
+  var code = generatedFiles[path] || '';
+  document.getElementById('code-display').textContent = code;
+}
+
+// ─── Copy Helpers ─────────────────────────────────────────────────────────────
+function copyPanelCode() {
+  var code = document.getElementById('code-display').textContent;
+  copyText(code, document.getElementById('panel-copy-btn'));
+}
+
+function copyText(text, btn) {
+  var orig = btn.textContent;
+  function success() {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.classList.remove('copied');
+    }, 2000);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(success).catch(function() { fallbackCopy(text, success); });
+  } else {
+    fallbackCopy(text, success);
+  }
+}
+
+function fallbackCopy(text, callback) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(ta);
+  if (callback) callback();
+}
+
+// ─── Step Navigation ──────────────────────────────────────────────────────────
+function goToStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.step-section').forEach(function(el, i) {
+    el.classList.toggle('active', i + 1 === n);
+  });
+  updateProgressBar(n);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function updateProgressBar(step) {
+  [1,2,3].forEach(function(i) {
+    var circle = document.getElementById('circle-' + i);
+    var label  = document.getElementById('label-' + i);
+    circle.classList.remove('active','done');
+    label.classList.remove('active');
+    if (i === step) { circle.classList.add('active'); label.classList.add('active'); }
+    else if (i < step) { circle.classList.add('done'); }
+  });
+  [1,2].forEach(function(i) {
+    var line = document.getElementById('line-' + i);
+    line.classList.toggle('done', i < step);
+  });
+}
+
+function collectActionsFromDOM() {
+  var rows = document.querySelectorAll('.action-row');
+  return Array.from(rows).map(function(row) {
+    var inputs = row.querySelectorAll('input[type=text]');
+    return {
+      type:     row.querySelector('select').value,
+      selector: inputs[0].value.trim(),
+      value:    inputs[1].value.trim(),
+      testData: row.querySelector('input[type=checkbox]').checked,
+    };
+  });
+}
+
+function goToStep2() {
+  var featureName = document.getElementById('feature-name').value.trim() || 'Feature';
+  var baseURL     = document.getElementById('base-url').value.trim() || 'https://app.example.com';
+
+  if (!featureName) { alert('Please enter a feature name.'); return; }
+
+  actions = collectActionsFromDOM();
+  if (actions.length === 0) { alert('Add at least one action before decomposing.'); return; }
+
+  generatedFiles = generateFiles(featureName, baseURL, actions);
+
+  var testDataCount = actions.filter(function(a) { return a.testData; }).length;
+  var fileCount = Object.keys(generatedFiles).length;
+
+  document.getElementById('summary-card').innerHTML =
+    '<strong>Decomposition complete for "' + escHtml(featureName) + '"</strong>' +
+    '<div class="summary-stats">' +
+      '<div class="stat"><span class="stat-val">' + actions.length + '</span><span class="stat-label">Actions parsed</span></div>' +
+      '<div class="stat"><span class="stat-val">' + fileCount + '</span><span class="stat-label">Files generated</span></div>' +
+      '<div class="stat"><span class="stat-val">' + testDataCount + '</span><span class="stat-label">Parameterizable fields</span></div>' +
+      '<div class="stat"><span class="stat-val">6</span><span class="stat-label">Scenario specs ready</span></div>' +
+    '</div>' +
+    '<div style="margin-top:10px;font-size:0.78rem;color:var(--muted);">Your ' + actions.length + ' actions &rarr; ' + fileCount + ' files, 6 test scenarios ready to generate in Step 3.</div>';
+
+  renderFileTree(generatedFiles);
+
+  var firstFile = Object.keys(generatedFiles)[0];
+  if (firstFile) selectFile(firstFile);
+
+  goToStep(2);
+}
+
+function goToStep3() {
+  var featureName = document.getElementById('feature-name').value.trim() || 'Feature';
+  var baseURL     = document.getElementById('base-url').value.trim() || 'https://app.example.com';
+
+  var scenarios = generateScenarios(featureName, baseURL, actions);
+  scenarios.forEach(function(s) { generatedFiles[s.fileName] = s.code; });
+
+  var grid = document.getElementById('scenario-grid');
+  grid.innerHTML = scenarios.map(function(s) {
+    return '<div class="scenario-card">' +
+      '<div class="scenario-badge ' + s.badgeClass + '">' + escHtml(s.title) + '</div>' +
+      '<div class="scenario-title">' + escHtml(s.title) + '</div>' +
+      '<div class="scenario-desc">' + escHtml(s.desc) + '</div>' +
+      '<div style="font-family:ui-monospace,monospace;font-size:0.7rem;color:var(--muted);margin-bottom:8px;">&#128196; ' + escHtml(s.fileName) + '</div>' +
+      '<div class="code-wrapper">' +
+        '<div class="code-block" id="sc-code-' + s.id + '" style="max-height:260px;overflow-y:auto;">' + escHtml(s.code) + '</div>' +
+        '<button class="copy-btn" onclick="copyScenario(\'' + s.id + '\', this)">Copy</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  goToStep(3);
+}
+
+function copyScenario(id, btn) {
+  var code = document.getElementById('sc-code-' + id).textContent;
+  copyText(code, btn);
+}
+
+// ─── ZIP Download ─────────────────────────────────────────────────────────────
+function downloadZip() {
+  if (typeof JSZip === 'undefined') {
+    alert('JSZip not loaded. Please check your internet connection.');
+    return;
+  }
+  var featureName = document.getElementById('feature-name').value.trim() || 'feature';
+  var zip = new JSZip();
+  var folder = zip.folder(toCamelCase(featureName) + '-tests');
+
+  Object.keys(generatedFiles).forEach(function(p) {
+    folder.file(p, generatedFiles[p]);
+  });
+
+  zip.generateAsync({ type: 'blob' }).then(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = toCamelCase(featureName) + '-playwright-tests.zip';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }).catch(function(err) {
+    alert('Failed to generate ZIP: ' + err.message);
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+initDefaultActions();
+</script>
+</body>
+</html>
