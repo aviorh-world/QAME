@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Test Architect — Playwright Wizard</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+:root {
+  --primary:#6366f1; --bg:#0f172a; --panel:#1e293b; --text:#e2e8f0;
+  --muted:#64748b; --success:#10b981; --warn:#fbbf24; --accent:#38bdf8;
+  --border:#334155; --danger:#f43f5e; --orange:#fb923c;
+}
+*{box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:24px;line-height:1.55;}
+.container{max-width:980px;margin:0 auto;}
+h1{margin:0 0 4px;font-size:24px;}
+.subtitle{color:var(--muted);margin:0 0 28px;font-size:14px;}
+
+/* Progress */
+.progress{display:flex;align-items:center;gap:0;margin-bottom:28px;}
+.prog-step{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);background:var(--panel);border:1px solid var(--border);cursor:default;transition:all .2s;}
+.prog-step.active{color:#fff;background:var(--primary);border-color:var(--primary);}
+.prog-step.done{color:var(--success);border-color:var(--success);background:rgba(16,185,129,.1);}
+.prog-line{flex:1;height:2px;background:var(--border);margin:0 4px;}
+.prog-line.done{background:var(--success);}
+.prog-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:rgba(255,255,255,.1);}
+.prog-step.active .prog-num{background:rgba(255,255,255,.2);}
+
+/* Cards */
+.card{background:var(--panel);border-radius:10px;padding:20px 24px;border:1px solid var(--border);margin-bottom:16px;}
+.card h2{margin:0 0 14px;font-size:15px;color:var(--primary);display:flex;align-items:center;gap:8px;}
+.num{background:rgba(99,102,241,.18);border-radius:6px;padding:2px 9px;font-size:12px;font-weight:700;color:var(--primary);}
+
+/* Inputs */
+input,select{background:#0b1120;color:var(--text);border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-family:inherit;font-size:13px;outline:none;}
+input:focus,select:focus{border-color:var(--primary);}
+input.wide{width:100%;}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;}
+.field{margin-bottom:14px;}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* Action rows */
+.action-row{display:grid;grid-template-columns:140px 1fr 1fr 90px 32px;gap:8px;align-items:center;margin-bottom:8px;padding:8px;background:#0b1120;border-radius:8px;border:1px solid var(--border);}
+.action-row select{width:100%;}
+.action-row input{width:100%;}
+.action-row .td-label{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.action-row .td-label input[type=checkbox]{width:16px;height:16px;accent-color:var(--warn);}
+.del-btn{background:#7f1d1d;color:#fca5a5;border:none;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.del-btn:hover{background:#991b1b;}
+.actions-header{display:grid;grid-template-columns:140px 1fr 1fr 90px 32px;gap:8px;margin-bottom:6px;padding:0 8px;}
+.actions-header span{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+
+/* Buttons */
+button{background:var(--primary);color:#fff;border:none;padding:9px 18px;border-radius:7px;cursor:pointer;font-weight:600;font-size:13px;transition:filter .15s;}
+button:hover{filter:brightness(1.12);}
+button.secondary{background:#334155;color:var(--text);}
+button.success-btn{background:var(--success);}
+button.sm{padding:5px 10px;font-size:11px;}
+.btn-row{display:flex;gap:10px;margin-top:18px;align-items:center;}
+
+/* File tree + code panel */
+.split{display:grid;grid-template-columns:220px 1fr;gap:16px;}
+.file-tree{background:#0b1120;border-radius:10px;border:1px solid var(--border);padding:12px;height:fit-content;}
+.tree-folder{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px 4px;font-family:ui-monospace,monospace;}
+.tree-file{padding:6px 10px;border-radius:6px;font-family:ui-monospace,monospace;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--text);transition:background .12s;}
+.tree-file:hover{background:rgba(99,102,241,.1);}
+.tree-file.active{background:rgba(99,102,241,.18);color:var(--primary);}
+.code-panel{background:#020617;border:1px solid var(--border);border-radius:10px;padding:0;overflow:hidden;}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#0b1120;border-bottom:1px solid var(--border);}
+.code-filename{font-family:ui-monospace,monospace;font-size:12px;color:var(--accent);}
+pre{margin:0;padding:16px;font-family:ui-monospace,'Cascadia Code',Menlo,monospace;font-size:12px;overflow-x:auto;white-space:pre;line-height:1.6;max-height:520px;overflow-y:auto;}
+
+/* Scenario cards */
+.scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.scenario-card{background:#0b1120;border-radius:10px;border:1px solid var(--border);overflow:hidden;}
+.scenario-header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.scenario-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge-green{background:rgba(16,185,129,.18);color:var(--success);}
+.badge-red{background:rgba(244,63,94,.18);color:var(--danger);}
+.badge-yellow{background:rgba(251,191,36,.18);color:var(--warn);}
+.badge-orange{background:rgba(251,146,60,.18);color:var(--orange);}
+.badge-blue{background:rgba(56,189,248,.18);color:var(--accent);}
+.scenario-title{font-size:13px;font-weight:600;margin:0;}
+.scenario-desc{font-size:11px;color:var(--muted);padding:8px 16px 0;}
+.scenario-card pre{max-height:300px;font-size:11px;padding:12px 16px;}
+
+/* Summary bar */
+.summary-bar{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:12px 16px;font-size:13px;margin-bottom:16px;display:flex;gap:24px;}
+.summary-bar span{color:var(--muted);}
+.summary-bar strong{color:var(--text);}
+
+.copy-btn{background:#1e293b;color:var(--accent);border:1px solid var(--border);padding:4px 10px;border-radius:5px;cursor:pointer;font-size:11px;font-weight:600;}
+.copy-btn:hover{background:#283549;}
+
+.hidden{display:none!important;}
+.link-back{color:var(--muted);font-size:12px;text-decoration:none;display:inline-block;margin-top:24px;}
+.link-back:hover{color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🏗️ Test Architect</h1>
+  <p class="subtitle">Describe your feature flow → get a complete Playwright project structure + 6 test scenario variants.</p>
+
+  <!-- Progress -->
+  <div class="progress">
+    <div class="prog-step active" id="ps1"><span class="prog-num">1</span> Define Flow</div>
+    <div class="prog-line" id="pl1"></div>
+    <div class="prog-step" id="ps2"><span class="prog-num">2</span> File Structure</div>
+    <div class="prog-line" id="pl2"></div>
+    <div class="prog-step" id="ps3"><span class="prog-num">3</span> Scenarios</div>
+  </div>
+
+  <!-- ═══ STEP 1 ═══ -->
+  <div id="step1">
+    <div class="card">
+      <h2><span class="num">1</span> Feature details</h2>
+      <div class="row-2">
+        <div class="field">
+          <label>Feature name</label>
+          <input id="featureName" class="wide" placeholder="e.g. User Login" value="User Login">
+        </div>
+        <div class="field">
+          <label>Base URL</label>
+          <input id="baseUrl" class="wide" placeholder="https://app.example.com" value="https://app.example.com">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">2</span> Actions</h2>
+      <div class="actions-header">
+        <span>Type</span>
+        <span>Selector / Target</span>
+        <span>Value</span>
+        <span>Test data?</span>
+        <span></span>
+      </div>
+      <div id="actionsList"></div>
+      <button class="secondary" onclick="addAction()">+ Add Action</button>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="goStep2()">Decompose →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2 ═══ -->
+  <div id="step2" class="hidden">
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="split">
+      <div class="file-tree" id="fileTree"></div>
+      <div class="code-panel">
+        <div class="code-header">
+          <span class="code-filename" id="codeFilename">Select a file</span>
+          <button class="copy-btn" onclick="copyCode()">Copy</button>
+        </div>
+        <pre id="codeContent">← Select a file from the tree</pre>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="secondary" onclick="goStep1()">← Back</button>
+      <button onclick="goStep3()">Generate Scenarios →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3 ═══ -->
+  <div id="step3" class="hidden">
+    <div class="card" style="margin-bottom:16px;">
+      <h2><span class="num">3</span> Scenario Variants</h2>
+      <p style="margin:0;font-size:13px;color:var(--muted);">Each card is a complete, runnable <code style="color:var(--accent);background:#0b1120;padding:1px 5px;border-radius:4px;">.spec.ts</code> file. Copy individual scenarios or download the full project as a ZIP.</p>
+    </div>
+    <div class="scenario-grid" id="scenarioGrid"></div>
+    <div class="btn-row" style="margin-top:20px;">
+      <button class="secondary" onclick="goStep2()">← Back</button>
+      <button class="success-btn" onclick="downloadZip()">⬇ Download Full Project ZIP</button>
+    </div>
+  </div>
+
+  <a href="qa-engine.html" class="link-back">← Back to QA Flow Runner</a>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let generatedFiles = {};
+let currentFile = null;
+
+// ─── Utility ─────────────────────────────────────────────────────────────────
+function toPascal(s) {
+  return s.replace(/[^a-zA-Z0-9 ]/g, ' ').split(/\s+/).filter(Boolean)
+          .map(w => w[0].toUpperCase() + w.slice(1).toLowerCase()).join('');
+}
+function toCamel(s) {
+  const p = toPascal(s);
+  return p[0].toLowerCase() + p.slice(1);
+}
+function selectorToName(sel) {
+  if (!sel) return 'element';
+  sel = sel.trim();
+  // id
+  let m = sel.match(/^#([\w-]+)/);
+  if (m) return toCamel(m[1].replace(/-/g,' '));
+  // data-testid
+  m = sel.match(/\[data-testid=['"]([\w-]+)['"]\]/);
+  if (m) return toCamel(m[1].replace(/-/g,' '));
+  // type attr
+  m = sel.match(/\[type=['"](\w+)['"]\]/);
+  if (m) return toCamel(m[1] + ' button');
+  // class
+  m = sel.match(/\.([\w-]+)/);
+  if (m) return toCamel(m[1].replace(/-/g,' '));
+  // text=
+  m = sel.match(/text=(.*)/i);
+  if (m) return toCamel(m[1] + ' text');
+  // tag[attr]
+  m = sel.match(/^(\w+)/);
+  if (m) return toCamel(m[1]);
+  return 'element';
+}
+function dedupe(arr, key) {
+  const seen = new Set();
+  return arr.filter(x => { const k = x[key]; if(seen.has(k)) return false; seen.add(k); return true; });
+}
+function indent(code, n=2) {
+  return code.split('\n').map(l => ' '.repeat(n) + l).join('\n');
+}
+
+// ─── Action rows ─────────────────────────────────────────────────────────────
+const ACTION_TYPES = ['navigate','fill','click','select','check','assert_text','assert_visible','assert_url','wait','hover','upload'];
+const DEFAULTS = [
+  {type:'navigate', selector:'', value:'https://app.example.com/login', td:false},
+  {type:'fill',     selector:'#email',              value:'user@test.com', td:true},
+  {type:'fill',     selector:'#password',           value:'Secret123',     td:true},
+  {type:'click',    selector:'button[type=submit]', value:'',              td:false},
+  {type:'assert_url', selector:'',                  value:'/dashboard',    td:false},
+];
+
+function addAction(data={}) {
+  const list = document.getElementById('actionsList');
+  const row = document.createElement('div');
+  row.className = 'action-row';
+  const opts = ACTION_TYPES.map(t => `<option value="${t}"${t===data.type?' selected':''}>${t}</option>`).join('');
+  row.innerHTML = `
+    <select onchange="updateActionPlaceholder(this)">${opts}</select>
+    <input placeholder="Selector / target" value="${data.selector||''}">
+    <input placeholder="Value" value="${data.value||''}">
+    <label class="td-label"><input type="checkbox" ${data.td?'checked':''}> Test data</label>
+    <button class="del-btn" onclick="this.parentElement.remove()">✕</button>`;
+  list.appendChild(row);
+}
+
+function getActions() {
+  return [...document.querySelectorAll('.action-row')].map(row => {
+    const inputs = row.querySelectorAll('input,select');
+    return {
+      type:     inputs[0].value,
+      selector: inputs[1].value.trim(),
+      value:    inputs[2].value.trim(),
+      td:       inputs[3].checked,
+    };
+  });
+}
+
+// ─── Step navigation ─────────────────────────────────────────────────────────
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).classList.toggle('hidden', i!==n);
+    const ps = document.getElementById('ps'+i);
+    ps.classList.remove('active','done');
+    if(i===n) ps.classList.add('active');
+    else if(i<n) ps.classList.add('done');
+    if(i<3) document.getElementById('pl'+i).classList.toggle('done', i<n);
+  });
+}
+function goStep1(){ setStep(1); }
+function goStep2(){ buildFiles(); setStep(2); }
+function goStep3(){ buildScenarios(); setStep(3); }
+
+// ─── Code generation ──────────────────────────────────────────────────────────
+function buildFiles() {
+  const feature   = document.getElementById('featureName').value.trim() || 'Feature';
+  const baseUrl   = document.getElementById('baseUrl').value.trim() || 'https://example.com';
+  const actions   = getActions();
+  const pascal    = toPascal(feature);
+  const camel     = toCamel(feature);
+
+  const fills    = actions.filter(a => a.type==='fill');
+  const clicks   = actions.filter(a => a.type==='click');
+  const hovers   = actions.filter(a => a.type==='hover');
+  const checks   = actions.filter(a => a.type==='check');
+  const asserts  = actions.filter(a => ['assert_text','assert_visible','assert_url'].includes(a.type));
+  const navs     = actions.filter(a => a.type==='navigate');
+  const tdFields = actions.filter(a => a.td && a.value);
+
+  // Unique selectors for locators
+  const selectorActions = [...fills, ...clicks, ...hovers, ...checks,
+    ...actions.filter(a=>['assert_text','assert_visible'].includes(a.type))]
+    .filter(a => a.selector);
+  const uniqueSelectors = dedupe(selectorActions, 'selector');
+
+  // ── playwright.config.ts
+  generatedFiles['playwright.config.ts'] = `import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  baseURL: '${baseUrl}',
+  use: {
+    headless: true,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+  testDir: './tests',
+  reporter: [['html', { open: 'never' }]],
+});
+`;
+
+  // ── pages/FeaturePage.ts
+  const locatorLines = uniqueSelectors.map(a => {
+    const name = selectorToName(a.selector);
+    return `  readonly ${name} = this.page.locator('${a.selector}');`;
+  }).join('\n');
+
+  const fillMethods = dedupe(fills.filter(a=>a.selector), 'selector').map(a => {
+    const name = selectorToName(a.selector);
+    return `  async fill${toPascal(name)}(value: string) {\n    await this.${name}.fill(value);\n  }`;
+  }).join('\n\n');
+
+  const clickMethods = dedupe(clicks.filter(a=>a.selector), 'selector').map(a => {
+    const name = selectorToName(a.selector);
+    return `  async click${toPascal(name)}() {\n    await this.${name}.click();\n  }`;
+  }).join('\n\n');
+
+  const assertMethods = dedupe(asserts.filter(a=>a.selector), 'selector').map(a => {
+    const name = selectorToName(a.selector || a.value);
+    if(a.type==='assert_text')
+      return `  async assert${toPascal(name)}Text(expected: string) {\n    await expect(this.${name}).toHaveText(expected);\n  }`;
+    return `  async assert${toPascal(name)}Visible() {\n    await expect(this.${name}).toBeVisible();\n  }`;
+  }).join('\n\n');
+
+  const navMethod = navs.length
+    ? `  async navigateTo() {\n    await this.page.goto('${navs[0].value || baseUrl}');\n  }`
+    : '';
+
+  generatedFiles[`pages/${pascal}Page.ts`] = `import { Page, expect } from '@playwright/test';
+
+export class ${pascal}Page {
+  readonly page: Page;
+
+${locatorLines || '  // Add locators here'}
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+
+${navMethod}
+
+${fillMethods}
+
+${clickMethods}
+
+${assertMethods}
+}
+`.replace(/\n{3,}/g, '\n\n');
+
+  // ── fixtures/feature.fixture.ts
+  generatedFiles[`fixtures/${camel}.fixture.ts`] = `import { test as base } from '@playwright/test';
+import { ${pascal}Page } from '../pages/${pascal}Page';
+
+type Fixtures = {
+  ${camel}Page: ${pascal}Page;
+};
+
+export const test = base.extend<Fixtures>({
+  ${camel}Page: async ({ page }, use) => {
+    const ${camel}Page = new ${pascal}Page(page);
+    await use(${camel}Page);
+  },
+});
+
+export { expect } from '@playwright/test';
+`;
+
+  // ── test-data/feature.data.ts
+  const validFields  = tdFields.map(a => `  ${selectorToName(a.selector)}: '${a.value}',`).join('\n');
+  const invalidFields= tdFields.map(a => `  ${selectorToName(a.selector)}: 'INVALID_${selectorToName(a.selector).toUpperCase()}',`).join('\n');
+  const edgeFields   = tdFields.map(a => {
+    const name = selectorToName(a.selector);
+    const edge = a.value.includes('@') ? 'a'.repeat(255)+'@x.co' : 'A'.repeat(256);
+    return `  ${name}: '${edge}',`;
+  }).join('\n');
+
+  generatedFiles[`test-data/${camel}.data.ts`] = `export const testData = {
+  valid: {
+${validFields || "    // Add valid test data here"}
+  },
+
+  invalid: {
+${invalidFields || "    // Add invalid test data here"}
+  },
+
+  edge: {
+${edgeFields || "    // Add edge case data here"}
+  },
+
+  empty: {
+${tdFields.map(a=>`    ${selectorToName(a.selector)}: '',`).join('\n') || "    // empty fields"}
+  },
+};
+`;
+
+  // ── helpers/feature.helpers.ts
+  generatedFiles[`helpers/${camel}.helpers.ts`] = `import { Page } from '@playwright/test';
+import * as fs from 'fs';
+import * as path from 'path';
+
+export async function waitForNetworkIdle(page: Page, timeout = 3000) {
+  await page.waitForLoadState('networkidle', { timeout });
+}
+
+export async function takeScreenshotOnFail(page: Page, testName: string) {
+  const dir = 'test-results/screenshots';
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, \`\${testName.replace(/\\s+/g, '-')}-\${Date.now()}.png\`);
+  await page.screenshot({ path: file, fullPage: true });
+  return file;
+}
+
+export async function clearAndFill(page: Page, selector: string, value: string) {
+  await page.click(selector, { clickCount: 3 });
+  await page.fill(selector, value);
+}
+`;
+
+  // ── tests/feature.spec.ts (happy flow placeholder)
+  const fillSteps = fills.map(a => {
+    const name = selectorToName(a.selector);
+    const val  = a.td ? `testData.valid.${name}` : `'${a.value}'`;
+    return `    await ${camel}Page.fill${toPascal(name)}(${val});`;
+  }).join('\n');
+  const clickSteps = clicks.map(a =>
+    `    await ${camel}Page.click${toPascal(selectorToName(a.selector))}();`
+  ).join('\n');
+  const assertSteps = asserts.filter(a=>a.type==='assert_url').map(a =>
+    `    await expect(page).toHaveURL(/${a.value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}/);`
+  ).join('\n');
+
+  generatedFiles[`tests/${camel}.spec.ts`] = `import { test, expect } from '../fixtures/${camel}.fixture';
+import { testData } from '../test-data/${camel}.data';
+import { waitForNetworkIdle } from '../helpers/${camel}.helpers';
+
+test.describe('${feature}', () => {
+  test.beforeEach(async ({ ${camel}Page }) => {
+    await ${camel}Page.navigateTo();
+  });
+
+  test('happy flow — completes successfully with valid data', async ({ page, ${camel}Page }) => {
+${fillSteps}
+${clickSteps}
+    await waitForNetworkIdle(page);
+${assertSteps}
+  });
+});
+`.replace(/\n{3,}/g,'\n\n');
+
+  // ── Render file tree
+  renderFileTree();
+
+  // ── Summary
+  const fileCount = Object.keys(generatedFiles).length;
+  document.getElementById('summaryBar').innerHTML =
+    `<span>Feature: <strong>${feature}</strong></span>
+     <span>Actions: <strong>${actions.length}</strong></span>
+     <span>Files generated: <strong>${fileCount}</strong></span>
+     <span>Test data fields: <strong>${tdFields.length}</strong></span>`;
+}
+
+function renderFileTree() {
+  const tree = document.getElementById('fileTree');
+  const folders = {};
+  Object.keys(generatedFiles).forEach(path => {
+    const parts = path.split('/');
+    const folder = parts.length > 1 ? parts[0] : '(root)';
+    const file   = parts[parts.length - 1];
+    if(!folders[folder]) folders[folder] = [];
+    folders[folder].push({path, file});
+  });
+
+  tree.innerHTML = Object.entries(folders).map(([folder, files]) => `
+    <div class="tree-folder">${folder==='(root)' ? '/' : '📁 '+folder}</div>
+    ${files.map(f => `<div class="tree-file" onclick="showFile('${f.path}')" id="tf-${f.path.replace(/[/.]/g,'_')}">📄 ${f.file}</div>`).join('')}
+  `).join('');
+
+  // auto-select first file
+  const first = Object.keys(generatedFiles)[0];
+  if(first) showFile(first);
+}
+
+function showFile(path) {
+  currentFile = path;
+  document.querySelectorAll('.tree-file').forEach(el => el.classList.remove('active'));
+  const el = document.getElementById('tf-'+path.replace(/[/.]/g,'_'));
+  if(el) el.classList.add('active');
+  document.getElementById('codeFilename').textContent = path;
+  document.getElementById('codeContent').textContent = generatedFiles[path] || '';
+}
+
+function copyCode() {
+  const text = document.getElementById('codeContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.code-header .copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(()=>btn.textContent='Copy', 2000);
+  });
+}
+
+// ─── Scenario generation ─────────────────────────────────────────────────────
+function buildScenarios() {
+  const feature = document.getElementById('featureName').value.trim() || 'Feature';
+  const baseUrl = document.getElementById('baseUrl').value.trim() || 'https://example.com';
+  const camel   = toCamel(feature);
+  const pascal  = toPascal(feature);
+  const actions = getActions();
+  const fills   = actions.filter(a=>a.type==='fill');
+  const clicks  = actions.filter(a=>a.type==='click');
+
+  const fillNames = fills.map(a=>selectorToName(a.selector));
+
+  function fillLines(variant) {
+    return fills.map(a=>{
+      const name = selectorToName(a.selector);
+      const val  = a.td ? `testData.${variant}.${name}` : `'${a.value}'`;
+      return `    await ${camel}Page.fill${toPascal(name)}(${val});`;
+    }).join('\n');
+  }
+  function clickLines() {
+    return clicks.map(a=>
+      `    await ${camel}Page.click${toPascal(selectorToName(a.selector))}();`
+    ).join('\n');
+  }
+
+  const importBlock = (extra='') => `import { test, expect } from '../fixtures/${camel}.fixture';
+import { testData } from '../test-data/${camel}.data';
+import { waitForNetworkIdle${extra} } from '../helpers/${camel}.helpers';`;
+
+  const scenarios = [
+    {
+      file: `tests/${camel}.happy.spec.ts`,
+      badge: 'badge-green', type: 'Happy Flow',
+      title: 'Valid data — full success path',
+      desc: 'All fields filled with valid data. Asserts successful completion.',
+      code: `${importBlock()}
+
+test.describe('${feature} — Happy Flow', () => {
+  test.beforeEach(async ({ ${camel}Page }) => {
+    await ${camel}Page.navigateTo();
+  });
+
+  test('completes with valid credentials', async ({ page, ${camel}Page }) => {
+${fillLines('valid')}
+${clickLines()}
+    await waitForNetworkIdle(page);
+    await expect(page).not.toHaveURL(/login/);
+  });
+});`,
+    },
+    {
+      file: `tests/${camel}.negative-invalid.spec.ts`,
+      badge: 'badge-red', type: 'Negative',
+      title: 'Invalid input — expect errors',
+      desc: 'Submits clearly wrong values. Asserts validation / error messages appear.',
+      code: `${importBlock()}
+
+test.describe('${feature} — Invalid Input', () => {
+  test.beforeEach(async ({ ${camel}Page }) => {
+    await ${camel}Page.navigateTo();
+  });
+
+  test('shows error with invalid data', async ({ page, ${camel}Page }) => {
+${fillLines('invalid')}
+${clickLines()}
+    await waitForNetworkIdle(page);
+    // Adjust selector to match your app's error element
+    const error = page.locator('[data-testid="error"], .error, [role="alert"]').first();
+    await expect(error).toBeVisible();
+  });
+});`,
+    },
+    {
+      file: `tests/${camel}.negative-empty.spec.ts`,
+      badge: 'badge-red', type: 'Negative',
+      title: 'Empty fields — required validation',
+      desc: 'Submits form without filling anything. Asserts HTML5 / custom required-field messages.',
+      code: `${importBlock()}
+
+test.describe('${feature} — Empty Required Fields', () => {
+  test.beforeEach(async ({ ${camel}Page }) => {
+    await ${camel}Page.navigateTo();
+  });
+
+  test('blocks submission when fields are empty', async ({ page, ${camel}Page }) => {
+${fillLines('empty')}
+${clickLines()}
+    // Expect to still be on the same page (no navigation)
+    await expect(page).toHaveURL(/login|signin|${camel}/i);
+    // Or assert at least one validation message
+    const validation = page.locator(':invalid, .field-error, [aria-invalid="true"]').first();
+    await expect(validation).toBeAttached();
+  });
+});`,
+    },
+    {
+      file: `tests/${camel}.edge.spec.ts`,
+      badge: 'badge-yellow', type: 'Edge Case',
+      title: 'Boundary values — extremes',
+      desc: 'Very long strings, special characters, max-length inputs. App should handle gracefully.',
+      code: `${importBlock()}
+
+test.describe('${feature} — Edge Cases', () => {
+  test.beforeEach(async ({ ${camel}Page }) => {
+    await ${camel}Page.navigateTo();
+  });
+
+  test('handles boundary-length inputs gracefully', async ({ page, ${camel}Page }) => {
+${fillLines('edge')}
+${clickLines()}
+    await waitForNetworkIdle(page);
+    // Should not crash — either succeed or show a clear error
+    const crashed = page.locator('text=500, text=Internal Server Error').first();
+    await expect(crashed).toBeHidden();
+  });
+});`,
+    },
+    {
+      file: `tests/${camel}.no-auth.spec.ts`,
+      badge: 'badge-orange', type: 'Security',
+      title: 'Direct nav without auth',
+      desc: 'Attempts to access a protected page without logging in. Must redirect to login.',
+      code: `import { test, expect } from '../fixtures/${camel}.fixture';
+
+test.describe('${feature} — Unauthorized Access', () => {
+  test('redirects unauthenticated user to login', async ({ page }) => {
+    // Attempt to navigate directly to a protected route
+    await page.goto('${baseUrl}/dashboard');
+    // Should be redirected away from the protected page
+    await expect(page).not.toHaveURL(/dashboard/);
+    await expect(page).toHaveURL(/login|signin|auth/i);
+  });
+});`,
+    },
+    {
+      file: `tests/${camel}.smoke.spec.ts`,
+      badge: 'badge-blue', type: 'Smoke',
+      title: 'Smoke — page loads',
+      desc: 'Minimal check: page reachable, key element visible, no JS errors.',
+      code: `import { test, expect } from '../fixtures/${camel}.fixture';
+
+test.describe('${feature} — Smoke', () => {
+  test('page loads and key element is visible', async ({ ${camel}Page, page }) => {
+    await ${camel}Page.navigateTo();
+    await expect(page).toHaveTitle(/.+/);
+${fills.slice(0,1).map(a=>`    await expect(${camel}Page.${selectorToName(a.selector)}).toBeVisible();`).join('\n')||`    // assert a key element is visible`}
+  });
+});`,
+    },
+  ];
+
+  // Add scenario files to generatedFiles for ZIP
+  scenarios.forEach(s => { generatedFiles[s.file] = s.code; });
+
+  const grid = document.getElementById('scenarioGrid');
+  grid.innerHTML = scenarios.map(s => `
+    <div class="scenario-card">
+      <div class="scenario-header">
+        <div>
+          <p class="scenario-title">${s.title}</p>
+          <span class="scenario-badge ${s.badge}">${s.type}</span>
+        </div>
+        <button class="copy-btn" onclick="copyScenario(this, ${JSON.stringify(s.code).replace(/"/g,'&quot;')})">Copy</button>
+      </div>
+      <p class="scenario-desc">${s.desc}</p>
+      <pre>${escHtml(s.code)}</pre>
+    </div>
+  `).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyScenario(btn, code) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✓ Copied!';
+    setTimeout(()=>btn.textContent='Copy', 2000);
+  });
+}
+
+// ─── ZIP download ─────────────────────────────────────────────────────────────
+async function downloadZip() {
+  const feature = document.getElementById('featureName').value.trim() || 'feature';
+  const camel   = toCamel(feature);
+  const zip = new JSZip();
+  Object.entries(generatedFiles).forEach(([path, content]) => {
+    zip.file(path, content);
+  });
+  zip.file('package.json', JSON.stringify({
+    name: camel+'-tests',
+    scripts: { test: 'playwright test', 'test:report': 'playwright show-report' },
+    devDependencies: { '@playwright/test': '^1.44.0', typescript: '^5.4.0' }
+  }, null, 2));
+  zip.file('tsconfig.json', JSON.stringify({
+    compilerOptions: { target:'ES2020', module:'commonjs', strict:true, esModuleInterop:true }
+  }, null, 2));
+  const blob = await zip.generateAsync({ type:'blob' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = camel+'-playwright-project.zip';
+  a.click();
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+DEFAULTS.forEach(addAction);
+</script>
+</body>
+</html>
