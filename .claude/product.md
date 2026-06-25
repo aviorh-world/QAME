@@ -26,7 +26,7 @@ Use-case and business-rule orientation map. See UC skill files for step-by-step 
 | UC-04 | View English CV | `cv.html` | Recruiter |
 | UC-05 | View Hebrew CV | `cv-he.html` | Hebrew-speaking recruiter |
 | UC-06 | Use UI Diff Tool | `ui-diff.html` | QA / Designer |
-| UC-07 | Use QA Extractor Pro | `qa-extractor-pro.html` | QA Engineer |
+| UC-07 | Use QA Automation Pipeline | `QA-DEEP-BUNDLE.html`, `qa-engine.html`, `qa-blueprint.html` | QA Engineer |
 | UC-08 | Access Work Samples | `projects.html` (password modal) | Verified contact |
 
 ---
@@ -39,7 +39,7 @@ Use-case and business-rule orientation map. See UC skill files for step-by-step 
 |---|---|---|
 | Hero | Name, title, contact links, CV download button | First impression |
 | About preview | Intro paragraph + stats card | Links to about.html |
-| Projects preview | 2 project cards (UI Diff, Jifipedia) + placeholder | Links to projects.html |
+| Projects preview | QA Deep Explorer, Blueprint Builder, Jifipedia | Links to projects.html |
 | Skills | Chips grouped by category | 5 categories: Automation, API, Backend, AI, Methodology |
 | Contact | Email, WhatsApp, LinkedIn | Inline links, no form |
 | Footer | Nav links, copyright, social links | Identical across all portfolio pages |
@@ -59,8 +59,10 @@ Use-case and business-rule orientation map. See UC skill files for step-by-step 
 
 | Section | Content | Notes |
 |---|---|---|
+| QA Deep Explorer | Embedded iframe + "Open full" link | Links to QA-DEEP-BUNDLE.html |
+| QA Dynamic Engine | Embedded iframe + "Open full" link | Links to qa-engine.html |
+| QA Test Blueprint Builder | Embedded iframe + "Open full" link | Links to qa-blueprint.html |
 | UI Design Diff | Embedded iframe (1220 px) + "Open full" link | Links to ui-diff.html |
-| QA Extractor Pro | Embedded iframe (500 px) + "Open full" link | Links to qa-extractor-pro.html |
 | Jifipedia Articles | 3 screenshots with lightbox zoom | Screenshot1–3.png |
 | Instructional Videos | 2 Google Drive iframes | Edit mode allows adding more |
 | Work Samples | 4 Google Docs/Sheets links, password-protected | Password: see CLAUDE.md constraints |

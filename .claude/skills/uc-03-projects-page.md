@@ -9,11 +9,13 @@
 ## Main Flow
 
 1. Page loads; topbar renders (My Projects active)
-2. UI Design Diff section: embedded iframe (height 1220 px) showing `ui-diff.html`; "Open Full Page" link below
-3. QA Extractor Pro section: embedded iframe (height 500 px) showing `qa-extractor-pro.html`; "Open Full Page" link below
-4. Jifipedia Articles section: 3 screenshot images in grid; visitor clicks any image to open lightbox
-5. Instructional Videos section: 2 Google Drive iframe embeds; play inline
-6. Work Samples section: 4 locked items; visitor clicks "View" to trigger password modal
+2. QA Deep Explorer section: embedded iframe showing `QA-DEEP-BUNDLE.html`; "Open Full Page" link below
+3. QA Dynamic Engine section: embedded iframe showing `qa-engine.html`; "Open Full Page" link below
+4. QA Test Blueprint Builder section: embedded iframe showing `qa-blueprint.html`; "Open Full Page" link below
+5. UI Design Diff section: embedded iframe showing `ui-diff.html`; "Open Full Page" link below
+6. Jifipedia Articles section: screenshot images in grid; visitor clicks any image to open lightbox
+7. Instructional Videos section: Google Drive iframe embeds; play inline
+8. Work Samples section: locked items; visitor clicks "View" to trigger password modal
 
 ---
 

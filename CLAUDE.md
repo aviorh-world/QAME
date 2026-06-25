@@ -18,7 +18,6 @@ Load relevant skills before working on any area of the codebase:
 | English CV | `uc-04-cv-english` |
 | Hebrew CV | `uc-05-cv-hebrew` |
 | UI Diff tool | `uc-06-ui-diff-tool`, `domain-ui-diff` |
-| QA Extractor tool | `uc-07-qa-extractor-tool`, `domain-qa-extractor` |
 | Work sample access | `uc-08-work-samples-access` |
 
 ---
@@ -50,7 +49,9 @@ Load relevant skills before working on any area of the codebase:
 | File | Purpose |
 |---|---|
 | `ui-diff.html` | Pixel-level Figma-vs-browser design comparison tool |
-| `qa-extractor-pro.html` | Bookmarklet-based Playwright test extraction tool |
+| `QA-DEEP-BUNDLE.html` | Floating QA scanner that exports structured bundles |
+| `qa-engine.html` | Bundle analysis layer for deeper QA checks |
+| `qa-blueprint.html` | Bundle-to-Playwright blueprint and ZIP generator |
 
 ### Personal Utilities (not linked from portfolio nav)
 

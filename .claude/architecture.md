@@ -24,11 +24,13 @@ Orientation map for implementation details. See domain skill files for deep dive
 |---|---|---|
 | `index.html` | `about.html`, `projects.html`, `cv.html`, `cv-he.html` | Nav only |
 | `about.html` | Same nav links | Self-contained |
-| `projects.html` | `ui-diff.html` (iframe + link), `qa-extractor-pro.html` (iframe + link), Screenshot1–4.png, Google Drive | Heaviest page (33 KB) |
+| `projects.html` | `QA-DEEP-BUNDLE.html`, `qa-engine.html`, `qa-blueprint.html`, `ui-diff.html`, Screenshot1–4.png, Google Drive | Heaviest page |
 | `cv.html` | `cv-he.html` (toggle), LinkedIn, portfolio URL | |
 | `cv-he.html` | `cv.html` (toggle), LinkedIn | RTL mirror of cv.html |
 | `ui-diff.html` | None | Standalone tool |
-| `qa-extractor-pro.html` | None | Standalone tool |
+| `QA-DEEP-BUNDLE.html` | None | Standalone floating QA scanner |
+| `qa-engine.html` | None | Standalone bundle analysis tool |
+| `qa-blueprint.html` | None | Standalone Playwright blueprint generator |
 | `UI-diff.html` | — | Stale duplicate — do not edit |
 
 ---
@@ -133,13 +135,12 @@ See `domain-ui-diff` skill for full implementation details.
 
 ---
 
-## Tool Architecture: qa-extractor-pro.html
+## Tool Architecture: QA Automation Pipeline
 
 | Component | Detail |
 |---|---|
-| Bookmarklet | Injected into target page; extracts interactive elements |
-| Input | JSON pasted into textarea from bookmarklet output |
-| Codegen | Client-side Playwright `.spec.ts` generation |
-| Output | Preview modal + download `.spec.ts` + clipboard copy |
+| `QA-DEEP-BUNDLE.html` | Floating scanner that runs over live pages and exports structured QA bundles |
+| `qa-engine.html` | Analysis layer that reads QA bundles and expands failures, warnings, and follow-up checks |
+| `qa-blueprint.html` | Converts bundle/spec input into a deterministic Playwright blueprint and downloadable ZIP |
 
-See `domain-qa-extractor` skill for full implementation details.
+The older focused extractor was removed because the bundle flow now covers its role with a clearer downstream path.
