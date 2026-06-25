@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>QA Test Blueprint Builder</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+:root {
+  --bg:#0f172a;
+  --panel:#1e293b;
+  --panel-2:#0b1120;
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+  --border:#334155;
+  --primary:#6366f1;
+  --accent:#38bdf8;
+  --success:#10b981;
+  --warn:#fbbf24;
+  --danger:#f43f5e;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  padding:24px;
+  background:linear-gradient(180deg,#0f172a 0%,#111827 58%,#0b1120 100%);
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.55;
+}
+.container { max-width:1180px; margin:0 auto; }
+.topbar {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:20px;
+}
+.back-link {
+  color:var(--muted);
+  text-decoration:none;
+  font-size:12px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.back-link:hover { color:var(--accent); }
+h1 { margin:0; font-size:26px; line-height:1.15; }
+.subtitle { color:var(--muted); margin:6px 0 0; max-width:760px; font-size:14px; }
+.grid { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:16px; align-items:start; }
+.card {
+  background:rgba(30,41,59,.92);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:18px;
+  box-shadow:0 18px 42px rgba(0,0,0,.18);
+}
+.card h2 {
+  margin:0 0 12px;
+  color:#fff;
+  font-size:16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.num {
+  background:rgba(99,102,241,.18);
+  color:#a5b4fc;
+  border-radius:6px;
+  padding:2px 8px;
+  font-size:12px;
+  font-weight:700;
+}
+textarea, input, select {
+  width:100%;
+  background:var(--panel-2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:11px 12px;
+  font-family:ui-monospace,"Cascadia Code",Menlo,monospace;
+  font-size:13px;
+  outline:none;
+}
+textarea:focus, input:focus, select:focus { border-color:var(--primary); }
+textarea { min-height:360px; resize:vertical; }
+.hint { color:var(--muted); font-size:12px; margin:0 0 10px; }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+button {
+  border:none;
+  border-radius:8px;
+  padding:10px 14px;
+  cursor:pointer;
+  font-weight:700;
+  font-size:13px;
+  color:#fff;
+  background:var(--primary);
+}
+button:hover { filter:brightness(1.1); }
+button:disabled { opacity:.45; cursor:not-allowed; filter:none; }
+button.secondary { background:#334155; }
+button.success { background:var(--success); }
+button.accent { background:var(--accent); color:#02111f; }
+.drop-zone { transition:border-color .15s, background .15s; }
+.drop-zone.dragging { border-color:var(--accent); background:rgba(56,189,248,.08); }
+.stats {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:16px 0;
+}
+.stat {
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--primary);
+  border-radius:8px;
+  padding:12px;
+}
+.stat:nth-child(2) { border-left-color:var(--accent); }
+.stat:nth-child(3) { border-left-color:var(--success); }
+.stat:nth-child(4) { border-left-color:var(--warn); }
+.stat-value { font-size:25px; color:#fff; font-weight:800; line-height:1; }
+.stat-label { color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.08em; margin-top:7px; }
+.tabs { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+.tab {
+  background:#1e293b;
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:8px 12px;
+  border-radius:7px;
+  font-size:12px;
+}
+.tab.active { background:var(--primary); border-color:var(--primary); }
+.preview {
+  display:none;
+  margin-top:16px;
+}
+.preview.visible { display:block; }
+.panel {
+  display:none;
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:auto;
+  max-height:420px;
+}
+.panel.active { display:block; }
+table { width:100%; border-collapse:collapse; min-width:720px; font-size:12px; }
+th {
+  position:sticky;
+  top:0;
+  background:#111827;
+  color:#a5b4fc;
+  text-align:left;
+  padding:11px 12px;
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  font-size:10px;
+}
+td {
+  border-bottom:1px solid #1e293b;
+  padding:10px 12px;
+  vertical-align:top;
+}
+pre {
+  margin:0;
+  padding:14px;
+  color:#dbeafe;
+  white-space:pre-wrap;
+  font-size:12px;
+  font-family:ui-monospace,"Cascadia Code",Menlo,monospace;
+}
+.badge {
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:3px 8px;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  border:1px solid transparent;
+}
+.badge.ok { color:var(--success); background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.24); }
+.badge.warn { color:var(--warn); background:rgba(251,191,36,.12); border-color:rgba(251,191,36,.28); }
+.badge.fail { color:var(--danger); background:rgba(244,63,94,.12); border-color:rgba(244,63,94,.24); }
+.code { font-family:ui-monospace,"Cascadia Code",Menlo,monospace; color:#bae6fd; word-break:break-all; }
+.side-list { display:grid; gap:10px; }
+.side-item {
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:12px;
+}
+.side-label {
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  margin-bottom:5px;
+}
+.side-value { color:#fff; font-weight:700; font-size:14px; }
+.warning-list { margin:0; padding-left:18px; color:#fed7aa; font-size:12px; }
+.empty {
+  color:var(--muted);
+  padding:18px;
+  text-align:center;
+  font-size:13px;
+}
+@media(max-width:900px) {
+  body { padding:16px; }
+  .grid { grid-template-columns:1fr; }
+  .stats { grid-template-columns:repeat(2,1fr); }
+  textarea { min-height:280px; }
+}
+@media(max-width:520px) {
+  .topbar { align-items:flex-start; flex-direction:column; }
+  .stats { grid-template-columns:1fr; }
+  .row button { width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div>
+      <a class="back-link" href="projects.html">Back to projects</a>
+      <h1>QA Test Blueprint Builder</h1>
+      <p class="subtitle">Turn a QA Flow Runner bundle or a generated Playwright spec into a deterministic test blueprint, then export a modular Playwright ZIP.</p>
+    </div>
+    <div class="row">
+      <button class="secondary" onclick="location.href='qa-engine.html'">Flow Runner</button>
+      <button class="secondary" onclick="loadExample()">Load example</button>
+      <button class="secondary" onclick="clearAll()">Clear</button>
+    </div>
+  </div>
+
+  <div class="grid">
+    <section class="card drop-zone" id="dropZone">
+      <h2><span class="num">1</span> Source input</h2>
+      <p class="hint">Paste a <span class="code">qa-bundle-*.json</span>, QA Extractor JSON, or a Playwright spec generated by QA Flow Runner. Drop files here as an alternative.</p>
+      <textarea id="sourceInput" placeholder="Paste qa-bundle JSON or generated Playwright spec here"></textarea>
+      <div class="row" style="margin-top:12px;">
+        <button onclick="buildBlueprint()">Build Blueprint</button>
+        <button class="accent" id="downloadJsonBtn" onclick="downloadBlueprint()" disabled>Download blueprint.json</button>
+        <button class="success" id="downloadZipBtn" onclick="downloadZip()" disabled>Download Playwright ZIP</button>
+      </div>
+      <div id="message" class="hint" style="margin-top:10px;"></div>
+    </section>
+
+    <aside class="card">
+      <h2><span class="num">2</span> Output model</h2>
+      <div class="side-list">
+        <div class="side-item">
+          <div class="side-label">Interface</div>
+          <div class="side-value">Test Blueprint v1</div>
+        </div>
+        <div class="side-item">
+          <div class="side-label">Matrix policy</div>
+          <div class="side-value">Per-field full</div>
+        </div>
+        <div class="side-item">
+          <div class="side-label">Code shape</div>
+          <div class="side-value">Small specs + shared support files</div>
+        </div>
+        <div class="side-item">
+          <div class="side-label">Spec parser</div>
+          <div class="side-value">Generated specs only</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="preview" id="preview">
+    <div class="stats" id="stats"></div>
+    <div class="tabs">
+      <button class="tab active" onclick="showPanel('flows', this)">Flows</button>
+      <button class="tab" onclick="showPanel('elements', this)">Elements</button>
+      <button class="tab" onclick="showPanel('cases', this)">Test cases</button>
+      <button class="tab" onclick="showPanel('warnings', this)">Warnings</button>
+      <button class="tab" onclick="showPanel('json', this)">Blueprint JSON</button>
+    </div>
+    <div class="panel active" id="panel-flows"></div>
+    <div class="panel" id="panel-elements"></div>
+    <div class="panel" id="panel-cases"></div>
+    <div class="panel" id="panel-warnings"></div>
+    <div class="panel" id="panel-json"></div>
+  </section>
+</div>
+
+<script>
+let currentBlueprint = null;
+
+const GENERATED_VALUES = {
+  email: "qa{{$timestampMs}}@test.com",
+  tel: "0501234567",
+  number: "100",
+  text: "QA Data",
+  checkbox: true,
+  select: "first-non-empty-option",
+  date: "1990-01-15",
+  zip: "12345"
+};
+
+const FIELD_CASES = {
+  email: {
+    negative: [
+      ["plainaddress", "Missing @ should be rejected"],
+      ["user@", "Missing domain should be rejected"],
+      ["user @domain.com", "Spaces should be rejected"]
+    ],
+    boundary: [
+      ["a@b.co", "Minimal valid-looking email should be handled"],
+      ["qa." + "a".repeat(40) + "@test.com", "Long email should be handled"]
+    ],
+    security: [
+      ["<script>alert(1)<\\/script>@test.com", "Script content must be rejected or escaped"],
+      ["' OR '1'='1@test.com", "SQL-like payload must be rejected or escaped"]
+    ]
+  },
+  tel: {
+    negative: [
+      ["abc", "Letters should be rejected"],
+      ["!@#$%", "Symbols should be rejected"],
+      ["12", "Too-short phone should be rejected"]
+    ],
+    boundary: [
+      ["0".repeat(10), "Ten digits should be handled"],
+      ["0".repeat(20), "Very long phone should be handled"]
+    ],
+    security: [
+      ["<script>alert(1)<\\/script>", "Script content must be rejected or escaped"]
+    ]
+  },
+  number: {
+    negative: [
+      ["abc", "Non-numeric text should be rejected"],
+      ["!@#", "Symbols should be rejected"]
+    ],
+    boundary: [
+      ["0", "Zero should be handled"],
+      ["-1", "Negative value should follow field rules"],
+      ["9999999999", "Large number should be handled"]
+    ],
+    security: [
+      ["1 OR 1=1", "SQL-like payload must be rejected or escaped"]
+    ]
+  },
+  date: {
+    negative: [
+      ["not-a-date", "Non-date string should be rejected"],
+      ["13/45/2000", "Invalid date should be rejected"]
+    ],
+    boundary: [
+      ["1900-01-01", "Old date should follow business rules"],
+      ["2099-12-31", "Future date should follow business rules"]
+    ],
+    security: [
+      ["<img src=x onerror=alert(1)>", "HTML payload must be rejected or escaped"]
+    ]
+  },
+  text: {
+    negative: [
+      ["", "Empty value should follow required-field rules"],
+      ["   ", "Whitespace-only value should follow trim rules"]
+    ],
+    boundary: [
+      ["A", "Single character should be handled"],
+      ["A".repeat(500), "Long text should follow max length rules"]
+    ],
+    security: [
+      ["<script>alert(1)<\\/script>", "Script content must be rejected or escaped"],
+      ["' OR '1'='1", "SQL injection payload must be rejected or escaped"]
+    ]
+  },
+  select: {
+    negative: [
+      ["__invalid_option__", "Unknown option should be rejected"]
+    ],
+    boundary: [
+      ["first-non-empty-option", "First option should be selectable"]
+    ],
+    security: [
+      ["<script>alert(1)<\\/script>", "Injected option value must not execute"]
+    ]
+  },
+  checkbox: {
+    negative: [
+      [false, "Unchecked state should follow required-field rules"]
+    ],
+    boundary: [
+      [true, "Checked state should be handled"],
+      [false, "Unchecked state should be handled"]
+    ],
+    security: []
+  }
+};
+
+function escapeHtml(value){
+  const div = document.createElement("div");
+  div.textContent = value == null ? "" : String(value);
+  return div.innerHTML;
+}
+
+function slug(value){
+  return String(value || "item").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "item";
+}
+
+function setMessage(text, kind){
+  const el = document.getElementById("message");
+  el.textContent = text || "";
+  el.style.color = kind === "error" ? "var(--danger)" : kind === "warn" ? "var(--warn)" : "var(--muted)";
+}
+
+function safeJsonParse(raw){
+  try { return { ok:true, value:JSON.parse(raw) }; }
+  catch(error){ return { ok:false, error:error.message }; }
+}
+
+function guessFieldKind(field){
+  const joined = [field.name, field.id, field.label, field.placeholder, field.type].filter(Boolean).join(" ").toLowerCase();
+  if(/email/.test(joined)) return "email";
+  if(/phone|mobile|tel/.test(joined)) return "tel";
+  if(/zip|postal/.test(joined)) return "zip";
+  if(/birth|dob|date/.test(joined)) return "date";
+  if(/amount|price|number|qty|quantity|count/.test(joined) || field.type === "number") return "number";
+  if(field.type === "checkbox") return "checkbox";
+  if(field.type === "select") return "select";
+  return "text";
+}
+
+function normalizeField(raw, index, source){
+  const name = raw.name || raw.field || raw.id || raw.label || raw.placeholder || "field_" + (index + 1);
+  const type = raw.type || raw.inputType || raw.tag || "text";
+  const field = {
+    id: slug(name) + "-" + (index + 1),
+    name: name,
+    label: raw.label || raw.text || raw.placeholder || name,
+    selector: raw.selector || raw.css || (raw.name ? '[name="' + String(raw.name).replace(/"/g, '\\"') + '"]' : raw.id ? "#" + raw.id : ""),
+    type: type === "textarea" ? "text" : type,
+    kind: "",
+    required: Boolean(raw.required),
+    options: Array.isArray(raw.options) ? raw.options : [],
+    source: source || "input",
+    confidence: raw.selector || raw.name || raw.id ? "medium" : "low"
+  };
+  field.kind = guessFieldKind(field);
+  field.happyValue = raw.value != null ? raw.value : GENERATED_VALUES[field.kind] || GENERATED_VALUES.text;
+  return field;
+}
+
+function dedupeFields(fields){
+  const seen = new Map();
+  fields.forEach((field) => {
+    const key = (field.selector || field.name || field.label || field.id).toLowerCase();
+    if(!seen.has(key)) seen.set(key, field);
+  });
+  return Array.from(seen.values()).map((field, index) => ({ ...field, id: slug(field.name) + "-" + (index + 1) }));
+}
+
+function fieldsFromLearnedRules(rules){
+  const fields = [];
+  Object.keys(rules || {}).forEach((domain) => {
+    const domainRules = rules[domain];
+    if(!domainRules || typeof domainRules !== "object") return;
+    Object.keys(domainRules).forEach((name) => {
+      if(/^qa-auto-/.test(name)) return;
+      fields.push(normalizeField({ name:name, value:domainRules[name] }, fields.length, "learnedRules:" + domain));
+    });
+  });
+  return fields;
+}
+
+function fieldsFromLogs(logs){
+  const fields = [];
+  (logs || []).forEach((log) => {
+    const name = log.field || log.name;
+    if(!name || name === "N/A") return;
+    fields.push(normalizeField({
+      name:name,
+      value:log.testValue,
+      type:log.type === "security" ? "text" : undefined
+    }, fields.length, "logs"));
+  });
+  return fields;
+}
+
+function fieldsFromForms(forms){
+  const fields = [];
+  (forms || []).forEach((form) => {
+    (form.inputs || form.elements || []).forEach((input) => {
+      fields.push(normalizeField(input, fields.length, "form:" + (form.id || form.name || "form")));
+    });
+  });
+  return fields;
+}
+
+function fieldsFromElements(elements){
+  return (elements || [])
+    .filter((el) => /input|textarea|select/i.test(el.tag || el.type || "") || el.name || el.placeholder)
+    .map((el, index) => normalizeField(el, index, "elements"));
+}
+
+function normalizeFlowSteps(flowMap, startUrl){
+  const steps = (flowMap || []).map((step, index) => {
+    const path = step.pathname || (() => {
+      try { return new URL(step.url || "", startUrl || "https://example.test").pathname; }
+      catch(error){ return step.url || ""; }
+    })();
+    return {
+      id:"step-" + (index + 1),
+      order:index + 1,
+      url:step.url || "",
+      path:path || "/",
+      cta:step.cta || step.ctaText || "",
+      expectedNavigation:step.result || "recorded-flow-advance",
+      filled:Number(step.filled || 0),
+      iframes:Array.isArray(step.iframes) ? step.iframes : []
+    };
+  });
+  if(!steps.length && startUrl){
+    steps.push({ id:"step-1", order:1, url:startUrl, path:"/", cta:"", expectedNavigation:"start-url-load", filled:0, iframes:[] });
+  }
+  return steps;
+}
+
+function collectWarnings(blueprint){
+  const warnings = [];
+  if(!blueprint.flows.length || !blueprint.flows[0].steps.length) {
+    warnings.push("No flow steps were found. Only field-level tests can be generated.");
+  }
+  if(!blueprint.elements.length) {
+    warnings.push("No fields were found. The ZIP will contain happy-flow and smoke tests only.");
+  }
+  blueprint.elements.forEach((field) => {
+    if(!field.selector) warnings.push("Field '" + field.name + "' has no selector. Generated tests may need a manual selector.");
+    if(field.confidence === "low") warnings.push("Field '" + field.name + "' was inferred from weak metadata.");
+  });
+  if(blueprint.source.type === "playwright-spec" && blueprint.source.parserScope !== "generated-only") {
+    warnings.push("Spec parser is limited to QA Flow Runner generated constants.");
+  }
+  return Array.from(new Set(warnings));
+}
+
+function buildTestCases(blueprint){
+  const cases = [];
+  const flow = blueprint.flows[0];
+  if(flow && flow.steps.length){
+    cases.push({
+      id:"happy-flow",
+      category:"happy",
+      name:"Happy flow - recorded path",
+      flowId:flow.id,
+      fieldId:null,
+      value:null,
+      expected:"Recorded flow should complete without step errors"
+    });
+  }
+  blueprint.elements.forEach((field) => {
+    ["negative", "boundary", "security"].forEach((category) => {
+      const group = FIELD_CASES[field.kind] || FIELD_CASES.text;
+      (group[category] || []).forEach((item, index) => {
+        cases.push({
+          id:category + "-" + field.id + "-" + (index + 1),
+          category:category,
+          name:category + " - " + field.name + " - " + (index + 1),
+          flowId:flow ? flow.id : null,
+          fieldId:field.id,
+          fieldName:field.name,
+          value:item[0],
+          expected:item[1]
+        });
+      });
+    });
+  });
+  if(flow && flow.steps.length){
+    cases.push({
+      id:"smoke-audit",
+      category:"smoke",
+      name:"Smoke - page loads and basic UI is reachable",
+      flowId:flow.id,
+      fieldId:null,
+      value:null,
+      expected:"Start URL should load and expose a page title"
+    });
+  }
+  return cases;
+}
+
+function makeBlueprint(base){
+  const blueprint = {
+    version:"1.0",
+    source:base.source,
+    flows:[{
+      id:"flow-1",
+      name:"Recorded flow",
+      startUrl:base.startUrl || "",
+      steps:normalizeFlowSteps(base.flowMap || [], base.startUrl || "")
+    }],
+    elements:dedupeFields(base.fields || []),
+    rules:{
+      learnedRules:base.learnedRules || {},
+      generatedValues:GENERATED_VALUES,
+      validationHints:{
+        policy:"per-field-full",
+        negative:"Invalid values are tested one field at a time.",
+        boundary:"Boundary values are tested one field at a time.",
+        security:"Security payloads are checked for rejection or safe escaping."
+      }
+    },
+    testCases:[],
+    warnings:[]
+  };
+  blueprint.testCases = buildTestCases(blueprint);
+  blueprint.warnings = collectWarnings(blueprint);
+  return blueprint;
+}
+
+function buildFromBundle(data){
+  const learnedRules = data.learnedRules || {};
+  const fields = []
+    .concat(fieldsFromLearnedRules(learnedRules))
+    .concat(fieldsFromLogs(data.logs || []))
+    .concat(fieldsFromForms(data.forms || []))
+    .concat(fieldsFromElements(data.elements || []));
+  const startUrl = (data.flowMap && data.flowMap[0] && data.flowMap[0].url) || data.url || "";
+  return makeBlueprint({
+    source:{
+      type:data.flowMap ? "qa-bundle-json" : data.forms ? "qa-extractor-json" : "element-json",
+      url:startUrl,
+      title:data.title || "",
+      generatedAt:new Date().toISOString()
+    },
+    startUrl:startUrl,
+    flowMap:data.flowMap || [],
+    learnedRules:learnedRules,
+    fields:fields
+  });
+}
+
+function scanLiteral(source, startIndex){
+  let i = startIndex;
+  while(i < source.length && /\s/.test(source[i])) i++;
+  const opener = source[i];
+  const closer = opener === "{" ? "}" : opener === "[" ? "]" : opener === '"' ? '"' : opener === "'" ? "'" : "";
+  if(!closer) {
+    const end = source.indexOf(";", i);
+    return end === -1 ? source.slice(i).trim() : source.slice(i, end).trim();
+  }
+  if(opener === '"' || opener === "'") {
+    let out = opener;
+    i++;
+    let escaped = false;
+    for(; i < source.length; i++){
+      const ch = source[i];
+      out += ch;
+      if(escaped){ escaped = false; continue; }
+      if(ch === "\\"){ escaped = true; continue; }
+      if(ch === opener) break;
+    }
+    return out;
+  }
+  let depth = 0;
+  let out = "";
+  let quote = "";
+  let escaped = false;
+  for(; i < source.length; i++){
+    const ch = source[i];
+    out += ch;
+    if(quote){
+      if(escaped){ escaped = false; continue; }
+      if(ch === "\\"){ escaped = true; continue; }
+      if(ch === quote) quote = "";
+      continue;
+    }
+    if(ch === '"' || ch === "'"){ quote = ch; continue; }
+    if(ch === opener) depth++;
+    if(ch === closer) depth--;
+    if(depth === 0) break;
+  }
+  return out;
+}
+
+function extractConst(source, name){
+  const re = new RegExp("\\bconst\\s+" + name + "\\s*=\\s*");
+  const match = re.exec(source);
+  if(!match) return { found:false };
+  const literal = scanLiteral(source, match.index + match[0].length);
+  try {
+    const normalized = literal[0] === "'" ? '"' + literal.slice(1, -1).replace(/"/g, '\\"') + '"' : literal;
+    return { found:true, value:JSON.parse(normalized), literal:literal };
+  } catch(error) {
+    return { found:true, error:error.message, literal:literal };
+  }
+}
+
+function buildFromSpec(source){
+  const flow = extractConst(source, "FLOW_STEPS");
+  const rules = extractConst(source, "LEARNED_RULES");
+  const staticUrl = extractConst(source, "STATIC_START_URL");
+  if(!flow.found || flow.error || !Array.isArray(flow.value)) {
+    throw new Error("Unsupported Playwright spec. This parser expects a QA Flow Runner generated const FLOW_STEPS array.");
+  }
+  const learnedRules = rules.found && !rules.error ? rules.value : {};
+  const startUrl = staticUrl.found && !staticUrl.error ? staticUrl.value : "";
+  const fields = fieldsFromLearnedRules(learnedRules);
+  return makeBlueprint({
+    source:{
+      type:"playwright-spec",
+      url:startUrl,
+      parserScope:"generated-only",
+      generatedAt:new Date().toISOString()
+    },
+    startUrl:startUrl,
+    flowMap:flow.value,
+    learnedRules:learnedRules,
+    fields:fields
+  });
+}
+
+function buildBlueprint(){
+  const raw = document.getElementById("sourceInput").value.trim();
+  if(!raw){ setMessage("Paste JSON or a generated spec first.", "warn"); return; }
+  try {
+    let blueprint;
+    const parsed = safeJsonParse(raw);
+    if(parsed.ok) blueprint = buildFromBundle(parsed.value);
+    else blueprint = buildFromSpec(raw);
+    currentBlueprint = blueprint;
+    renderPreview(blueprint);
+    document.getElementById("downloadJsonBtn").disabled = false;
+    document.getElementById("downloadZipBtn").disabled = false;
+    setMessage("Blueprint built successfully.", blueprint.warnings.length ? "warn" : "ok");
+  } catch(error) {
+    currentBlueprint = null;
+    document.getElementById("preview").classList.remove("visible");
+    document.getElementById("downloadJsonBtn").disabled = true;
+    document.getElementById("downloadZipBtn").disabled = true;
+    setMessage(error.message || String(error), "error");
+  }
+}
+
+function renderPreview(blueprint){
+  document.getElementById("preview").classList.add("visible");
+  const stats = [
+    [blueprint.flows[0].steps.length, "Flow steps"],
+    [blueprint.elements.length, "Elements"],
+    [blueprint.testCases.length, "Test cases"],
+    [blueprint.warnings.length, "Warnings"]
+  ];
+  document.getElementById("stats").innerHTML = stats.map((item) =>
+    '<div class="stat"><div class="stat-value">' + item[0] + '</div><div class="stat-label">' + item[1] + '</div></div>'
+  ).join("");
+
+  renderFlows(blueprint);
+  renderElements(blueprint);
+  renderCases(blueprint);
+  renderWarnings(blueprint);
+  document.getElementById("panel-json").innerHTML = "<pre>" + escapeHtml(JSON.stringify(blueprint, null, 2)) + "</pre>";
+}
+
+function renderFlows(blueprint){
+  const rows = blueprint.flows[0].steps.map((step) =>
+    "<tr><td>" + step.order + "</td><td class='code'>" + escapeHtml(step.path) + "</td><td>" + escapeHtml(step.cta || "(no CTA)") + "</td><td>" + escapeHtml(step.expectedNavigation) + "</td><td>" + step.filled + "</td></tr>"
+  ).join("");
+  document.getElementById("panel-flows").innerHTML = rows
+    ? "<table><thead><tr><th>#</th><th>Path</th><th>CTA</th><th>Expected</th><th>Filled</th></tr></thead><tbody>" + rows + "</tbody></table>"
+    : "<div class='empty'>No flow steps found.</div>";
+}
+
+function renderElements(blueprint){
+  const rows = blueprint.elements.map((field) =>
+    "<tr><td>" + escapeHtml(field.name) + "</td><td><span class='badge ok'>" + escapeHtml(field.kind) + "</span></td><td class='code'>" + escapeHtml(field.selector || "(missing)") + "</td><td>" + escapeHtml(String(field.happyValue)) + "</td><td><span class='badge " + (field.confidence === "low" ? "warn" : "ok") + "'>" + escapeHtml(field.confidence) + "</span></td></tr>"
+  ).join("");
+  document.getElementById("panel-elements").innerHTML = rows
+    ? "<table><thead><tr><th>Name</th><th>Kind</th><th>Selector</th><th>Happy value</th><th>Confidence</th></tr></thead><tbody>" + rows + "</tbody></table>"
+    : "<div class='empty'>No elements found.</div>";
+}
+
+function renderCases(blueprint){
+  const rows = blueprint.testCases.map((tc) =>
+    "<tr><td><span class='badge " + (tc.category === "happy" ? "ok" : tc.category === "security" ? "fail" : "warn") + "'>" + escapeHtml(tc.category) + "</span></td><td>" + escapeHtml(tc.name) + "</td><td>" + escapeHtml(tc.fieldName || "-") + "</td><td class='code'>" + escapeHtml(tc.value == null ? "-" : String(tc.value)) + "</td><td>" + escapeHtml(tc.expected) + "</td></tr>"
+  ).join("");
+  document.getElementById("panel-cases").innerHTML = rows
+    ? "<table><thead><tr><th>Category</th><th>Name</th><th>Field</th><th>Value</th><th>Expected</th></tr></thead><tbody>" + rows + "</tbody></table>"
+    : "<div class='empty'>No test cases generated.</div>";
+}
+
+function renderWarnings(blueprint){
+  document.getElementById("panel-warnings").innerHTML = blueprint.warnings.length
+    ? "<ul class='warning-list'>" + blueprint.warnings.map((w) => "<li>" + escapeHtml(w) + "</li>").join("") + "</ul>"
+    : "<div class='empty'>No warnings.</div>";
+}
+
+function showPanel(name, btn){
+  document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("active"));
+  btn.classList.add("active");
+  document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+}
+
+function downloadText(name, content, type){
+  const blob = new Blob([content], { type:type || "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function downloadBlueprint(){
+  if(!currentBlueprint) return;
+  downloadText("blueprint.json", JSON.stringify(currentBlueprint, null, 2), "application/json");
+}
+
+function tsString(value){
+  return JSON.stringify(value, null, 2);
+}
+
+function generatedFiles(blueprint){
+  const bp = tsString(blueprint);
+  const files = {};
+  files["fixtures/blueprint.ts"] = `export const blueprint = ${bp} as const;\n\nexport type TestBlueprint = typeof blueprint;\n`;
+  files["support/selectors.ts"] = `import { Page, Locator } from '@playwright/test';\n\nexport type BlueprintField = {\n  name: string;\n  label?: string;\n  selector?: string;\n  type?: string;\n  kind?: string;\n};\n\nexport async function fieldLocator(page: Page, field: BlueprintField): Promise<Locator> {\n  const candidates = [field.selector, field.name ? '[name=\"' + field.name.replace(/\"/g, '\\\\\"') + '\"]' : '', field.name ? '#' + field.name : ''].filter(Boolean) as string[];\n  for (const selector of candidates) {\n    const locator = page.locator(selector).first();\n    if (await locator.count()) return locator;\n  }\n  if (field.label) {\n    const byLabel = page.getByLabel(field.label, { exact: false }).first();\n    if (await byLabel.count()) return byLabel;\n  }\n  throw new Error('No locator found for field: ' + field.name);\n}\n`;
+  files["support/assertions.ts"] = `import { expect, Page } from '@playwright/test';\n\nexport async function expectValidationFeedback(page: Page, expected: string): Promise<void> {\n  const invalidControls = page.locator(':invalid, [aria-invalid=\"true\"]');\n  const visibleErrors = page.locator('[role=\"alert\"], [aria-live], .error, .field-error, .invalid-feedback, mat-error');\n  const invalidCount = await invalidControls.count().catch(() => 0);\n  const errorCount = await visibleErrors.count().catch(() => 0);\n  if (invalidCount === 0 && errorCount === 0) {\n    await testStepNote(page, expected);\n  }\n  expect.soft(invalidCount + errorCount, expected).toBeGreaterThan(0);\n}\n\nasync function testStepNote(page: Page, note: string): Promise<void> {\n  await page.evaluate((message) => console.warn('[QA Blueprint]', message), note).catch(() => undefined);\n}\n`;
+  files["support/test-data.ts"] = `export type GeneratedCase = {\n  id: string;\n  category: string;\n  name: string;\n  fieldId: string | null;\n  fieldName?: string;\n  value: unknown;\n  expected: string;\n};\n\nexport function casesByCategory(blueprint: { testCases: readonly GeneratedCase[] }, category: string): GeneratedCase[] {\n  return blueprint.testCases.filter((testCase) => testCase.category === category);\n}\n\nexport function fieldById(blueprint: { elements: readonly any[] }, fieldId: string | null): any {\n  if (!fieldId) throw new Error('Test case has no fieldId');\n  const field = blueprint.elements.find((item) => item.id === fieldId);\n  if (!field) throw new Error('Unknown fieldId: ' + fieldId);\n  return field;\n}\n`;
+  files["support/flow-runner.ts"] = `import { expect, Page } from '@playwright/test';\nimport { fieldLocator } from './selectors';\n\nexport function startUrl(blueprint: any): string {\n  return blueprint.flows?.[0]?.startUrl || blueprint.source?.url || '';\n}\n\nexport async function visitStartUrl(page: Page, blueprint: any): Promise<void> {\n  const url = startUrl(blueprint);\n  if (!url) throw new Error('Blueprint is missing a start URL');\n  await page.goto(url);\n  await page.waitForLoadState('domcontentloaded').catch(() => undefined);\n}\n\nexport async function fillElement(page: Page, field: any, value: unknown): Promise<void> {\n  const locator = await fieldLocator(page, field);\n  const tag = await locator.evaluate((el) => el.tagName.toLowerCase()).catch(() => 'input');\n  const type = String(field.type || field.kind || '').toLowerCase();\n  if (type === 'checkbox') {\n    const shouldCheck = Boolean(value);\n    if (shouldCheck) await locator.check({ force: true });\n    else await locator.uncheck({ force: true }).catch(async () => locator.click({ force: true }));\n    return;\n  }\n  if (tag === 'select' || type === 'select') {\n    const option = value === 'first-non-empty-option' ? await firstOption(locator) : String(value ?? '');\n    await locator.selectOption(option);\n    return;\n  }\n  await locator.fill(String(value ?? ''));\n}\n\nexport async function fillKnownFields(page: Page, blueprint: any): Promise<void> {\n  for (const field of blueprint.elements || []) {\n    if (field.happyValue === undefined || field.happyValue === '__SKIP__') continue;\n    await fillElement(page, field, field.happyValue).catch((error) => {\n      console.warn('[QA Blueprint] skipped field', field.name, error.message);\n    });\n  }\n}\n\nexport async function runHappyFlow(page: Page, blueprint: any): Promise<void> {\n  await visitStartUrl(page, blueprint);\n  const steps = blueprint.flows?.[0]?.steps || [];\n  for (const step of steps) {\n    await fillKnownFields(page, blueprint);\n    if (step.cta) await clickCTA(page, step.cta);\n    await page.waitForLoadState('domcontentloaded').catch(() => undefined);\n  }\n  await expect(page).toHaveTitle(/.+/);\n}\n\nasync function clickCTA(page: Page, text: string): Promise<void> {\n  const escaped = text.replace(/[.*+?^${'${'} }()|[\\]\\\\]/g, '\\\\$&').trim();\n  const pattern = new RegExp(escaped, 'i');\n  const candidates = [\n    page.getByRole('button', { name: pattern }).first(),\n    page.getByRole('link', { name: pattern }).first(),\n    page.locator('[role=\"button\"], button, a', { hasText: pattern }).first()\n  ];\n  for (const candidate of candidates) {\n    if (await candidate.count()) {\n      await candidate.scrollIntoViewIfNeeded().catch(() => undefined);\n      await candidate.click({ timeout: 5000 });\n      return;\n    }\n  }\n  throw new Error('CTA not found: ' + text);\n}\n\nasync function firstOption(locator: any): Promise<string> {\n  return await locator.evaluate((select: HTMLSelectElement) => {\n    const option = Array.from(select.options).find((item) => item.value) || select.options[0];\n    return option ? option.value : '';\n  });\n}\n`;
+  files["support/flow-runner.ts"] = [
+    "import { expect, Page } from '@playwright/test';",
+    "import { fieldLocator } from './selectors';",
+    "",
+    "export function startUrl(blueprint: any): string {",
+    "  return blueprint.flows?.[0]?.startUrl || blueprint.source?.url || '';",
+    "}",
+    "",
+    "export async function visitStartUrl(page: Page, blueprint: any): Promise<void> {",
+    "  const url = startUrl(blueprint);",
+    "  if (!url) throw new Error('Blueprint is missing a start URL');",
+    "  await page.goto(url);",
+    "  await page.waitForLoadState('domcontentloaded').catch(() => undefined);",
+    "}",
+    "",
+    "export async function fillElement(page: Page, field: any, value: unknown): Promise<void> {",
+    "  const locator = await fieldLocator(page, field);",
+    "  const tag = await locator.evaluate((el) => el.tagName.toLowerCase()).catch(() => 'input');",
+    "  const type = String(field.type || field.kind || '').toLowerCase();",
+    "  if (type === 'checkbox') {",
+    "    const shouldCheck = Boolean(value);",
+    "    if (shouldCheck) await locator.check({ force: true });",
+    "    else await locator.uncheck({ force: true }).catch(async () => locator.click({ force: true }));",
+    "    return;",
+    "  }",
+    "  if (tag === 'select' || type === 'select') {",
+    "    const option = value === 'first-non-empty-option' ? await firstOption(locator) : String(value ?? '');",
+    "    await locator.selectOption(option);",
+    "    return;",
+    "  }",
+    "  await locator.fill(String(value ?? ''));",
+    "}",
+    "",
+    "export async function fillKnownFields(page: Page, blueprint: any): Promise<void> {",
+    "  for (const field of blueprint.elements || []) {",
+    "    if (field.happyValue === undefined || field.happyValue === '__SKIP__') continue;",
+    "    await fillElement(page, field, field.happyValue).catch((error) => {",
+    "      console.warn('[QA Blueprint] skipped field', field.name, error.message);",
+    "    });",
+    "  }",
+    "}",
+    "",
+    "export async function runHappyFlow(page: Page, blueprint: any): Promise<void> {",
+    "  await visitStartUrl(page, blueprint);",
+    "  const steps = blueprint.flows?.[0]?.steps || [];",
+    "  for (const step of steps) {",
+    "    await fillKnownFields(page, blueprint);",
+    "    if (step.cta) await clickCTA(page, step.cta);",
+    "    await page.waitForLoadState('domcontentloaded').catch(() => undefined);",
+    "  }",
+    "  await expect(page).toHaveTitle(/.+/);",
+    "}",
+    "",
+    "async function clickCTA(page: Page, text: string): Promise<void> {",
+    "  const escaped = text.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&').trim();",
+    "  const pattern = new RegExp(escaped, 'i');",
+    "  const candidates = [",
+    "    page.getByRole('button', { name: pattern }).first(),",
+    "    page.getByRole('link', { name: pattern }).first(),",
+    "    page.locator('[role=\"button\"], button, a', { hasText: pattern }).first()",
+    "  ];",
+    "  for (const candidate of candidates) {",
+    "    if (await candidate.count()) {",
+    "      await candidate.scrollIntoViewIfNeeded().catch(() => undefined);",
+    "      await candidate.click({ timeout: 5000 });",
+    "      return;",
+    "    }",
+    "  }",
+    "  throw new Error('CTA not found: ' + text);",
+    "}",
+    "",
+    "async function firstOption(locator: any): Promise<string> {",
+    "  return await locator.evaluate((select: HTMLSelectElement) => {",
+    "    const option = Array.from(select.options).find((item) => item.value) || select.options[0];",
+    "    return option ? option.value : '';",
+    "  });",
+    "}"
+  ].join("\n") + "\n";
+  files["tests/happy-flow.spec.ts"] = `import { test } from '@playwright/test';\nimport { blueprint } from '../fixtures/blueprint';\nimport { runHappyFlow } from '../support/flow-runner';\n\ntest('happy flow - recorded path', async ({ page }) => {\n  await runHappyFlow(page, blueprint);\n});\n`;
+  files["tests/negative-fields.spec.ts"] = variantSpec("negative");
+  files["tests/boundary-fields.spec.ts"] = variantSpec("boundary");
+  files["tests/security-fields.spec.ts"] = variantSpec("security");
+  files["package.json"] = JSON.stringify({
+    name:"qa-blueprint-playwright-suite",
+    version:"1.0.0",
+    private:true,
+    type:"module",
+    scripts:{
+      test:"playwright test",
+      "test:headed":"playwright test --headed",
+      "test:ui":"playwright test --ui",
+      report:"playwright show-report"
+    },
+    devDependencies:{
+      "@playwright/test":"latest"
+    }
+  }, null, 2) + "\n";
+  files["playwright.config.ts"] = `import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  timeout: 120_000,
+  expect: {
+    timeout: 5_000
+  },
+  fullyParallel: false,
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }]
+  ],
+  use: {
+    actionTimeout: 10_000,
+    navigationTimeout: 30_000,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    }
+  ]
+});
+`;
+  return files;
+}
+
+function variantSpec(category){
+  return `import { test } from '@playwright/test';\nimport { blueprint } from '../fixtures/blueprint';\nimport { expectValidationFeedback } from '../support/assertions';\nimport { fieldById, casesByCategory } from '../support/test-data';\nimport { fillElement, fillKnownFields, visitStartUrl } from '../support/flow-runner';\n\nfor (const testCase of casesByCategory(blueprint, '${category}')) {\n  test(testCase.name, async ({ page }) => {\n    await visitStartUrl(page, blueprint);\n    await fillKnownFields(page, blueprint);\n    const field = fieldById(blueprint, testCase.fieldId);\n    await fillElement(page, field, testCase.value);\n    await expectValidationFeedback(page, testCase.expected);\n  });\n}\n`;
+}
+
+async function downloadZip(){
+  if(!currentBlueprint) return;
+  if(typeof JSZip === "undefined") {
+    setMessage("JSZip failed to load. Check your network connection and try again.", "error");
+    return;
+  }
+  const zip = new JSZip();
+  const files = generatedFiles(currentBlueprint);
+  Object.keys(files).forEach((path) => zip.file(path, files[path]));
+  zip.file("blueprint.json", JSON.stringify(currentBlueprint, null, 2));
+  zip.file("README.md", "# QA Blueprint Playwright Suite\n\nThis ZIP is a standalone Playwright project generated from `blueprint.json`.\n\n## First-time setup\n\n```bash\nnpm install\nnpx playwright install chromium\n```\n\n## Run\n\n```bash\nnpm test\n```\n\nUseful variants:\n\n```bash\nnpm run test:headed\nnpm run test:ui\nnpm run report\n```\n\n## Maintain\n\n- Keep `blueprint.json` as the source of truth.\n- Update selectors in `support/selectors.ts` only when a field cannot be found reliably.\n- Update shared flow behavior in `support/flow-runner.ts`.\n- Keep individual files under `tests/` small; they should call helpers, not hold infrastructure.\n");
+  const blob = await zip.generateAsync({ type:"blob" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "qa-blueprint-playwright-suite.zip";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+function loadExample(){
+  const example = {
+    generatedAt:new Date().toISOString(),
+    url:"https://example.test/signup",
+    learnedRules:{
+      "example.test":{
+        firstName:"QAFirst",
+        email:"qa{{$timestampMs}}@test.com",
+        phone:"0501234567"
+      }
+    },
+    flowMap:[
+      { url:"https://example.test/signup", pathname:"/signup", cta:"Continue", filled:3, result:"advanced" },
+      { url:"https://example.test/review", pathname:"/review", cta:"Submit", filled:0, result:"done" }
+    ],
+    logs:[]
+  };
+  document.getElementById("sourceInput").value = JSON.stringify(example, null, 2);
+  buildBlueprint();
+}
+
+function clearAll(){
+  document.getElementById("sourceInput").value = "";
+  currentBlueprint = null;
+  document.getElementById("preview").classList.remove("visible");
+  document.getElementById("downloadJsonBtn").disabled = true;
+  document.getElementById("downloadZipBtn").disabled = true;
+  setMessage("");
+}
+
+function loadTransferredSource(){
+  const params = new URLSearchParams(location.search);
+  if(params.get("source") !== "localStorage") return;
+  const raw = localStorage.getItem("__qaBlueprintSource");
+  if(!raw){
+    setMessage("No transferred bundle found. Send one from Flow Runner or paste JSON here.", "warn");
+    return;
+  }
+  document.getElementById("sourceInput").value = raw;
+  buildBlueprint();
+  const sourceAt = localStorage.getItem("__qaBlueprintSourceAt");
+  setMessage("Loaded bundle from Flow Runner" + (sourceAt ? " (" + sourceAt + ")" : "") + ".", currentBlueprint && currentBlueprint.warnings.length ? "warn" : "ok");
+}
+
+(function setupDrop(){
+  const drop = document.getElementById("dropZone");
+  const input = document.getElementById("sourceInput");
+  ["dragenter", "dragover"].forEach((eventName) => drop.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    drop.classList.add("dragging");
+  }));
+  ["dragleave", "drop"].forEach((eventName) => drop.addEventListener(eventName, (event) => {
+    event.preventDefault();
+    drop.classList.remove("dragging");
+  }));
+  drop.addEventListener("drop", async (event) => {
+    const file = event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files[0];
+    if(!file) return;
+    input.value = await file.text();
+    buildBlueprint();
+  });
+})();
+loadTransferredSource();
+</script>
+</body>
+</html>

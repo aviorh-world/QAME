@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>My Projects · Avior Hadad · Premium QA Lab</title>
+<title>My Projects Â· Avior Hadad Â· Premium QA Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Lora:ital@0;1&display=swap" rel="stylesheet"/>
 <style>:root{--ink:#08111f;--navy:#162C46;--navy2:#07111F;--panel:#0D1B2D;--sky:#58B9E8;--cyan:#8BE9FD;--ice:#D8ECF8;--cream:#F6F2EA;--paper:#FFFDF8;--charcoal:#233244;--mid:#66788F;--accent:#FFB84D;--green:#61D394;--red:#FF6B6B;--white:#FFFFFF;--border:rgba(22,44,70,0.14);--shadow:0 24px 70px rgba(7,17,31,0.13);--soft-shadow:0 14px 36px rgba(22,44,70,0.10);}
@@ -21,6 +21,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 .hero-actions .lab-btn.active-page{background:var(--accent)!important;color:var(--navy2)!important;border-color:var(--accent)!important}
 .s-label,.s-title{text-align:center!important;display:block!important}
 .s-title::after{left:50%!important;transform:translateX(-50%)!important}
+@media(max-width:768px){.tool-frame iframe.qablueprint{height:520px!important}}
 @media(max-width:900px){.site-hero{grid-template-columns:1fr!important;padding:36px 22px 32px!important}.hero-name{font-size:30px!important}}
 </style>
 </head>
@@ -40,14 +41,101 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
   <div class="hero-right"><div class="hero-panel"><div class="panel-top"><span>QA Signal</span><div class="panel-dots"><span></span><span></span><span></span></div></div><div class="signal-list"><div class="signal-row"><span>Experience</span><strong>10+ yrs</strong><span class="signal-status">verified</span></div><div class="signal-row"><span>Integrations</span><strong>5+</strong><span class="signal-status">owned</span></div><div class="signal-row"><span>Mode</span><strong>Root cause</strong><span class="signal-status">active</span></div></div><div class="hero-links"><a href="mailto:Aviorh@gmail.com">Aviorh@gmail.com</a><a href="https://www.linkedin.com/in/avior-hadad-30b76869/" target="_blank">LinkedIn</a><a href="https://wa.me/972545959059" target="_blank">WhatsApp</a></div></div></div>
 </div>
 <main>
-<section class="section fade-in"><div class="s-label">Portfolio / Tool Shelf</div><div class="s-title">Projects and samples</div><div class="showcase-grid"><div class="card"><span class="status-pill pass">Live Tool</span><div class="card-title">UI Design Diff</div><div class="card-desc">Compare Figma intent against browser reality with deterministic visual checks.</div><a class="card-link" href="#uidiff">Try embedded tool</a></div><div class="card"><span class="status-pill pass">Codegen Helper</span><div class="card-title">QA Extractor Pro</div><div class="card-desc">Extract page structure with a bookmarklet and turn it into Playwright-oriented steps.</div><a class="card-link" href="#qaextractor">View workflow</a></div><div class="card"><span class="status-pill pass">Analysis Engine</span><div class="card-title">QA Dynamic Engine</div><div class="card-desc">Generate broader form checks and analyze results with pass/fail summaries.</div><a class="card-link" href="#qaengine">Open engine</a></div><div class="card"><span class="status-pill warn">Documentation</span><div class="card-title">Jifipedia Articles</div><div class="card-desc">Internal procedures and validation guides authored for Jifiti teams.</div><a class="card-link" href="#docs">View screenshots</a></div><div class="card"><span class="status-pill warn">Knowledge Sharing</span><div class="card-title">Instructional Videos</div><div class="card-desc">Walkthroughs and QA knowledge sessions for onboarding and team clarity.</div><a class="card-link" href="#videos">Watch samples</a></div><div class="card"><span class="status-pill warn">Protected</span><div class="card-title">Work Samples</div><div class="card-desc">Selected docs, test strategy, and test cases available to verified contacts.</div><a class="card-link" href="#workfiles">Unlock samples</a></div></div></section>
+<section class="section fade-in"><div class="s-label">Portfolio / QA Product Pipeline</div><div class="s-title">Projects and samples</div><div class="showcase-grid"><div class="card"><span class="status-pill pass">01 / Discovery</span><div class="card-title">QA Deep Explorer</div><div class="card-desc">A floating scanner that runs over real pages, finds quality risks, and exports a bundle for the next tools.</div><a class="card-link" href="#qadeep">Start scan</a></div><div class="card"><span class="status-pill pass">02 / Analysis</span><div class="card-title">QA Dynamic Engine</div><div class="card-desc">Reads the bundle, summarizes failures, and turns captured behavior into deeper QA checks.</div><a class="card-link" href="#qaengine">Open engine</a></div><div class="card"><span class="status-pill pass">03 / Architecture</span><div class="card-title">QA Test Blueprint Builder</div><div class="card-desc">Turns scan and flow data into a maintainable Playwright project with tests, helpers, fixtures, and data.</div><a class="card-link" href="#qablueprint">Build blueprint</a></div><div class="card"><span class="status-pill pass">04 / Focused Extraction</span><div class="card-title">QA Extractor Pro</div><div class="card-desc">A smaller extractor for page structure and Playwright-oriented step generation when a focused capture is enough.</div><a class="card-link" href="#qaextractor">View extractor</a></div><div class="card"><span class="status-pill pass">05 / UI Validation</span><div class="card-title">UI Design Diff</div><div class="card-desc">Compares Figma intent against browser reality after functional QA work is already mapped.</div><a class="card-link" href="#uidiff">Try diff</a></div><div class="card"><span class="status-pill warn">Documentation</span><div class="card-title">Jifipedia Articles</div><div class="card-desc">Internal procedures and validation guides authored for Jifiti teams.</div><a class="card-link" href="#docs">View screenshots</a></div><div class="card"><span class="status-pill warn">Knowledge Sharing</span><div class="card-title">Instructional Videos</div><div class="card-desc">Walkthroughs and QA knowledge sessions for onboarding and team clarity.</div><a class="card-link" href="#videos">Watch samples</a></div><div class="card"><span class="status-pill warn">Protected</span><div class="card-title">Work Samples</div><div class="card-desc">Selected docs, test strategy, and test cases available to verified contacts.</div><a class="card-link" href="#workfiles">Unlock samples</a></div></div></section>
+
+<!-- QA DEEP EXPLORER -->
+<section class="section fade-in" id="qadeep" style="animation-delay:.1s">
+  <div class="s-label">01 / QA Discovery</div>
+  <div class="s-title">QA Deep Explorer</div>
+  <div class="s-subtitle">Floating page scanner &rarr; evidence &rarr; QA bundle &nbsp;&middot;&nbsp; <a href="QA-DEEP-BUNDLE.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open bundle version</a></div>
+  <div class="tool-frame">
+    <div style="background:#0f172a;color:#e2e8f0;padding:28px;min-height:300px;">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8be9fd;margin-bottom:10px;">Entry point for live-site QA</div>
+      <h3 style="font-family:'Syne',sans-serif;font-size:26px;color:#fff;margin-bottom:14px;">Scan the real page before generating automation.</h3>
+      <p style="font-size:15px;line-height:1.8;color:#cbd5e1;max-width:820px;">QA Deep Explorer is a floating QA panel that runs on top of the tested site. It checks links, forms, accessibility signals, selector quality, metadata, iframes, validation behavior, console errors, and evidence. The bundle version can export the run as structured JSON for QA Dynamic Engine or QA Test Blueprint Builder.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:22px;">
+        <div style="background:#111827;border:1px solid #334155;border-radius:10px;padding:14px;"><strong style="display:block;color:#61D394;font-family:'Syne',sans-serif;margin-bottom:6px;">Use first</strong><span style="font-size:13px;color:#94a3b8;">Run it directly over the site to understand risk before writing tests.</span></div>
+        <div style="background:#111827;border:1px solid #334155;border-radius:10px;padding:14px;"><strong style="display:block;color:#FFB84D;font-family:'Syne',sans-serif;margin-bottom:6px;">Send forward</strong><span style="font-size:13px;color:#94a3b8;">Export a QA bundle or open it in QA Engine for analysis.</span></div>
+        <div style="background:#111827;border:1px solid #334155;border-radius:10px;padding:14px;"><strong style="display:block;color:#58B9E8;font-family:'Syne',sans-serif;margin-bottom:6px;">Plan automation</strong><span style="font-size:13px;color:#94a3b8;">Use the same bundle in Blueprint Builder to create modular Playwright output.</span></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;">
+        <a class="lab-btn primary" href="QA-DEEP-BUNDLE.html" target="_blank">Bundle Version</a>
+        <a class="lab-btn" href="QA-DEEP.html" target="_blank">Original Script</a>
+        <a class="lab-btn" href="qa-engine.html" target="_blank">QA Engine</a>
+        <a class="lab-btn" href="qa-blueprint.html" target="_blank">Blueprint Builder</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section fade-in" id="qa-pipeline" style="animation-delay:.11s">
+  <details style="background:var(--paper);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--soft-shadow);">
+    <summary style="cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);font-weight:700;">
+      How the QA tools connect
+    </summary>
+    <div style="margin-top:14px;font-size:14px;color:var(--mid);line-height:1.8;">
+      <p style="margin-bottom:10px;">The tools are intentionally separated so each one has a clear job. QA Deep Explorer discovers risk on the live site. QA Dynamic Engine reads the bundle and gives a richer analysis surface. Blueprint Builder turns the same source data into a maintainable Playwright project.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:14px;">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;"><strong style="font-family:'Syne',sans-serif;color:var(--navy);display:block;margin-bottom:5px;">1. Discover</strong>Run QA Deep Explorer over the real page and export a bundle.</div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;"><strong style="font-family:'Syne',sans-serif;color:var(--navy);display:block;margin-bottom:5px;">2. Analyze</strong>Open the bundle in QA Dynamic Engine to review failures, warnings, and follow-up checks.</div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;"><strong style="font-family:'Syne',sans-serif;color:var(--navy);display:block;margin-bottom:5px;">3. Build</strong>Send the bundle to Blueprint Builder and export a modular Playwright suite.</div>
+      </div>
+      <p style="margin-top:12px;">QA Extractor Pro stays available as a focused helper when you only need page structure or a smaller Playwright-oriented capture. UI Design Diff is last because it validates visual implementation against Figma after the functional QA flow is understood.</p>
+    </div>
+  </details>
+</section>
+
+<!-- QA DYNAMIC ENGINE -->
+<section class="section fade-in" id="qaengine" style="animation-delay:.12s">
+  <div class="s-label">02 / QA Analysis</div>
+  <div class="s-title">QA Dynamic Engine</div>
+  <div class="s-subtitle">QA bundle &rarr; result analysis &rarr; generated QA checks &nbsp;&middot;&nbsp; <a href="qa-engine.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool in new tab</a></div>
+
+  <div class="tool-frame">
+    <iframe class="qaengine" style="height:620px;background:#0f172a;" src="qa-engine.html"></iframe>
+  </div>
+
+  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
+    QA Dynamic Engine is the analysis layer. It accepts a QA bundle from QA Deep Explorer or Flow Runner, previews the captured flow, summarizes failures and warnings, and can generate broader validation, accessibility, security, and happy-flow checks before handing the run to Blueprint Builder.
+  </p>
+</section>
+
+<!-- QA TEST BLUEPRINT BUILDER -->
+<section class="section fade-in" id="qablueprint" style="animation-delay:.13s">
+  <div class="s-label">03 / QA Architecture</div>
+  <div class="s-title">QA Test Blueprint Builder</div>
+  <div class="s-subtitle">Bundle or generated spec &rarr; Blueprint JSON &rarr; modular Playwright ZIP &nbsp;&middot;&nbsp; <a href="qa-blueprint.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool in new tab</a></div>
+
+  <div class="tool-frame">
+    <iframe class="qablueprint" style="height:720px;background:#0f172a;" src="qa-blueprint.html"></iframe>
+  </div>
+
+  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
+    Blueprint Builder is the planning layer for maintainable automation. It breaks a bundle into flows, elements, rules, and test cases, then exports a Playwright project split into tests, helpers, fixtures, selectors, assertions, and data instead of one oversized spec file.
+  </p>
+</section>
+
+<!-- QA EXTRACTOR PRO -->
+<section class="section fade-in" id="qaextractor" style="animation-delay:.14s">
+  <div class="s-label">04 / QA Extraction</div>
+  <div class="s-title">QA Extractor Pro</div>
+  <div class="s-subtitle">Focused bookmarklet capture &rarr; page JSON &rarr; Playwright-oriented steps &nbsp;&middot;&nbsp; <a href="qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open in new tab</a></div>
+    
+  <div class="tool-frame">
+    <iframe class="qaextractor" style="height:560px;background:var(--navy);" src="qa-extractor-pro.html"></iframe>
+  </div>
+    
+  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
+    QA Extractor Pro is a focused helper for smaller captures. It extracts page structure with a bookmarklet, turns fields and actions into readable JSON, and helps generate Playwright-oriented steps when a full deep scan is more than the task requires.
+  </p>
+</section>
 
 <!-- UI DIFF TOOL -->
-<section class="section fade-in" id="uidiff" style="animation-delay:.1s">
-  <div class="s-label">01 / QA Tool</div>
+<section class="section fade-in" id="uidiff" style="animation-delay:.15s">
+  <div class="s-label">05 / UI Validation</div>
   <div class="s-title">UI Design Diff</div>
   <div class="s-subtitle">
-    Advanced deterministic diff tool between Figma design and live browser implementation 
+    Figma design &rarr; browser implementation &rarr; deterministic visual differences
     &nbsp;&middot;&nbsp; 
     <a href="ui-diff.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">
       &#8599; Open full tool in new tab
@@ -64,44 +152,13 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
   </div>
 
   <p style="font-size:13px; color:var(--mid); margin-top:18px; text-align:center; line-height:1.5;">
-    ✅ The complete UI Diff Pro tool is embedded here.<br>
-    Drag Figma JSON + Browser JSON (from the bookmarklet) + optional screenshot.
-  </p>
-</section>
-
-<!-- QA EXTRACTOR PRO -->
-<section class="section fade-in" id="qaextractor" style="animation-delay:.12s">
-  <div class="s-label">02 / QA Tool</div>
-  <div class="s-title">QA Extractor Pro</div>
-  <div class="s-subtitle">Bookmarklet → JSON → Playwright &nbsp;&middot;&nbsp; <a href="https://aviorh-world.github.io/QAME/qa-extractor-pro.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">↗ Open in new tab</a></div>
-    
-  <div class="tool-frame">
-    <iframe class="qaextractor" style="height:560px;background:var(--navy);" src="https://aviorh-world.github.io/QAME/qa-extractor-pro.html"></iframe>
-  </div>
-    
-  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
-    Streamlines test automation setup. Drag bookmarklet to toolbar, click on any page to extract JSON, paste in tool, preview test steps in browser, then generate or download Playwright .spec.ts files. Integrates with npx playwright test for real execution.
-  </p>
-</section>
-
-<!-- QA DYNAMIC ENGINE -->
-<section class="section fade-in" id="qaengine" style="animation-delay:.13s">
-  <div class="s-label">03 / QA Tool</div>
-  <div class="s-title">QA Dynamic Engine</div>
-  <div class="s-subtitle">Bookmarklet → JSON → Mega Test Suite → Deep Analysis &nbsp;&middot;&nbsp; <a href="qa-engine.html" target="_blank" style="color:var(--sky);font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;">&#8599; Open full tool in new tab</a></div>
-
-  <div class="tool-frame">
-    <iframe class="qaengine" style="height:620px;background:#0f172a;" src="qa-engine.html"></iframe>
-  </div>
-
-  <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:16px;">
-    Full-cycle form QA engine. Extract form fields from any page with the bookmarklet, generate a mega console test suite covering validation, accessibility, security (XSS/SQLi), and happy-flow — then paste results back for deep analysis with pass/fail stats, filtering, manual overrides, and Excel export.
+    The UI Diff tool is intentionally placed last: after the functional QA flow is mapped, it compares Figma JSON, browser JSON, and optional screenshots to highlight design-vs-implementation gaps.
   </p>
 </section>
 
 <!-- JIFITI DOCUMENTATION -->
 <section class="section fade-in" id="docs" style="animation-delay:.14s">
-  <div class="s-label">04 / Documentation</div>
+  <div class="s-label">06 / Documentation</div>
   <div class="s-title">Jifipedia Articles I Authored</div>
   <div class="s-subtitle">Sample of articles I wrote for the Jifiti internal knowledge base</div>
   <p style="font-size:15px;line-height:1.85;color:var(--charcoal);margin-bottom:28px;max-width:680px;">During my time at Jifiti I wrote internal knowledge-base articles on Jifipedia (Confluence) &mdash; step-by-step QA procedures, integration validation flows, and system documentation shared across R&amp;D. Click any image to expand.</p>
@@ -122,7 +179,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
         <div class="ss-title">Validation: Sending &amp; Receiving Adjustment File from Fiserv</div>
       </div>
     </div>
-    <div class="ss-item" onclick="openLb('Screenshot3.png','Jifiti Branding – Main Things to Know')">
+    <div class="ss-item" onclick="openLb('Screenshot3.png','Jifiti Branding â€“ Main Things to Know')">
       <div class="ss-zoom">&#128269;</div>
       <img class="ss-img" src="Screenshot3.png" alt="Jifiti Branding documentation"/>
       <div class="ss-cap">
@@ -135,7 +192,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 
 <!-- VIDEOS -->
 <section class="section fade-in" id="videos" style="animation-delay:.16s">
-  <div class="s-label">05 / Knowledge Sharing</div>
+  <div class="s-label">07 / Knowledge Sharing</div>
   <div class="s-title">Instructional Videos</div>
   <div class="s-subtitle">Sample of instructional content I created for QA onboarding and knowledge sharing</div>
   <div class="video-grid">
@@ -182,7 +239,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 
 <!-- WORK SAMPLE FILES -->
 <section class="section fade-in" id="workfiles" style="animation-delay:.18s">
-  <div class="s-label">06 / Work Samples</div>
+  <div class="s-label">08 / Work Samples</div>
   <div class="s-title">Sample Work Files</div>
   <p class="s-subtitle">A sample of QA documents, test plans, and test cases I&rsquo;ve created &mdash; password required to view.</p>
   <div class="wf-locked-msg" id="wfLockedMsg">
@@ -216,7 +273,7 @@ main{max-width:1160px;margin:0 auto;padding:66px 60px;position:relative;z-index:
 </main>
 
 <script>
-// ── Lightbox with zoom ──
+// â”€â”€ Lightbox with zoom â”€â”€
 var lbZoom = 1, lbPanX = 0, lbPanY = 0, lbDragStart = null;
 function openLb(src,cap){
   document.getElementById('lbImg').src=src;
@@ -268,15 +325,15 @@ document.addEventListener('keydown',function(e){
   if(e.key==='0')zoomReset();
 });
 
-// ── Password / Edit mode ──
+// â”€â”€ Password / Edit mode â”€â”€
 function openPw(){document.getElementById('pwModal').classList.add('visible');setTimeout(function(){document.getElementById('pwInput').focus();},100);document.getElementById('pwErr').textContent='';document.getElementById('pwInput').value='';}
 function closePw(){document.getElementById('pwModal').classList.remove('visible');}
-function checkPw(){if(document.getElementById('pwInput').value==='AviorW@'){closePw();enterEdit();}else{document.getElementById('pwErr').textContent='✗ Incorrect password';document.getElementById('pwInput').value='';document.getElementById('pwInput').focus();}}
+function checkPw(){if(document.getElementById('pwInput').value==='AviorW@'){closePw();enterEdit();}else{document.getElementById('pwErr').textContent='âœ— Incorrect password';document.getElementById('pwInput').value='';document.getElementById('pwInput').focus();}}
 document.getElementById('pwModal').addEventListener('click',function(e){if(e.target===this)closePw();});
 function enterEdit(){document.body.classList.add('edit-mode');document.getElementById('saveBanner').classList.add('on');}
 function exitEdit(){document.body.classList.remove('edit-mode');document.getElementById('saveBanner').classList.remove('on');}
 
-// ── Add video ──
+// â”€â”€ Add video â”€â”€
 var extraVideos=[];
 function addVideo(){
   var t=document.getElementById('newVidTitle').value.trim();

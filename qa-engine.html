@@ -217,9 +217,10 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     <div class="content" style="text-align:center;">
       <div style="display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;">
         <button class="success" onclick="generateSpec()">🎧 Download Playwright spec (.ts)</button>
+        <button class="success" onclick="sendBundleToBlueprint()" style="background:#a78bfa;color:#000;">🧭 Open in Blueprint Builder</button>
         <button class="success" onclick="generateConsoleReplay()" style="background:#38bdf8;color:#000;">📋 Download console replay (.js)</button>
       </div>
-      <p class="helper" style="margin-top:10px;text-align:left;">Playwright spec runs in CI. Console replay pastes into DevTools console of the start page and replays the flow live in your browser — no Playwright required.</p>
+      <p class="helper" style="margin-top:10px;text-align:left;">Playwright spec runs in CI. Blueprint Builder turns this bundle into a modular Playwright project. Console replay pastes into DevTools console of the start page and replays the flow live in your browser — no Playwright required.</p>
       <div class="cmd-box" style="text-align:left;">
         <span class="cmd-label">▶ Run the Playwright spec from your project root</span>
         <div class="cmd-line">
@@ -1296,6 +1297,18 @@ function renderBundlePreview(){
   renderResultsTable();
 }
 
+function loadTransferredEngineBundle(){
+  const params = new URLSearchParams(location.search);
+  const source = params.get('source');
+  if(source !== 'qadeep' && source !== 'localStorage') return;
+  const raw = localStorage.getItem('__qaEngineBundleSource');
+  if(!raw) return;
+  const ta = document.getElementById('bundleJson');
+  if(!ta) return;
+  ta.value = raw;
+  renderBundlePreview();
+}
+
 function activeSessionId(){
   return (currentBundle && (currentBundle.sessionId || currentBundle.runId)) || 'manual-' + new Date().toISOString().replace(/[:.]/g,'-');
 }
@@ -1434,6 +1447,23 @@ async function exportSessionZip(){
   a.download = 'qa-flow-runner-session-' + String(activeSessionId()).replace(/[^a-zA-Z0-9_-]/g, '-') + '.zip';
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function slimCurrentBundle(){
+  if(!currentBundle) return null;
+  const slimBundle = { ...currentBundle, snapshotCount: (currentBundle.snapshots || []).length };
+  delete slimBundle.snapshots;
+  return slimBundle;
+}
+function sendBundleToBlueprint(){
+  const slimBundle = slimCurrentBundle();
+  if(!slimBundle || !currentBundleRows.length){ alert('Drop or paste a bundle first.'); return; }
+  try {
+    localStorage.setItem('__qaBlueprintSource', JSON.stringify(slimBundle));
+    localStorage.setItem('__qaBlueprintSourceAt', new Date().toISOString());
+    window.open('qa-blueprint.html?source=localStorage', '_blank', 'noopener');
+  } catch(e) {
+    alert('Could not send bundle to Blueprint Builder: ' + (e && e.message ? e.message : e));
+  }
 }
 function exportResultsExcel(){
   if(!currentBundle || !currentBundleRows.length){ alert('Drop or paste a bundle first.'); return; }
@@ -2524,6 +2554,7 @@ async function generateConsoleReplay(){
   a.download = 'qa-flow-runner/session-'+sid+'/flow-replay-'+slug+'.console.js';
   a.click();
 }
+loadTransferredEngineBundle();
 </script>
 </body>
 </html>

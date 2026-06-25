@@ -1,0 +1,1211 @@
+export const blueprint = {
+  "version": "1.0",
+  "source": {
+    "type": "qa-bundle-json",
+    "url": "https://hgv.spdev.jifiti.com/offer-select",
+    "title": "",
+    "generatedAt": "2026-06-20T21:55:14.200Z"
+  },
+  "flows": [
+    {
+      "id": "flow-1",
+      "name": "Recorded flow",
+      "startUrl": "https://hgv.spdev.jifiti.com/offer-select",
+      "steps": [
+        {
+          "id": "step-1",
+          "order": 1,
+          "url": "https://hgv.spdev.jifiti.com/offer-select",
+          "path": "/offer-select",
+          "cta": "get started",
+          "expectedNavigation": "url",
+          "filled": 2,
+          "iframes": []
+        },
+        {
+          "id": "step-2",
+          "order": 2,
+          "url": "https://hgv.spdev.jifiti.com/pii/confirm-and-edit-info-address-validation",
+          "path": "/pii/confirm-and-edit-info-address-validation",
+          "cta": "Continue",
+          "expectedNavigation": "url",
+          "filled": 10,
+          "iframes": []
+        },
+        {
+          "id": "step-3",
+          "order": 3,
+          "url": "https://hgv.spdev.jifiti.com/otp/passcode-validate",
+          "path": "/otp/passcode-validate",
+          "cta": "SUBMIT",
+          "expectedNavigation": "url",
+          "filled": 1,
+          "iframes": []
+        },
+        {
+          "id": "step-4",
+          "order": 4,
+          "url": "https://hgv.spdev.jifiti.com/loan-agreement/submit-app",
+          "path": "/loan-agreement/submit-app",
+          "cta": "continue",
+          "expectedNavigation": "url",
+          "filled": 6,
+          "iframes": []
+        },
+        {
+          "id": "step-5",
+          "order": 5,
+          "url": "https://hgv.spdev.jifiti.com/loan-agreement/submit-app",
+          "path": "/loan-agreement/submit-app",
+          "cta": "SUBMIT",
+          "expectedNavigation": "url",
+          "filled": 3,
+          "iframes": []
+        },
+        {
+          "id": "step-6",
+          "order": 6,
+          "url": "https://hgv.spdev.jifiti.com/offer-select/confirm-financing",
+          "path": "/offer-select/confirm-financing",
+          "cta": "Confirm & Sign",
+          "expectedNavigation": "url",
+          "filled": 0,
+          "iframes": []
+        }
+      ]
+    }
+  ],
+  "elements": [
+    {
+      "id": "passcode-1",
+      "name": "passcode",
+      "label": "passcode",
+      "selector": "[name=\"passcode\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "learnedRules:hgv.spdev.jifiti.com",
+      "confidence": "medium",
+      "happyValue": "1111"
+    },
+    {
+      "id": "identificationvalue-3",
+      "name": "identificationValue",
+      "label": "identificationValue",
+      "selector": "[name=\"identificationValue\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": ""
+    },
+    {
+      "id": "idissuingdate-4",
+      "name": "idIssuingDate",
+      "label": "idIssuingDate",
+      "selector": "[name=\"idIssuingDate\"]",
+      "type": "text",
+      "kind": "date",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "1990-01-01"
+    },
+    {
+      "id": "mobilephone-5",
+      "name": "mobilePhone",
+      "label": "mobilePhone",
+      "selector": "[name=\"mobilePhone\"]",
+      "type": "text",
+      "kind": "tel",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "0501234567"
+    },
+    {
+      "id": "emailaddress-6",
+      "name": "emailAddress",
+      "label": "emailAddress",
+      "selector": "[name=\"emailAddress\"]",
+      "type": "text",
+      "kind": "email",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "valid@test.com"
+    },
+    {
+      "id": "shippingaddressline1-7",
+      "name": "shippingAddressLine1",
+      "label": "shippingAddressLine1",
+      "selector": "[name=\"shippingAddressLine1\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": ""
+    },
+    {
+      "id": "shippingaddressline2-8",
+      "name": "shippingAddressLine2",
+      "label": "shippingAddressLine2",
+      "selector": "[name=\"shippingAddressLine2\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "shippingzipcode-9",
+      "name": "shippingZipCode",
+      "label": "shippingZipCode",
+      "selector": "[name=\"shippingZipCode\"]",
+      "type": "text",
+      "kind": "zip",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "12345"
+    },
+    {
+      "id": "taxnumber-10",
+      "name": "taxNumber",
+      "label": "taxNumber",
+      "selector": "[name=\"taxNumber\"]",
+      "type": "text",
+      "kind": "number",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": ""
+    },
+    {
+      "id": "income-11",
+      "name": "income",
+      "label": "income",
+      "selector": "[name=\"income\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "0"
+    },
+    {
+      "id": "employercompanyname-12",
+      "name": "employerCompanyName",
+      "label": "employerCompanyName",
+      "selector": "[name=\"employerCompanyName\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": ""
+    },
+    {
+      "id": "employmentstartdate-13",
+      "name": "employmentStartDate",
+      "label": "employmentStartDate",
+      "selector": "[name=\"employmentStartDate\"]",
+      "type": "text",
+      "kind": "date",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "1990-01-01"
+    },
+    {
+      "id": "currentemploymentrole-14",
+      "name": "currentEmploymentRole",
+      "label": "currentEmploymentRole",
+      "selector": "[name=\"currentEmploymentRole\"]",
+      "type": "text",
+      "kind": "text",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": ""
+    },
+    {
+      "id": "routingnumber-15",
+      "name": "RoutingNumber",
+      "label": "RoutingNumber",
+      "selector": "[name=\"RoutingNumber\"]",
+      "type": "text",
+      "kind": "number",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "id": "accountnumber-16",
+      "name": "AccountNumber",
+      "label": "AccountNumber",
+      "selector": "[name=\"AccountNumber\"]",
+      "type": "text",
+      "kind": "number",
+      "required": false,
+      "options": [],
+      "source": "logs",
+      "confidence": "medium",
+      "happyValue": "0"
+    }
+  ],
+  "rules": {
+    "learnedRules": {
+      "hgv.spdev.jifiti.com": {
+        "passcode": "1111"
+      }
+    },
+    "generatedValues": {
+      "email": "qa{{$timestampMs}}@test.com",
+      "tel": "0501234567",
+      "number": "100",
+      "text": "QA Data",
+      "checkbox": true,
+      "select": "first-non-empty-option",
+      "date": "1990-01-15",
+      "zip": "12345"
+    },
+    "validationHints": {
+      "policy": "per-field-full",
+      "negative": "Invalid values are tested one field at a time.",
+      "boundary": "Boundary values are tested one field at a time.",
+      "security": "Security payloads are checked for rejection or safe escaping."
+    }
+  },
+  "testCases": [
+    {
+      "id": "happy-flow",
+      "category": "happy",
+      "name": "Happy flow - recorded path",
+      "flowId": "flow-1",
+      "fieldId": null,
+      "value": null,
+      "expected": "Recorded flow should complete without step errors"
+    },
+    {
+      "id": "negative-passcode-1-1",
+      "category": "negative",
+      "name": "negative - passcode - 1",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-passcode-1-2",
+      "category": "negative",
+      "name": "negative - passcode - 2",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-passcode-1-1",
+      "category": "boundary",
+      "name": "boundary - passcode - 1",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-passcode-1-2",
+      "category": "boundary",
+      "name": "boundary - passcode - 2",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-passcode-1-1",
+      "category": "security",
+      "name": "security - passcode - 1",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-passcode-1-2",
+      "category": "security",
+      "name": "security - passcode - 2",
+      "flowId": "flow-1",
+      "fieldId": "passcode-1",
+      "fieldName": "passcode",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-identificationvalue-3-1",
+      "category": "negative",
+      "name": "negative - identificationValue - 1",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-identificationvalue-3-2",
+      "category": "negative",
+      "name": "negative - identificationValue - 2",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-identificationvalue-3-1",
+      "category": "boundary",
+      "name": "boundary - identificationValue - 1",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-identificationvalue-3-2",
+      "category": "boundary",
+      "name": "boundary - identificationValue - 2",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-identificationvalue-3-1",
+      "category": "security",
+      "name": "security - identificationValue - 1",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-identificationvalue-3-2",
+      "category": "security",
+      "name": "security - identificationValue - 2",
+      "flowId": "flow-1",
+      "fieldId": "identificationvalue-3",
+      "fieldName": "identificationValue",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-idissuingdate-4-1",
+      "category": "negative",
+      "name": "negative - idIssuingDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "idissuingdate-4",
+      "fieldName": "idIssuingDate",
+      "value": "not-a-date",
+      "expected": "Non-date string should be rejected"
+    },
+    {
+      "id": "negative-idissuingdate-4-2",
+      "category": "negative",
+      "name": "negative - idIssuingDate - 2",
+      "flowId": "flow-1",
+      "fieldId": "idissuingdate-4",
+      "fieldName": "idIssuingDate",
+      "value": "13/45/2000",
+      "expected": "Invalid date should be rejected"
+    },
+    {
+      "id": "boundary-idissuingdate-4-1",
+      "category": "boundary",
+      "name": "boundary - idIssuingDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "idissuingdate-4",
+      "fieldName": "idIssuingDate",
+      "value": "1900-01-01",
+      "expected": "Old date should follow business rules"
+    },
+    {
+      "id": "boundary-idissuingdate-4-2",
+      "category": "boundary",
+      "name": "boundary - idIssuingDate - 2",
+      "flowId": "flow-1",
+      "fieldId": "idissuingdate-4",
+      "fieldName": "idIssuingDate",
+      "value": "2099-12-31",
+      "expected": "Future date should follow business rules"
+    },
+    {
+      "id": "security-idissuingdate-4-1",
+      "category": "security",
+      "name": "security - idIssuingDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "idissuingdate-4",
+      "fieldName": "idIssuingDate",
+      "value": "<img src=x onerror=alert(1)>",
+      "expected": "HTML payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-mobilephone-5-1",
+      "category": "negative",
+      "name": "negative - mobilePhone - 1",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "abc",
+      "expected": "Letters should be rejected"
+    },
+    {
+      "id": "negative-mobilephone-5-2",
+      "category": "negative",
+      "name": "negative - mobilePhone - 2",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "!@#$%",
+      "expected": "Symbols should be rejected"
+    },
+    {
+      "id": "negative-mobilephone-5-3",
+      "category": "negative",
+      "name": "negative - mobilePhone - 3",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "12",
+      "expected": "Too-short phone should be rejected"
+    },
+    {
+      "id": "boundary-mobilephone-5-1",
+      "category": "boundary",
+      "name": "boundary - mobilePhone - 1",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "0000000000",
+      "expected": "Ten digits should be handled"
+    },
+    {
+      "id": "boundary-mobilephone-5-2",
+      "category": "boundary",
+      "name": "boundary - mobilePhone - 2",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "00000000000000000000",
+      "expected": "Very long phone should be handled"
+    },
+    {
+      "id": "security-mobilephone-5-1",
+      "category": "security",
+      "name": "security - mobilePhone - 1",
+      "flowId": "flow-1",
+      "fieldId": "mobilephone-5",
+      "fieldName": "mobilePhone",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "negative-emailaddress-6-1",
+      "category": "negative",
+      "name": "negative - emailAddress - 1",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "plainaddress",
+      "expected": "Missing @ should be rejected"
+    },
+    {
+      "id": "negative-emailaddress-6-2",
+      "category": "negative",
+      "name": "negative - emailAddress - 2",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "user@",
+      "expected": "Missing domain should be rejected"
+    },
+    {
+      "id": "negative-emailaddress-6-3",
+      "category": "negative",
+      "name": "negative - emailAddress - 3",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "user @domain.com",
+      "expected": "Spaces should be rejected"
+    },
+    {
+      "id": "boundary-emailaddress-6-1",
+      "category": "boundary",
+      "name": "boundary - emailAddress - 1",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "a@b.co",
+      "expected": "Minimal valid-looking email should be handled"
+    },
+    {
+      "id": "boundary-emailaddress-6-2",
+      "category": "boundary",
+      "name": "boundary - emailAddress - 2",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "qa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@test.com",
+      "expected": "Long email should be handled"
+    },
+    {
+      "id": "security-emailaddress-6-1",
+      "category": "security",
+      "name": "security - emailAddress - 1",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "<script>alert(1)<\\/script>@test.com",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-emailaddress-6-2",
+      "category": "security",
+      "name": "security - emailAddress - 2",
+      "flowId": "flow-1",
+      "fieldId": "emailaddress-6",
+      "fieldName": "emailAddress",
+      "value": "' OR '1'='1@test.com",
+      "expected": "SQL-like payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-shippingaddressline1-7-1",
+      "category": "negative",
+      "name": "negative - shippingAddressLine1 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-shippingaddressline1-7-2",
+      "category": "negative",
+      "name": "negative - shippingAddressLine1 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-shippingaddressline1-7-1",
+      "category": "boundary",
+      "name": "boundary - shippingAddressLine1 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-shippingaddressline1-7-2",
+      "category": "boundary",
+      "name": "boundary - shippingAddressLine1 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-shippingaddressline1-7-1",
+      "category": "security",
+      "name": "security - shippingAddressLine1 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-shippingaddressline1-7-2",
+      "category": "security",
+      "name": "security - shippingAddressLine1 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline1-7",
+      "fieldName": "shippingAddressLine1",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-shippingaddressline2-8-1",
+      "category": "negative",
+      "name": "negative - shippingAddressLine2 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-shippingaddressline2-8-2",
+      "category": "negative",
+      "name": "negative - shippingAddressLine2 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-shippingaddressline2-8-1",
+      "category": "boundary",
+      "name": "boundary - shippingAddressLine2 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-shippingaddressline2-8-2",
+      "category": "boundary",
+      "name": "boundary - shippingAddressLine2 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-shippingaddressline2-8-1",
+      "category": "security",
+      "name": "security - shippingAddressLine2 - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-shippingaddressline2-8-2",
+      "category": "security",
+      "name": "security - shippingAddressLine2 - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingaddressline2-8",
+      "fieldName": "shippingAddressLine2",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-shippingzipcode-9-1",
+      "category": "negative",
+      "name": "negative - shippingZipCode - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-shippingzipcode-9-2",
+      "category": "negative",
+      "name": "negative - shippingZipCode - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-shippingzipcode-9-1",
+      "category": "boundary",
+      "name": "boundary - shippingZipCode - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-shippingzipcode-9-2",
+      "category": "boundary",
+      "name": "boundary - shippingZipCode - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-shippingzipcode-9-1",
+      "category": "security",
+      "name": "security - shippingZipCode - 1",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-shippingzipcode-9-2",
+      "category": "security",
+      "name": "security - shippingZipCode - 2",
+      "flowId": "flow-1",
+      "fieldId": "shippingzipcode-9",
+      "fieldName": "shippingZipCode",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-taxnumber-10-1",
+      "category": "negative",
+      "name": "negative - taxNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "abc",
+      "expected": "Non-numeric text should be rejected"
+    },
+    {
+      "id": "negative-taxnumber-10-2",
+      "category": "negative",
+      "name": "negative - taxNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "!@#",
+      "expected": "Symbols should be rejected"
+    },
+    {
+      "id": "boundary-taxnumber-10-1",
+      "category": "boundary",
+      "name": "boundary - taxNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "0",
+      "expected": "Zero should be handled"
+    },
+    {
+      "id": "boundary-taxnumber-10-2",
+      "category": "boundary",
+      "name": "boundary - taxNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "-1",
+      "expected": "Negative value should follow field rules"
+    },
+    {
+      "id": "boundary-taxnumber-10-3",
+      "category": "boundary",
+      "name": "boundary - taxNumber - 3",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "9999999999",
+      "expected": "Large number should be handled"
+    },
+    {
+      "id": "security-taxnumber-10-1",
+      "category": "security",
+      "name": "security - taxNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "taxnumber-10",
+      "fieldName": "taxNumber",
+      "value": "1 OR 1=1",
+      "expected": "SQL-like payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-income-11-1",
+      "category": "negative",
+      "name": "negative - income - 1",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-income-11-2",
+      "category": "negative",
+      "name": "negative - income - 2",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-income-11-1",
+      "category": "boundary",
+      "name": "boundary - income - 1",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-income-11-2",
+      "category": "boundary",
+      "name": "boundary - income - 2",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-income-11-1",
+      "category": "security",
+      "name": "security - income - 1",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-income-11-2",
+      "category": "security",
+      "name": "security - income - 2",
+      "flowId": "flow-1",
+      "fieldId": "income-11",
+      "fieldName": "income",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-employercompanyname-12-1",
+      "category": "negative",
+      "name": "negative - employerCompanyName - 1",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-employercompanyname-12-2",
+      "category": "negative",
+      "name": "negative - employerCompanyName - 2",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-employercompanyname-12-1",
+      "category": "boundary",
+      "name": "boundary - employerCompanyName - 1",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-employercompanyname-12-2",
+      "category": "boundary",
+      "name": "boundary - employerCompanyName - 2",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-employercompanyname-12-1",
+      "category": "security",
+      "name": "security - employerCompanyName - 1",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-employercompanyname-12-2",
+      "category": "security",
+      "name": "security - employerCompanyName - 2",
+      "flowId": "flow-1",
+      "fieldId": "employercompanyname-12",
+      "fieldName": "employerCompanyName",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-employmentstartdate-13-1",
+      "category": "negative",
+      "name": "negative - employmentStartDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "employmentstartdate-13",
+      "fieldName": "employmentStartDate",
+      "value": "not-a-date",
+      "expected": "Non-date string should be rejected"
+    },
+    {
+      "id": "negative-employmentstartdate-13-2",
+      "category": "negative",
+      "name": "negative - employmentStartDate - 2",
+      "flowId": "flow-1",
+      "fieldId": "employmentstartdate-13",
+      "fieldName": "employmentStartDate",
+      "value": "13/45/2000",
+      "expected": "Invalid date should be rejected"
+    },
+    {
+      "id": "boundary-employmentstartdate-13-1",
+      "category": "boundary",
+      "name": "boundary - employmentStartDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "employmentstartdate-13",
+      "fieldName": "employmentStartDate",
+      "value": "1900-01-01",
+      "expected": "Old date should follow business rules"
+    },
+    {
+      "id": "boundary-employmentstartdate-13-2",
+      "category": "boundary",
+      "name": "boundary - employmentStartDate - 2",
+      "flowId": "flow-1",
+      "fieldId": "employmentstartdate-13",
+      "fieldName": "employmentStartDate",
+      "value": "2099-12-31",
+      "expected": "Future date should follow business rules"
+    },
+    {
+      "id": "security-employmentstartdate-13-1",
+      "category": "security",
+      "name": "security - employmentStartDate - 1",
+      "flowId": "flow-1",
+      "fieldId": "employmentstartdate-13",
+      "fieldName": "employmentStartDate",
+      "value": "<img src=x onerror=alert(1)>",
+      "expected": "HTML payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-currentemploymentrole-14-1",
+      "category": "negative",
+      "name": "negative - currentEmploymentRole - 1",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "",
+      "expected": "Empty value should follow required-field rules"
+    },
+    {
+      "id": "negative-currentemploymentrole-14-2",
+      "category": "negative",
+      "name": "negative - currentEmploymentRole - 2",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "   ",
+      "expected": "Whitespace-only value should follow trim rules"
+    },
+    {
+      "id": "boundary-currentemploymentrole-14-1",
+      "category": "boundary",
+      "name": "boundary - currentEmploymentRole - 1",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "A",
+      "expected": "Single character should be handled"
+    },
+    {
+      "id": "boundary-currentemploymentrole-14-2",
+      "category": "boundary",
+      "name": "boundary - currentEmploymentRole - 2",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "expected": "Long text should follow max length rules"
+    },
+    {
+      "id": "security-currentemploymentrole-14-1",
+      "category": "security",
+      "name": "security - currentEmploymentRole - 1",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "<script>alert(1)<\\/script>",
+      "expected": "Script content must be rejected or escaped"
+    },
+    {
+      "id": "security-currentemploymentrole-14-2",
+      "category": "security",
+      "name": "security - currentEmploymentRole - 2",
+      "flowId": "flow-1",
+      "fieldId": "currentemploymentrole-14",
+      "fieldName": "currentEmploymentRole",
+      "value": "' OR '1'='1",
+      "expected": "SQL injection payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-routingnumber-15-1",
+      "category": "negative",
+      "name": "negative - RoutingNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "abc",
+      "expected": "Non-numeric text should be rejected"
+    },
+    {
+      "id": "negative-routingnumber-15-2",
+      "category": "negative",
+      "name": "negative - RoutingNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "!@#",
+      "expected": "Symbols should be rejected"
+    },
+    {
+      "id": "boundary-routingnumber-15-1",
+      "category": "boundary",
+      "name": "boundary - RoutingNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "0",
+      "expected": "Zero should be handled"
+    },
+    {
+      "id": "boundary-routingnumber-15-2",
+      "category": "boundary",
+      "name": "boundary - RoutingNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "-1",
+      "expected": "Negative value should follow field rules"
+    },
+    {
+      "id": "boundary-routingnumber-15-3",
+      "category": "boundary",
+      "name": "boundary - RoutingNumber - 3",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "9999999999",
+      "expected": "Large number should be handled"
+    },
+    {
+      "id": "security-routingnumber-15-1",
+      "category": "security",
+      "name": "security - RoutingNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "routingnumber-15",
+      "fieldName": "RoutingNumber",
+      "value": "1 OR 1=1",
+      "expected": "SQL-like payload must be rejected or escaped"
+    },
+    {
+      "id": "negative-accountnumber-16-1",
+      "category": "negative",
+      "name": "negative - AccountNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "abc",
+      "expected": "Non-numeric text should be rejected"
+    },
+    {
+      "id": "negative-accountnumber-16-2",
+      "category": "negative",
+      "name": "negative - AccountNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "!@#",
+      "expected": "Symbols should be rejected"
+    },
+    {
+      "id": "boundary-accountnumber-16-1",
+      "category": "boundary",
+      "name": "boundary - AccountNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "0",
+      "expected": "Zero should be handled"
+    },
+    {
+      "id": "boundary-accountnumber-16-2",
+      "category": "boundary",
+      "name": "boundary - AccountNumber - 2",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "-1",
+      "expected": "Negative value should follow field rules"
+    },
+    {
+      "id": "boundary-accountnumber-16-3",
+      "category": "boundary",
+      "name": "boundary - AccountNumber - 3",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "9999999999",
+      "expected": "Large number should be handled"
+    },
+    {
+      "id": "security-accountnumber-16-1",
+      "category": "security",
+      "name": "security - AccountNumber - 1",
+      "flowId": "flow-1",
+      "fieldId": "accountnumber-16",
+      "fieldName": "AccountNumber",
+      "value": "1 OR 1=1",
+      "expected": "SQL-like payload must be rejected or escaped"
+    },
+    {
+      "id": "smoke-audit",
+      "category": "smoke",
+      "name": "Smoke - page loads and basic UI is reachable",
+      "flowId": "flow-1",
+      "fieldId": null,
+      "value": null,
+      "expected": "Start URL should load and expose a page title"
+    }
+  ],
+  "warnings": []
+} as const;
+
+export type TestBlueprint = typeof blueprint;

@@ -132,6 +132,8 @@
         <div class="btn-group">
             <button class="btn-primary" style="background: #f43f5e" onclick="analyzeResults()">📊 Analyze Results (Deep Scan)</button>
             <button id="excelBtn" style="display:none; background:white; color:black" onclick="exportToExcel()">📥 Download Excel</button>
+            <button class="btn-success" onclick="downloadQaEngineBundle()">📦 QA Engine Bundle</button>
+            <button class="btn-playwright" onclick="openInQaEngine()">🧭 Open in QA Engine</button>
         </div>
 
         <div id="resultsBoard" class="results-board">
@@ -1221,6 +1223,105 @@ test('Deep QA Scan — resilient fill', async ({ page }) => {
     }
 
     // תרגומים
+    function parseJsonTextarea(id, label) {
+        let raw = document.getElementById(id).value.trim();
+        if(!raw) throw new Error(label + ' is empty');
+        if(raw.startsWith('"') && raw.endsWith('"')) raw = JSON.parse(raw);
+        return JSON.parse(raw);
+    }
+
+    function fieldCountFromSource(source) {
+        return (source.forms || []).reduce((sum, form) => sum + ((form.inputs || []).length), 0);
+    }
+
+    function pathnameFromUrl(url) {
+        try { return new URL(url).pathname || '/'; }
+        catch(e) { return url || '/'; }
+    }
+
+    function buildQaEngineBundle() {
+        const source = parseJsonTextarea('inputJson', 'Source JSON');
+        const results = parseJsonTextarea('resultJson', 'Deep Scan results JSON');
+        const logs = Array.isArray(results.logs) ? results.logs : [];
+        const fieldCount = fieldCountFromSource(source);
+        const passCount = logs.filter(item => item.pass).length;
+        const failCount = logs.filter(item => item.pass === false).length;
+        const startUrl = source.url || results.url || '';
+        const sessionId = 'qadeep-' + Date.now();
+
+        return {
+            snapshotAt: new Date().toISOString(),
+            generatedAt: new Date().toISOString(),
+            sessionId: sessionId,
+            url: startUrl,
+            reason: 'QA Deep export for QA Engine',
+            summary: {
+                pagesVisited: startUrl ? 1 : 0,
+                fieldsFilledTotal: fieldCount,
+                testsRun: logs.length,
+                testsPassed: passCount,
+                testsFailed: failCount,
+                brokenLinks: 0,
+                accessibilityIssues: 0,
+                stuckOn: [],
+                recoverySnapshots: 0
+            },
+            learnedRules: {},
+            flowMap: [{
+                url: startUrl,
+                pathname: pathnameFromUrl(startUrl),
+                filled: fieldCount,
+                cta: 'QA Deep Scan',
+                result: 'deep-scan',
+                iframes: [],
+                t: new Date().toISOString()
+            }],
+            logs: logs,
+            audit: [],
+            actions: [{
+                t: new Date().toISOString(),
+                url: startUrl,
+                level: 'ok',
+                msg: 'QA Deep bundle generated for QA Engine'
+            }],
+            network: [],
+            source: {
+                tool: 'qa-extractor-pro',
+                mode: 'deep-scan',
+                forms: (source.forms || []).length,
+                fields: fieldCount
+            }
+        };
+    }
+
+    function downloadQaEngineBundle() {
+        try {
+            const bundle = buildQaEngineBundle();
+            const host = (() => { try { return new URL(bundle.url).hostname.replace(/[^a-zA-Z0-9_-]/g, '-'); } catch(e) { return 'qadeep'; } })();
+            const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'qa-engine-bundle-' + host + '-' + Date.now() + '.json';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        } catch(e) {
+            const t = translations[currentLanguage];
+            alert((t.jsonError || 'JSON Error') + '\n' + (e && e.message ? e.message : e));
+        }
+    }
+
+    function openInQaEngine() {
+        try {
+            const bundle = buildQaEngineBundle();
+            localStorage.setItem('__qaEngineBundleSource', JSON.stringify(bundle));
+            localStorage.setItem('__qaEngineBundleSourceAt', new Date().toISOString());
+            window.open('qa-engine.html?source=qadeep', '_blank', 'noopener');
+        } catch(e) {
+            const t = translations[currentLanguage];
+            alert((t.jsonError || 'JSON Error') + '\n' + (e && e.message ? e.message : e));
+        }
+    }
+
     const translations = {
         he: {
             title: '🚀 QA Dynamic Engine',

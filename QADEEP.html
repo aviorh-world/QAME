@@ -1,0 +1,401 @@
+(function(){
+if(window.__qaExplorer){
+  clearInterval(window.__qaExplorer._timer);
+  if(window.__qaExplorer._panel)window.__qaExplorer._panel.remove();
+  delete window.__qaExplorer;
+  return;
+}
+var S={results:[],visited:new Set(),running:false,paused:false,origin:location.origin,startUrl:location.href,panel:null,log:[],totalChecked:0,errors:0,_stepIdx:0};
+window.__qaExplorer=S;
+var capturedErrors=[];
+var origError=console.error.bind(console);
+console.error=function(){capturedErrors.push(Array.from(arguments).map(String).join(' '));origError.apply(console,arguments);};
+window.addEventListener('error',function(e){addResult('JS-ERROR',location.href,'ERROR',e.message+' ('+e.filename+':'+e.lineno+')','');});
+window.addEventListener('unhandledrejection',function(e){addResult('JS-ERROR',location.href,'ERROR','Unhandled rejection: '+String(e.reason),'');});
+
+function delay(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function short(s){try{var u=new URL(s);return (u.pathname+u.search).slice(0,60)||(s.slice(0,60));}catch(e){return String(s).slice(0,60);}}
+function absUrl(href){try{return new URL(href,location.href).href;}catch(e){return null;}}
+function isInternal(href){try{return new URL(href,location.href).origin===S.origin;}catch(e){return false;}}
+
+function addResult(type,url,status,note,selector){
+  S.results.push({t:new Date().toISOString(),type:type,url:url||location.href,status:status,note:note,selector:selector||''});
+  if(status==='ERROR'||status==='BROKEN'||status==='FAIL')S.errors++;
+  updatePanel();
+}
+function log(msg,level){
+  S.log.push({t:new Date().toISOString(),level:level||'info',msg:msg});
+  console.log('%c[QA-Explorer] '+msg,'color:'+(level==='err'?'#f43f5e':level==='ok'?'#10b981':'#6366f1'));
+  updatePanel();
+}
+
+function buildPanel(){
+  var p=document.createElement('div');
+  p.id='qa-explorer-panel';
+  p.style.cssText='position:fixed;bottom:20px;right:20px;z-index:2147483647;background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:system-ui,sans-serif;border:2px solid #6366f1;width:380px;font-size:12px;line-height:1.5;';
+  p.innerHTML='<div style="font-weight:bold;color:#fff;font-size:13px;margin-bottom:6px;">&#128269; QA Deep Explorer</div>'
+    +'<div id="qae-status" style="color:#94a3b8;margin-bottom:8px;">Ready</div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">'
+    +'<button id="qae-run" style="background:#6366f1;color:#fff;border:none;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;">&#9654; Run Full Scan</button>'
+    +'<button id="qae-step" style="background:#10b981;color:#fff;border:none;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;">Step</button>'
+    +'<button id="qae-report" style="background:#fbbf24;color:#000;border:none;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;">&#128202; Report</button>'
+    +'<button id="qae-stop" style="background:#ef4444;color:#fff;border:none;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;">&#9632; Stop</button>'
+    +'</div>'
+    +'<div id="qae-counters" style="font-size:11px;color:#94a3b8;margin-bottom:6px;"></div>'
+    +'<div id="qae-log" style="max-height:100px;overflow-y:auto;font-family:monospace;font-size:10px;color:#cbd5e1;border-top:1px solid #334155;padding-top:6px;"></div>';
+  document.body.appendChild(p);
+  S.panel=p;
+  p.querySelector('#qae-run').onclick=function(){startScan();};
+  p.querySelector('#qae-step').onclick=function(){stepOnce();};
+  p.querySelector('#qae-report').onclick=function(){showReport();};
+  p.querySelector('#qae-stop').onclick=function(){S.paused=true;log('Stopped','ok');};
+}
+
+function updatePanel(){
+  if(!S.panel)return;
+  var errs=S.results.filter(function(r){return r.status==='ERROR'||r.status==='BROKEN'||r.status==='FAIL';}).length;
+  var warns=S.results.filter(function(r){return r.status==='WARN';}).length;
+  S.panel.querySelector('#qae-status').textContent=S.running?'Scanning...':'Done';
+  S.panel.querySelector('#qae-counters').innerHTML='Checked: <b>'+S.totalChecked+'</b> | Issues: <b style="color:#f87171">'+errs+'</b> | Warnings: <b style="color:#fbbf24">'+warns+'</b>';
+  S.panel.querySelector('#qae-log').innerHTML=S.log.slice(-8).map(function(e){return '• '+esc(e.msg);}).join('<br>');
+}
+
+function setVal(el,v){
+  try{
+    var proto=Object.getPrototypeOf(el);
+    var desc=Object.getOwnPropertyDescriptor(proto,'value');
+    var setter=desc&&desc.set;
+    if(setter)setter.call(el,v);else el.value=v;
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+    el.dispatchEvent(new Event('blur',{bubbles:true}));
+  }catch(e){}
+}
+function detectInvalid(el){
+  return el.getAttribute('aria-invalid')==='true'
+    ||(el.validity&&!el.validity.valid)
+    ||(el.className||'').indexOf('ng-invalid')!==-1
+    ||(el.className||'').indexOf('error')!==-1
+    ||(el.className||'').indexOf('invalid')!==-1;
+}
+
+async function checkLink(href,selector,text){
+  var url=absUrl(href);
+  if(!url||S.visited.has(url))return;
+  S.visited.add(url);S.totalChecked++;
+  log('Checking link: '+short(url));
+  try{
+    var ctrl=new AbortController();
+    var tid=setTimeout(function(){ctrl.abort();},8000);
+    var r=await fetch(url,{method:'HEAD',credentials:'include',signal:ctrl.signal,redirect:'follow'});
+    clearTimeout(tid);
+    if(r.status>=400)addResult('LINK',url,'BROKEN','HTTP '+r.status+' - "'+text+'"',selector);
+    else if(r.status>=300)addResult('LINK',url,'WARN','Redirect '+r.status,selector);
+    else addResult('LINK',url,'OK','HTTP '+r.status,selector);
+  }catch(e){
+    if(e.name==='AbortError'){addResult('LINK',url,'ERROR','Timeout >8s',selector);}
+    else{
+      try{
+        var r2=await fetch(url,{method:'GET',credentials:'include',signal:AbortSignal.timeout(8000),redirect:'follow'});
+        if(r2.status>=400)addResult('LINK',url,'BROKEN','HTTP '+r2.status,selector);
+        else addResult('LINK',url,'OK','HTTP '+r2.status+' (GET fallback)',selector);
+      }catch(e2){addResult('LINK',url,'ERROR',e2.message,selector);}
+    }
+  }
+}
+
+function gatherLinks(){
+  var links=[];
+  document.querySelectorAll('a[href]').forEach(function(a){
+    var href=a.getAttribute('href');
+    if(!href||href.startsWith('#')||href.startsWith('javascript:'))return;
+    links.push({href:absUrl(href)||href,selector:'a',text:(a.textContent||'').trim().slice(0,50)});
+  });
+  document.querySelectorAll('[data-href],[data-url],[data-link]').forEach(function(el){
+    var href=el.getAttribute('data-href')||el.getAttribute('data-url')||el.getAttribute('data-link');
+    if(href)links.push({href:absUrl(href)||href,selector:el.tagName.toLowerCase(),text:(el.textContent||'').trim().slice(0,50)});
+  });
+  return links;
+}
+
+async function checkAssets(){
+  log('Checking images and assets...');
+  var imgs=Array.from(document.querySelectorAll('img[src],source[src],video[src],audio[src]'));
+  for(var i=0;i<imgs.length;i++){
+    if(S.paused)return;
+    var el=imgs[i];
+    var src=el.getAttribute('src');
+    if(!src||src.startsWith('data:'))continue;
+    var url=absUrl(src);
+    if(!url||S.visited.has(url))continue;
+    S.visited.add(url);S.totalChecked++;
+    if(el.tagName==='IMG'&&el.complete&&el.naturalWidth===0){addResult('IMAGE',url,'BROKEN','Image failed to load','img');continue;}
+    try{
+      var r=await fetch(url,{method:'HEAD',signal:AbortSignal.timeout(5000)});
+      if(r.status>=400)addResult('IMAGE',url,'BROKEN','HTTP '+r.status,el.tagName.toLowerCase());
+      else addResult('IMAGE',url,'OK','HTTP '+r.status,el.tagName.toLowerCase());
+    }catch(e){addResult('IMAGE',url,'ERROR',e.message,el.tagName.toLowerCase());}
+  }
+}
+
+async function testDropdowns(){
+  log('Testing dropdowns and selects...');
+  var selects=Array.from(document.querySelectorAll('select'));
+  for(var i=0;i<selects.length;i++){
+    if(S.paused)return;
+    var sel=selects[i];
+    if(sel.offsetParent===null)continue;
+    var name=sel.name||sel.id||'(unnamed)';
+    var opts=Array.from(sel.options);
+    if(opts.length===0){addResult('SELECT',null,'WARN','Select "'+name+'" has no options','select[name="'+name+'"]');continue;}
+    var nonEmpty=opts.filter(function(o){return o.value&&o.value!==''&&o.value!=='0'&&o.value!=='null';});
+    if(nonEmpty.length===0){addResult('SELECT',null,'WARN','Select "'+name+'" has only empty options','select[name="'+name+'"]');continue;}
+    var origVal=sel.value;
+    sel.value=origVal;sel.dispatchEvent(new Event('change',{bubbles:true}));
+    addResult('SELECT',null,'OK','Select "'+name+'": '+opts.length+' options','select[name="'+name+'"]');
+    log('SELECT "'+name+'": '+opts.length+' options');
+  }
+  var combos=Array.from(document.querySelectorAll('[role="combobox"],[aria-haspopup="listbox"]'));
+  for(var j=0;j<combos.length;j++){
+    if(S.paused)return;
+    var combo=combos[j];
+    if(combo.offsetParent===null)continue;
+    var cname=combo.getAttribute('aria-label')||combo.name||combo.id||'(unnamed)';
+    try{
+      combo.focus();combo.click();
+      await delay(400);
+      var lbId=combo.getAttribute('aria-controls');
+      var lb=(lbId&&document.getElementById(lbId))||document.querySelector('.cdk-overlay-container [role="listbox"]')||document.querySelector('[role="listbox"]:not([hidden])');
+      if(!lb){addResult('COMBOBOX',null,'WARN','Combobox "'+cname+'": listbox did not open','[aria-label="'+cname+'"]');document.body.click();await delay(200);continue;}
+      var copts=Array.from(lb.querySelectorAll('[role="option"]'));
+      if(copts.length===0)addResult('COMBOBOX',null,'WARN','Combobox "'+cname+'": 0 options','combobox');
+      else addResult('COMBOBOX',null,'OK','Combobox "'+cname+'": '+copts.length+' options','combobox');
+      document.body.click();await delay(200);
+    }catch(e){addResult('COMBOBOX',null,'ERROR','Combobox "'+cname+'": '+e.message,'combobox');}
+  }
+}
+
+async function testInputs(){
+  log('Testing input validations...');
+  var INPUT_TESTS={
+    email:[{v:'valid@test.com',pass:true,label:'Valid email'},{v:'notanemail',pass:false,label:'Missing @'},{v:'user@',pass:false,label:'Missing domain'},{v:'<script>alert(1)<\/script>',pass:false,label:'XSS',security:true}],
+    tel:[{v:'0501234567',pass:true,label:'Valid 10-digit'},{v:'123',pass:false,label:'Too short'},{v:'abcde',pass:false,label:'Letters'},{v:'<script>x<\/script>',pass:false,label:'XSS',security:true}],
+    number:[{v:'42',pass:true,label:'Valid number'},{v:'abc',pass:false,label:'Letters'},{v:'9999999999',pass:null,label:'Very large'}],
+    text:[{v:'Hello World',pass:true,label:'Normal text'},{v:"<script>alert('xss')<\/script>",pass:false,label:'XSS',security:true},{v:"' OR '1'='1",pass:false,label:'SQL injection',security:true},{v:'A'.repeat(500),pass:null,label:'500-char overflow'}],
+    url:[{v:'https://example.com',pass:true,label:'Valid URL'},{v:'javascript:alert(1)',pass:false,label:'JS URL injection',security:true},{v:'notaurl',pass:false,label:'Invalid URL'}],
+    password:[{v:'Str0ng!Pass',pass:true,label:'Strong password'},{v:'123',pass:false,label:'Too short'}]
+  };
+  var inputs=Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]):not([type="checkbox"]):not([type="radio"]),textarea'));
+  for(var i=0;i<inputs.length;i++){
+    if(S.paused)return;
+    var el=inputs[i];
+    if(el.offsetParent===null||el.disabled||el.readOnly)continue;
+    var name=el.name||el.id||el.placeholder||'(unnamed)';
+    var type=(el.type||el.tagName).toLowerCase();
+    var ph=(el.getAttribute('placeholder')||'').toLowerCase();
+    var cat='text';
+    if(type==='email'||name.indexOf('email')!==-1||ph.indexOf('email')!==-1)cat='email';
+    else if(type==='tel'||name.match(/phone|mobile/i)||ph.indexOf('phone')!==-1)cat='tel';
+    else if(type==='number'||name.match(/amount|qty|quantity|count|price/i))cat='number';
+    else if(type==='url')cat='url';
+    else if(name.match(/pass|password/i))cat='password';
+    var tests=INPUT_TESTS[cat]||INPUT_TESTS.text;
+    var origVal=el.value;
+    var secIssues=0,wrongAccept=0,wrongReject=0;
+    for(var j=0;j<tests.length;j++){
+      if(S.paused)break;
+      var t=tests[j];
+      el.focus();setVal(el,t.v);
+      await delay(200);
+      var isInvalid=detectInvalid(el);
+      var accepted=!isInvalid;
+      if(t.security&&accepted){secIssues++;addResult('VALIDATION',null,'FAIL','SECURITY: "'+name+'" accepted "'+t.v.slice(0,30)+'" ('+t.label+')','input[name="'+name+'"]');}
+      else if(t.pass===true&&!accepted)wrongReject++;
+      else if(t.pass===false&&accepted&&!t.security)wrongAccept++;
+    }
+    try{setVal(el,origVal||'');}catch(e){}
+    if(secIssues===0&&wrongAccept===0&&wrongReject===0)addResult('VALIDATION',null,'OK','Input "'+name+'" ('+cat+'): all tests passed','input[name="'+name+'"]');
+    else if(secIssues===0)addResult('VALIDATION',null,'WARN','Input "'+name+'" ('+cat+'): wrongAccept='+wrongAccept+' wrongReject='+wrongReject,'input[name="'+name+'"]');
+    S.totalChecked++;
+    log('INPUT "'+name+'" ['+cat+']: sec='+secIssues+' wrongAccept='+wrongAccept+' wrongReject='+wrongReject);
+  }
+}
+
+async function checkExports(){
+  log('Checking export/download links...');
+  var exportExt=/\.(pdf|csv|xlsx|xls|docx|doc|zip|json|xml|txt|pptx|png|jpg|jpeg|svg|mp4|mp3|exe|dmg)(\?.*)?$/i;
+  var exportText=/download|export|report|invoice|receipt|csv|pdf|excel/i;
+  var els=Array.from(document.querySelectorAll('a[href],button,[role="button"]'));
+  for(var i=0;i<els.length;i++){
+    if(S.paused)return;
+    var el=els[i];
+    var href=el.getAttribute('href')||'';
+    var text=(el.textContent||el.getAttribute('aria-label')||'').trim();
+    var isExport=exportExt.test(href)||exportText.test(text)||el.hasAttribute('download');
+    if(!isExport)continue;
+    var url=href?absUrl(href):null;
+    if(url&&!S.visited.has(url)){
+      S.visited.add(url);S.totalChecked++;
+      try{
+        var r=await fetch(url,{method:'HEAD',credentials:'include',signal:AbortSignal.timeout(6000)});
+        if(r.status>=400)addResult('EXPORT',url,'BROKEN','HTTP '+r.status+' - "'+text.slice(0,40)+'"',el.tagName.toLowerCase());
+        else addResult('EXPORT',url,'OK','HTTP '+r.status+' - "'+text.slice(0,40)+'"',el.tagName.toLowerCase());
+      }catch(e){addResult('EXPORT',url,'ERROR',e.message+' - "'+text.slice(0,40)+'"',el.tagName.toLowerCase());}
+    }else if(!url&&text){
+      addResult('EXPORT',null,'WARN','Export button "'+text.slice(0,40)+'" - no href (JS-driven)',el.tagName.toLowerCase());
+    }
+  }
+}
+
+function checkAccessibility(){
+  log('Checking ARIA & accessibility...');
+  document.querySelectorAll('img').forEach(function(img){
+    if(!img.getAttribute('alt')&&img.getAttribute('role')!=='presentation'&&img.getAttribute('aria-hidden')!=='true')
+      addResult('A11Y',img.src||'(no src)','WARN','Image missing alt text','img');
+  });
+  document.querySelectorAll('button,[role="button"]').forEach(function(btn){
+    if(btn.closest('#qa-explorer-panel'))return;
+    var name=(btn.textContent||'').trim()||btn.getAttribute('aria-label')||btn.getAttribute('title')||'';
+    if(!name)addResult('A11Y',null,'WARN','Button has no accessible name','button');
+  });
+  document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"])').forEach(function(inp){
+    var id=inp.id;
+    var hasLabel=!!(id&&document.querySelector('label[for="'+id+'"]'))||!!inp.closest('label')||!!inp.getAttribute('aria-label')||!!inp.getAttribute('aria-labelledby')||!!inp.getAttribute('placeholder');
+    if(!hasLabel)addResult('A11Y',null,'WARN','Input "'+( inp.name||inp.id||'unnamed')+'" has no label','input');
+  });
+  document.querySelectorAll('[aria-labelledby],[aria-describedby]').forEach(function(el){
+    var refs=((el.getAttribute('aria-labelledby')||'')+' '+(el.getAttribute('aria-describedby')||'')).trim().split(/\s+/).filter(Boolean);
+    refs.forEach(function(id){if(!document.getElementById(id))addResult('A11Y',null,'WARN','aria ref "#'+id+'" not found in DOM','[aria-labelledby]');});
+  });
+}
+
+function checkIframes(){
+  log('Checking iframes...');
+  document.querySelectorAll('iframe').forEach(function(f){
+    var src=f.src||f.getAttribute('src')||'';
+    if(!src){addResult('IFRAME',null,'WARN','iframe has no src','iframe');return;}
+    if(src.indexOf('javascript:')===0){addResult('IFRAME',src,'FAIL','iframe with javascript: src - SECURITY','iframe');return;}
+    if(!f.getAttribute('sandbox')&&src.indexOf('about:')!==0)
+      addResult('IFRAME',src,'WARN','iframe without sandbox attribute','iframe[src]');
+  });
+}
+
+function checkForms(){
+  log('Auditing forms...');
+  document.querySelectorAll('form').forEach(function(form,i){
+    var method=(form.method||'GET').toUpperCase();
+    var action=form.action||location.href;
+    var inputs=form.querySelectorAll('input,select,textarea');
+    var hasSubmit=!!form.querySelector('[type="submit"],button:not([type="button"]):not([type="reset"])');
+    var hasPwd=Array.from(inputs).some(function(el){return el.type==='password';});
+    if(hasPwd&&!form.getAttribute('autocomplete'))
+      addResult('FORM',null,'WARN','Form #'+(i+1)+': password field without autocomplete="off"','form');
+    if(!hasSubmit)addResult('FORM',null,'WARN','Form #'+(i+1)+': no submit button','form');
+    var required=Array.from(inputs).filter(function(el){return el.required||el.getAttribute('aria-required')==='true';});
+    addResult('FORM',null,'OK','Form #'+(i+1)+': '+required.length+' required fields ('+method+' -> '+short(action)+')','form');
+  });
+}
+
+function showReport(){
+  var issues=S.results.filter(function(r){return r.status!=='OK';});
+  var ok=S.results.filter(function(r){return r.status==='OK';});
+  var errs=S.results.filter(function(r){return r.status==='ERROR'||r.status==='BROKEN'||r.status==='FAIL';});
+  var warns=S.results.filter(function(r){return r.status==='WARN';});
+  var m=document.createElement('div');
+  m.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:2147483648;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;';
+  var inner=document.createElement('div');
+  inner.style.cssText='background:#0f172a;color:#e2e8f0;padding:24px;border-radius:14px;max-width:95vw;max-height:90vh;overflow-y:auto;width:900px;font-size:12px;border:2px solid #6366f1;';
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">'
+    +'<h2 style="margin:0;color:#fff;font-size:16px;">&#128202; QA Deep Explorer Report</h2>'
+    +'<button id="qae-rep-x" style="background:#334155;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;">X Close</button>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;font-size:11px;">'
+    +'<div style="background:#1e293b;padding:10px;border-radius:8px;text-align:center;border:1px solid #334155;"><div style="font-size:22px;font-weight:bold;color:#fff;">'+S.totalChecked+'</div><div style="color:#94a3b8;">Checked</div></div>'
+    +'<div style="background:#1e293b;padding:10px;border-radius:8px;text-align:center;border:1px solid #10b981;"><div style="font-size:22px;font-weight:bold;color:#10b981;">'+ok.length+'</div><div style="color:#94a3b8;">OK</div></div>'
+    +'<div style="background:#1e293b;padding:10px;border-radius:8px;text-align:center;border:1px solid #f87171;"><div style="font-size:22px;font-weight:bold;color:#f87171;">'+errs.length+'</div><div style="color:#94a3b8;">Errors</div></div>'
+    +'<div style="background:#1e293b;padding:10px;border-radius:8px;text-align:center;border:1px solid #fbbf24;"><div style="font-size:22px;font-weight:bold;color:#fbbf24;">'+warns.length+'</div><div style="color:#94a3b8;">Warnings</div></div>'
+    +'</div>';
+  if(issues.length===0){
+    html+='<div style="text-align:center;padding:40px;color:#10b981;font-size:16px;">No issues found!</div>';
+  }else{
+    html+='<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+      +'<thead><tr style="background:#1e293b;color:#94a3b8;text-align:left;">'
+      +'<th style="padding:8px 6px;border-bottom:1px solid #334155;">Status</th>'
+      +'<th style="padding:8px 6px;border-bottom:1px solid #334155;">Type</th>'
+      +'<th style="padding:8px 6px;border-bottom:1px solid #334155;">URL / Location</th>'
+      +'<th style="padding:8px 6px;border-bottom:1px solid #334155;">Note</th>'
+      +'<th style="padding:8px 6px;border-bottom:1px solid #334155;">Selector</th>'
+      +'</tr></thead><tbody>';
+    issues.forEach(function(r){
+      var sc=r.status==='BROKEN'||r.status==='ERROR'||r.status==='FAIL'?'#f87171':r.status==='WARN'?'#fbbf24':'#10b981';
+      var urlDisp=r.url?(isInternal(r.url)?'<a href="'+esc(r.url)+'" target="_blank" style="color:#38bdf8;word-break:break-all;">'+esc(short(r.url))+'</a>':'<span style="color:#94a3b8;word-break:break-all;">'+esc(short(r.url))+'</span>'):'<span style="color:#475569;">-</span>';
+      html+='<tr style="border-bottom:1px solid #1e3a5f;">'
+        +'<td style="padding:6px;"><span style="background:'+sc+'20;color:'+sc+';padding:2px 6px;border-radius:4px;font-weight:700;">'+esc(r.status)+'</span></td>'
+        +'<td style="padding:6px;color:#a78bfa;font-family:monospace;">'+esc(r.type)+'</td>'
+        +'<td style="padding:6px;">'+urlDisp+'</td>'
+        +'<td style="padding:6px;color:#cbd5e1;">'+esc(r.note)+'</td>'
+        +'<td style="padding:6px;color:#38bdf8;font-family:monospace;font-size:9px;">'+esc(r.selector)+'</td>'
+        +'</tr>';
+    });
+    html+='</tbody></table>';
+  }
+  if(capturedErrors.length>0){
+    html+='<div style="margin-top:16px;"><h3 style="color:#f87171;font-size:13px;">Console Errors ('+capturedErrors.length+')</h3>'
+      +'<pre style="background:#0b1120;padding:10px;border-radius:6px;font-size:9px;max-height:100px;overflow-y:auto;color:#fca5a5;">'+esc(capturedErrors.slice(0,20).join('\n'))+'</pre></div>';
+  }
+  html+='<div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">'
+    +'<button id="qae-rep-copy" style="background:#6366f1;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:11px;">Copy JSON</button>'
+    +'<button id="qae-rep-dl" style="background:#10b981;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:11px;">Download JSON</button>'
+    +'<button id="qae-rep-x2" style="background:#334155;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:11px;">Close</button>'
+    +'</div>';
+  inner.innerHTML=html;
+  m.appendChild(inner);
+  document.body.appendChild(m);
+  inner.querySelector('#qae-rep-x').onclick=function(){m.remove();};
+  inner.querySelector('#qae-rep-x2').onclick=function(){m.remove();};
+  inner.querySelector('#qae-rep-dl').onclick=function(){
+    var payload={generatedAt:new Date().toISOString(),url:S.startUrl,summary:{checked:S.totalChecked,ok:ok.length,errors:errs.length,warnings:warns.length},results:S.results,consoleErrors:capturedErrors};
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='qa-report-'+Date.now()+'.json';a.click();
+  };
+  inner.querySelector('#qae-rep-copy').onclick=function(){
+    var payload={generatedAt:new Date().toISOString(),url:S.startUrl,results:S.results,consoleErrors:capturedErrors};
+    try{navigator.clipboard.writeText(JSON.stringify(payload,null,2));inner.querySelector('#qae-rep-copy').textContent='Copied!';}catch(e){}
+  };
+}
+
+async function startScan(){
+  if(S.running)return;
+  S.running=true;S.paused=false;
+  S.results=[];S.visited.clear();S.totalChecked=0;S.errors=0;
+  log('Starting full scan on: '+location.pathname);
+  updatePanel();
+  try{
+    log('Scanning links...');
+    var links=gatherLinks();
+    log('Found '+links.length+' links');
+    for(var i=0;i<links.length;i++){if(S.paused)break;await checkLink(links[i].href,links[i].selector,links[i].text);await delay(80);}
+    if(!S.paused)await checkAssets();
+    if(!S.paused)await testDropdowns();
+    if(!S.paused)await testInputs();
+    if(!S.paused)await checkExports();
+    if(!S.paused)checkAccessibility();
+    if(!S.paused)checkIframes();
+    if(!S.paused)checkForms();
+    log('Scan complete! '+S.results.length+' results ('+S.errors+' issues)','ok');
+  }catch(e){log('Scan error: '+e.message,'err');}
+  S.running=false;updatePanel();
+  showReport();
+}
+
+async function stepOnce(){
+  var steps=[checkAssets,testDropdowns,testInputs,checkExports,checkAccessibility,checkIframes,checkForms];
+  if(!S._stepIdx)S._stepIdx=0;
+  if(S._stepIdx<steps.length){await steps[S._stepIdx]();S._stepIdx++;}
+  else{log('All steps done','ok');showReport();}
+}
+
+buildPanel();
+log('QA Explorer ready - click Run Full Scan','ok');
+})();
