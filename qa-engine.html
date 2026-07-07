@@ -181,8 +181,17 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       <input id="startUrl" placeholder="https://yourapp.com/entry?spt=0">
 
       <p class="helper" style="margin-top:14px;"><strong>OR API endpoint</strong> — called at runtime to resolve start URL</p>
+      <details style="margin-bottom:10px;">
+        <summary>Paste cURL — fill API fields automatically</summary>
+        <p class="helper" style="margin-top:8px;">Paste a Bash, PowerShell, CMD, Postman, or browser “Copy as cURL” command.</p>
+        <textarea id="curlInput" dir="ltr" spellcheck="false" onpaste="setTimeout(importCurl, 0)" placeholder="curl https://api.example.com/sessions -X POST -H &quot;token: value&quot; --data-raw &quot;{...}&quot;" style="min-height:110px;margin-top:6px;"></textarea>
+        <div class="row" style="margin-top:6px;">
+          <button class="secondary" type="button" onclick="importCurl()" style="font-size:11px;padding:5px 11px;">Import cURL</button>
+          <span id="curlImportStatus" class="helper" role="status" aria-live="polite"></span>
+        </div>
+      </details>
       <div class="row" style="margin-bottom:6px;">
-        <select id="apiMethod"><option>GET</option><option>POST</option></select>
+        <select id="apiMethod"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option></select>
         <input id="apiUrl" placeholder="https://api.example.com/sessions">
       </div>
       <input id="apiResponsePath" placeholder="JSON path of URL in response (e.g. RedirectURL, data.url, applicationUrl) — leave empty to auto-detect" style="margin-bottom:6px;">
@@ -259,6 +268,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   state.audit    = JSON.parse(sessionStorage.getItem('__qaAutoAudit')||'[]');
   state.flowMap  = JSON.parse(sessionStorage.getItem('__qaAutoFlowMap')||'[]');
   state.snapshots = JSON.parse(sessionStorage.getItem('__qaAutoSnapshots')||'[]');
+  state.assertionCandidates = JSON.parse(sessionStorage.getItem('__qaAutoAssertionCandidates')||'[]');
   state.paused   = true; // Every new bookmarklet activation starts paused so recovery can be exported safely.
   sessionStorage.setItem('__qaAutoPaused','1');
   state.testMode = false;
@@ -439,6 +449,88 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     });
     sessionStorage.setItem('__qaAutoAudit', JSON.stringify((state.audit || []).slice(-500)));
   };
+  const collectAssertionCandidates = () => {
+    const path = (function(){ try { return new URL(location.href).pathname; } catch(e){ return location.pathname || ''; } })();
+    const seen = new Set((state.assertionCandidates || []).map(a => [a.type,a.path,a.target].join('|')));
+    const candidates = [];
+    const clean = (value) => String(value || '').replace(/\\s+/g, ' ').trim();
+    const isVisible = (el) => {
+      if(!el || !(el instanceof HTMLElement)) return false;
+      const style = getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return style.visibility !== 'hidden' && style.display !== 'none' && rect.width > 0 && rect.height > 0;
+    };
+    const volatile = (text) => {
+      const value = clean(text);
+      if(value.length < 3 || value.length > 140) return true;
+      if(/^\\d+$/.test(value)) return true;
+      if(/(\\d{2,}|[€$£]|%|@|(\\+?\\d[\\d\\s().-]{6,})|\\b\\d{1,2}[:/]\\d{1,2}|\\b\\d{4}-\\d{2}-\\d{2})/.test(value)) return true;
+      if(/caduca|expires?|timer|remaining|session|sms al m[oó]vil|m[oó]vil \\d|email|importe|amount|total|precio|price/i.test(value)) return true;
+      if(/^(continuar|continue|next|siguiente|finalizar|finish|cerrar|volver|aceptar|accept|ok)$/i.test(value)) return true;
+      return false;
+    };
+    const selectorFor = (el) => {
+      if(!el || !el.tagName) return '';
+      const testId = el.getAttribute('data-testid') || el.getAttribute('data-test') || el.getAttribute('data-qa');
+      if(testId) return '[data-testid="' + String(testId).replace(/"/g, '\\\\"') + '"]';
+      if(el.id) return '#'+String(el.id).replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+      const role = el.getAttribute('role');
+      const name = clean(el.getAttribute('aria-label') || el.textContent || '');
+      if(role && name && name.length <= 80) return '[role="' + role + '"]';
+      const parts = [];
+      let node = el;
+      while(node && node.nodeType === 1 && parts.length < 3){
+        let part = node.tagName.toLowerCase();
+        if(node.className && typeof node.className === 'string'){
+          const cls = node.className.trim().split(/\\s+/).filter(Boolean)[0];
+          if(cls) part += '.' + cls.replace(/[^a-zA-Z0-9_-]/g, '\\\\$&');
+        }
+        const parent = node.parentElement;
+        if(parent){
+          const same = Array.from(parent.children).filter(x => x.tagName === node.tagName);
+          if(same.length > 1) part += ':nth-of-type(' + (same.indexOf(node) + 1) + ')';
+        }
+        parts.unshift(part);
+        node = parent;
+      }
+      return parts.join(' > ');
+    };
+    const add = (candidate) => {
+      const target = clean(candidate.target);
+      if(!target) return;
+      const key = [candidate.type, path, target].join('|');
+      if(seen.has(key)) return;
+      seen.add(key);
+      candidates.push(Object.assign({
+        id:'candidate-' + Date.now().toString(36) + '-' + (state.assertionCandidates.length + candidates.length + 1),
+        path,
+        severity:'critical',
+        timeoutMs:10000,
+        source:'qa-engine',
+        selected:false
+      }, candidate, { target }));
+    };
+    document.querySelectorAll('main h1, main h2, main h3, [role="main"] h1, [role="main"] h2, [role="heading"], h1, h2').forEach(el => {
+      const text = clean(el.textContent);
+      if(isVisible(el) && !volatile(text)) add({ type:'textVisible', target:text, name:'Heading is visible: ' + text.slice(0,64), category:'heading', confidence:'high', reason:'Visible page heading, usually stable.' });
+    });
+    document.querySelectorAll('main label, main legend, main [aria-label], main [data-testid], main [data-test], main [data-qa]').forEach(el => {
+      const text = clean(el.getAttribute('aria-label') || el.textContent || el.getAttribute('data-testid') || el.getAttribute('data-test') || el.getAttribute('data-qa'));
+      if(isVisible(el) && !volatile(text)) add({ type:'textVisible', target:text, name:'Element text is visible: ' + text.slice(0,64), category:'elementText', confidence:'medium', reason:'Visible label or named element.' });
+      const selector = selectorFor(el);
+      if(selector && /data-testid|data-test|data-qa|^#/.test(selector)) add({ type:'selectorVisible', target:selector, name:'Stable selector is visible: ' + selector.slice(0,64), category:'selector', confidence:'high', reason:'Stable id or test attribute.' });
+    });
+    document.querySelectorAll('main [role="alert"], main [role="status"], main .alert, main .error, main .success, main .note').forEach(el => {
+      const text = clean(el.textContent);
+      if(isVisible(el) && !volatile(text)) add({ type:'textVisible', target:text, name:'Message is visible: ' + text.slice(0,64), category:'message', confidence:'medium', reason:'Visible status or note message.' });
+    });
+    if(candidates.length){
+      state.assertionCandidates = (state.assertionCandidates || []).concat(candidates).slice(-300);
+      sessionStorage.setItem('__qaAutoAssertionCandidates', JSON.stringify(state.assertionCandidates));
+      log('🧩 Suggested assertions collected: +' + candidates.length + ' on ' + path, 'ok');
+    }
+    return candidates;
+  };
   const performPageAudit = async () => {
     const rows = [];
     const pageUrl = location.href;
@@ -507,6 +599,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     sessionStorage.setItem('__qaAutoNet', JSON.stringify(state.net.slice(-500)));
     sessionStorage.setItem('__qaAutoTests', JSON.stringify(state.tests.slice(-500)));
     sessionStorage.setItem('__qaAutoAudit', JSON.stringify((state.audit||[]).slice(-500)));
+    sessionStorage.setItem('__qaAutoAssertionCandidates', JSON.stringify((state.assertionCandidates||[]).slice(-300)));
     sessionStorage.setItem('__qaAutoSnapshots', JSON.stringify((state.snapshots||[]).slice(-80)));
     console.log('%c[QA-Auto] '+msg, 'color:'+(level==='err'?'#f43f5e':level==='ok'?'#10b981':'#6366f1'));
     updatePanel();
@@ -545,6 +638,8 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       flowMap: fm,
       logs: tests,
       audit: audit,
+      assertionCandidates: state.assertionCandidates || [],
+      suggestedAssertions: state.assertionCandidates || [],
       actions: state.log || [],
       network: state.net || [],
       snapshots: state.snapshots || []
@@ -844,7 +939,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   };
   const findCTA = () => {
     const cands = Array.from(document.querySelectorAll('button, input[type="submit"], a[role="button"], [role="button"]'));
-    const pat = /^(continue|submit|next|apply|proceed|confirm|finish|done|agree|accept|i agree|continuar|enviar|siguiente|המשך|אישור|הבא|pagar|pay)$/i;
+    const pat = /^(continue|submit|next|apply|proceed|confirm|finish|done|agree|accept|i agree|continuar|enviar|siguiente|המשך|אישור|הבא|pagar(?:\s+compra)?|pay(?:\s+purchase)?|complete purchase|completar compra|comprar|buy)$/i;
     // Negative patterns: cookie/consent/config buttons that should NEVER be the flow CTA
     const skipPat = /cookie|cookies|consent|configuraci|settings|preferences|reject|decline|ajustes/i;
     // Also skip if inside a cookie-banner-like ancestor
@@ -881,6 +976,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       log('🔍 Scanning '+location.pathname);
       await delay(800);
       await performPageAudit();
+      collectAssertionCandidates();
       const filled = await fillFields();
       log('✏️ Filled '+filled+' fields', 'ok');
       if(filled === 0){
@@ -1452,6 +1548,16 @@ function slimCurrentBundle(){
   if(!currentBundle) return null;
   const slimBundle = { ...currentBundle, snapshotCount: (currentBundle.snapshots || []).length };
   delete slimBundle.snapshots;
+  const apiEndpoint = document.getElementById('apiUrl').value.trim();
+  if(apiEndpoint){
+    slimBundle.api = {
+      endpoint: apiEndpoint,
+      method: document.getElementById('apiMethod').value || 'GET',
+      responsePath: document.getElementById('apiResponsePath').value.trim(),
+      headers: collectHeaders(),
+      bodyRaw: document.getElementById('apiBody').value.trim()
+    };
+  }
   return slimBundle;
 }
 function sendBundleToBlueprint(){
@@ -1492,12 +1598,164 @@ function exportResultsExcel(){
   }
 }
 
-// === Custom headers ===
-function addHeaderRow(){
+// === cURL import + custom headers ===
+function tokenizeCurlCommand(command){
+  const text = String(command || '')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201c\u201d]/g, '"')
+    .replace(/\\\r?\n/g, ' ')
+    .replace(/`\r?\n/g, ' ')
+    .replace(/\^\r?\n/g, ' ')
+    .trim();
+  const tokens = [];
+  let current = '';
+  let quote = '';
+  let started = false;
+  for(let i = 0; i < text.length; i++){
+    const ch = text[i];
+    if(quote){
+      if(ch === quote){
+        if(quote === "'" && text[i + 1] === "'") { current += "'"; i++; continue; }
+        quote = '';
+        continue;
+      }
+      if((ch === '\\' || ch === '`') && quote === '"' && i + 1 < text.length){
+        current += text[++i];
+        continue;
+      }
+      current += ch;
+      continue;
+    }
+    if(ch === "'" || ch === '"') { quote = ch; started = true; continue; }
+    if(/\s/.test(ch)){
+      if(started){ tokens.push(current); current = ''; started = false; }
+      continue;
+    }
+    if((ch === '\\' || ch === '`' || ch === '^') && i + 1 < text.length){
+      current += text[++i];
+      started = true;
+      continue;
+    }
+    current += ch;
+    started = true;
+  }
+  if(quote) throw new Error('Unclosed quote in cURL command.');
+  if(started) tokens.push(current);
+  return tokens;
+}
+
+function parseCurlCommand(command){
+  const allTokens = tokenizeCurlCommand(command);
+  const curlIndex = allTokens.findIndex(token => /^(?:curl|curl\.exe)$/i.test(token));
+  if(curlIndex < 0) throw new Error('The pasted text does not contain a curl command.');
+  const tokens = allTokens.slice(curlIndex + 1);
+  const headers = {};
+  const bodies = [];
+  let url = '';
+  let explicitMethod = '';
+  let forceGet = false;
+  let forceHead = false;
+
+  const requireValue = (flag, inlineValue, index) => {
+    if(inlineValue !== undefined) return { value:inlineValue, index };
+    if(index + 1 >= tokens.length) throw new Error('Missing value after ' + flag + '.');
+    return { value:tokens[index + 1], index:index + 1 };
+  };
+  const addHeader = raw => {
+    const separator = raw.indexOf(':');
+    if(separator <= 0) throw new Error('Invalid header: ' + raw);
+    headers[raw.slice(0, separator).trim()] = raw.slice(separator + 1).trim();
+  };
+  const addBody = raw => {
+    if(/^@/.test(raw)) throw new Error('File-based cURL bodies (@file) cannot be imported in the browser. Paste the body content instead.');
+    bodies.push(raw);
+  };
+
+  for(let i = 0; i < tokens.length; i++){
+    let token = tokens[i];
+    let inlineValue;
+    const longEquals = token.match(/^(--[a-z0-9-]+)=(.*)$/i);
+    if(longEquals){ token = longEquals[1]; inlineValue = longEquals[2]; }
+
+    if(token === '-X' || token === '--request'){
+      const found = requireValue(token, inlineValue, i); explicitMethod = found.value.toUpperCase(); i = found.index; continue;
+    }
+    if(/^-[X][A-Za-z]+$/.test(token)){ explicitMethod = token.slice(2).toUpperCase(); continue; }
+    if(token === '-H' || token === '--header'){
+      const found = requireValue(token, inlineValue, i); addHeader(found.value); i = found.index; continue;
+    }
+    if(token.startsWith('-H') && token.length > 2){ addHeader(token.slice(2)); continue; }
+    if(['-d','--data','--data-raw','--data-binary','--data-ascii','--data-urlencode','--json'].includes(token)){
+      const found = requireValue(token, inlineValue, i); addBody(found.value); i = found.index;
+      if(token === '--json'){
+        if(!Object.keys(headers).some(key => key.toLowerCase() === 'content-type')) headers['Content-Type'] = 'application/json';
+        if(!Object.keys(headers).some(key => key.toLowerCase() === 'accept')) headers['Accept'] = 'application/json';
+      }
+      continue;
+    }
+    if(token === '--url'){
+      const found = requireValue(token, inlineValue, i); url = found.value; i = found.index; continue;
+    }
+    if(token === '-G' || token === '--get'){ forceGet = true; continue; }
+    if(token === '-I' || token === '--head'){ forceHead = true; continue; }
+    if(token === '-b' || token === '--cookie'){
+      const found = requireValue(token, inlineValue, i); headers.Cookie = found.value; i = found.index; continue;
+    }
+    if(token === '-A' || token === '--user-agent'){
+      const found = requireValue(token, inlineValue, i); headers['User-Agent'] = found.value; i = found.index; continue;
+    }
+    if(token === '-e' || token === '--referer'){
+      const found = requireValue(token, inlineValue, i); headers.Referer = found.value; i = found.index; continue;
+    }
+    if(token === '-u' || token === '--user'){
+      const found = requireValue(token, inlineValue, i); headers.Authorization = 'Basic ' + btoa(found.value); i = found.index; continue;
+    }
+    if(/^https?:\/\//i.test(token)) url = token;
+  }
+
+  if(!url) throw new Error('No http/https URL was found in the cURL command.');
+  let method = explicitMethod || (bodies.length ? 'POST' : 'GET');
+  if(forceGet) method = 'GET';
+  if(forceHead) method = 'HEAD';
+  const body = bodies.length > 1 ? bodies.join('&') : (bodies[0] || '');
+  return { method, url, headers, body };
+}
+
+function setCurlImportStatus(message, isError){
+  const status = document.getElementById('curlImportStatus');
+  if(!status) return;
+  status.textContent = message;
+  status.style.color = isError ? '#fca5a5' : '#86efac';
+}
+
+function importCurl(){
+  const input = document.getElementById('curlInput');
+  try {
+    const parsed = parseCurlCommand(input.value);
+    const methodSelect = document.getElementById('apiMethod');
+    if(!Array.from(methodSelect.options).some(option => option.value === parsed.method)){
+      methodSelect.add(new Option(parsed.method, parsed.method));
+    }
+    methodSelect.value = parsed.method;
+    document.getElementById('apiUrl').value = parsed.url;
+    document.getElementById('apiBody').value = parsed.body;
+    document.getElementById('startUrl').value = '';
+    const container = document.getElementById('headersContainer');
+    container.innerHTML = '';
+    Object.entries(parsed.headers).forEach(([key, value]) => addHeaderRow(key, value));
+    setCurlImportStatus('Imported ' + parsed.method + ' with ' + Object.keys(parsed.headers).length + ' header(s)' + (parsed.body ? ' and a request body.' : '.'), false);
+  } catch(error) {
+    setCurlImportStatus(error && error.message ? error.message : String(error), true);
+  }
+}
+
+function addHeaderRow(key, value){
   const c = document.getElementById('headersContainer');
   const row = document.createElement('div');
   row.className = 'headers-row';
   row.innerHTML = '<input placeholder="Header-Name" class="hdr-key"><input placeholder="value (supports {{vars}})" class="hdr-val"><button onclick="this.parentNode.remove()">✕</button>';
+  row.querySelector('.hdr-key').value = key || '';
+  row.querySelector('.hdr-val').value = value || '';
   c.appendChild(row);
 }
 
@@ -1718,8 +1976,8 @@ test('replay recorded flow', async ({ page, request }) => {
   // === Resolve start URL ===
   let resolvedStartUrl = STATIC_START_URL;
   if(API_ENDPOINT){
-    const opts = { headers: substituteDeep({ 'Content-Type':'application/json', ...API_HEADERS }) };
-    if(API_METHOD === 'POST' && API_BODY_RAW){
+    const opts = { method: API_METHOD, headers: substituteDeep({ 'Content-Type':'application/json', ...API_HEADERS }) };
+    if(API_BODY_RAW && !['GET','HEAD'].includes(API_METHOD)){
       const subbed = substituteVars(API_BODY_RAW);
       const cleaned = stripJsonComments(subbed);
       try { opts.data = JSON.parse(cleaned); }
@@ -1728,7 +1986,7 @@ test('replay recorded flow', async ({ page, request }) => {
         opts.data = cleaned;
       }
     }
-    const fetched = await request[API_METHOD.toLowerCase()](substituteVars(API_ENDPOINT), opts);
+    const fetched = await request.fetch(substituteVars(API_ENDPOINT), opts);
     if(!fetched.ok()){
       const status = fetched.status();
       const respBody = await fetched.text().catch(()=>'(could not read response body)');
@@ -2023,7 +2281,7 @@ test('replay recorded flow', async ({ page, request }) => {
   // === Generic primary-CTA finder — used to advance through unrecorded intermediate pages ===
   async function clickPrimaryCTA(page){
     // Common positive CTAs in English + Spanish + a few Portuguese — all safe to click on a happy path.
-    const texts = ['Continuar','Continue','Siguiente','Next','Confirmar','Confirm','Aceptar','Accept','Enviar','Send','Submit','Finalizar','Finish','Hecho','Done','Verificar','Verify','Validar','Validate','Comenzar','Iniciar','Acceder','Entrar','Aplicar','Apply','OK','Sí, comencemos la verificación'];
+    const texts = ['Continuar','Continue','Siguiente','Next','Confirmar','Confirm','Aceptar','Accept','Enviar','Send','Submit','Finalizar','Finish','Hecho','Done','Verificar','Verify','Validar','Validate','Comenzar','Iniciar','Acceder','Entrar','Aplicar','Apply','Pagar','Pagar Compra','Pay','Pay purchase','Complete purchase','Completar compra','Comprar','Buy','OK','Sí, comencemos la verificación'];
     const pattern = new RegExp('^\\\\s*(' + texts.join('|') + ')\\\\s*[,.;:!?]?\\\\s*$', 'i');
     for(const role of ['button', 'link']){
       try {
@@ -2046,6 +2304,32 @@ test('replay recorded flow', async ({ page, request }) => {
         return true;
       }
     } catch(e){}
+    return false;
+  }
+
+  async function isOutsideHostedFlow(page){
+    try {
+      const host = new URL(page.url()).hostname;
+      return Boolean(host) && !/jifiti|elcorteinglespay/i.test(host);
+    } catch(e){ return false; }
+  }
+
+  async function completePendingCheckout(page){
+    if(await isOutsideHostedFlow(page)) return false;
+    const pattern = /^\s*(Pagar\s+Compra|Pagar(?:\s+compra)?|Pay(?:\s+purchase)?|Complete purchase|Completar compra|Comprar|Buy)\s*[,.;:!?]?\s*$/i;
+    for(const role of ['button', 'link']){
+      try {
+        const btn = page.getByRole(role, { name: pattern }).first();
+        await btn.waitFor({ state:'visible', timeout: 15000 }).catch(()=>{});
+        if(await btn.count() > 0 && await btn.isVisible().catch(()=>false)){
+          await btn.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(()=>{});
+          await btn.click({ timeout: FIELD_TIMEOUT }).catch(()=>{});
+          await page.waitForLoadState('domcontentloaded', { timeout: LOAD_STATE_TIMEOUT }).catch(()=>{});
+          console.log('✅ final checkout CTA clicked');
+          return true;
+        }
+      } catch(e){}
+    }
     return false;
   }
 
@@ -2247,6 +2531,10 @@ test('replay recorded flow', async ({ page, request }) => {
       break;
     }
   }
+  const finalCheckoutClicked = await completePendingCheckout(page).catch(()=>false);
+  if(finalCheckoutClicked){
+    results.push({ step: results.length + 1, pathname: location_pathname_safe(page), cta: 'Pagar Compra / final checkout', filled: 0, status: 'OK', note: 'clicked final merchant checkout CTA if prompted' });
+  }
   await test.info().attach('flow-replay-results.json', { body: JSON.stringify(results, null, 2), contentType:'application/json' });
   await test.info().attach('audit-results.json', { body: JSON.stringify(auditResults, null, 2), contentType:'application/json' });
   // === Final summary — printed in test stdout and surfaced in HTML report ===
@@ -2431,7 +2719,7 @@ async function generateConsoleReplay(){
   }
 
   function clickPrimaryCTA(){
-    const texts = ['Continuar','Continue','Siguiente','Next','Confirmar','Confirm','Aceptar','Accept','Enviar','Send','Submit','Finalizar','Finish','Hecho','Done','Verificar','Verify','Validar','Validate','Comenzar','Iniciar','Acceder','Entrar','OK','Sí, comencemos la verificación'];
+    const texts = ['Continuar','Continue','Siguiente','Next','Confirmar','Confirm','Aceptar','Accept','Enviar','Send','Submit','Finalizar','Finish','Hecho','Done','Verificar','Verify','Validar','Validate','Comenzar','Iniciar','Acceder','Entrar','Pagar','Pagar Compra','Pay','Pay purchase','Complete purchase','Completar compra','Comprar','Buy','OK','Sí, comencemos la verificación'];
     const p = new RegExp('^\\s*('+texts.join('|')+')\\s*[,.;:!?]?\\s*$', 'i');
     const btn = findButton(p);
     if(btn){ btn.click(); log('🔄 auto-advance via generic CTA'); return true; }

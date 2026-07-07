@@ -104,7 +104,7 @@ button.accent { background:var(--accent); color:#02111f; }
 .drop-zone.dragging { border-color:var(--accent); background:rgba(56,189,248,.08); }
 .stats {
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:10px;
   margin:16px 0;
 }
@@ -201,6 +201,58 @@ pre {
 }
 .side-value { color:#fff; font-weight:700; font-size:14px; }
 .warning-list { margin:0; padding-left:18px; color:#fed7aa; font-size:12px; }
+.assertion-builder {
+  display:grid;
+  grid-template-columns:1.1fr 1fr 1.4fr 1fr .8fr auto;
+  gap:10px;
+  align-items:end;
+  padding:14px;
+  border-bottom:1px solid var(--border);
+  background:rgba(15,23,42,.72);
+}
+.assertion-builder label {
+  display:grid;
+  gap:6px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.assertion-builder input,
+.assertion-builder select {
+  font-size:12px;
+  min-height:40px;
+}
+.assertion-help {
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--muted);
+  font-size:12px;
+  background:rgba(56,189,248,.06);
+}
+.inline-action {
+  padding:6px 9px;
+  font-size:11px;
+  background:#334155;
+}
+.suggestion-toolbar {
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 14px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  background:rgba(16,185,129,.06);
+}
+.suggestion-toolbar .hint { margin:0; }
+.suggestion-check {
+  width:auto;
+  min-height:0;
+  margin:0;
+  accent-color:var(--success);
+}
 .empty {
   color:var(--muted);
   padding:18px;
@@ -211,6 +263,7 @@ pre {
   body { padding:16px; }
   .grid { grid-template-columns:1fr; }
   .stats { grid-template-columns:repeat(2,1fr); }
+  .assertion-builder { grid-template-columns:1fr; }
   textarea { min-height:280px; }
 }
 @media(max-width:520px) {
@@ -226,7 +279,7 @@ pre {
     <div>
       <a class="back-link" href="projects.html">Back to projects</a>
       <h1>QA Test Blueprint Builder</h1>
-      <p class="subtitle">Turn a QA Flow Runner bundle or a generated Playwright spec into a deterministic test blueprint, then export a modular Playwright ZIP.</p>
+      <p class="subtitle">Turn a QA Flow Runner bundle or generated spec into a deterministic blueprint, then create or safely maintain a manifest-governed Playwright ZIP.</p>
     </div>
     <div class="row">
       <button class="secondary" onclick="location.href='qa-engine.html'">Flow Runner</button>
@@ -277,12 +330,16 @@ pre {
       <button class="tab active" onclick="showPanel('flows', this)">Flows</button>
       <button class="tab" onclick="showPanel('elements', this)">Elements</button>
       <button class="tab" onclick="showPanel('cases', this)">Test cases</button>
+      <button class="tab" onclick="showPanel('assertions', this)">Assertions</button>
+      <button class="tab" onclick="showPanel('negative', this)">Negative validations</button>
       <button class="tab" onclick="showPanel('warnings', this)">Warnings</button>
       <button class="tab" onclick="showPanel('json', this)">Blueprint JSON</button>
     </div>
     <div class="panel active" id="panel-flows"></div>
     <div class="panel" id="panel-elements"></div>
     <div class="panel" id="panel-cases"></div>
+    <div class="panel" id="panel-assertions"></div>
+    <div class="panel" id="panel-negative"></div>
     <div class="panel" id="panel-warnings"></div>
     <div class="panel" id="panel-json"></div>
   </section>
@@ -402,6 +459,10 @@ function escapeHtml(value){
   return div.innerHTML;
 }
 
+function escapeAttr(value){
+  return escapeHtml(value).replace(/'/g, "&#39;");
+}
+
 function slug(value){
   return String(value || "item").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "item";
 }
@@ -465,7 +526,8 @@ function fieldsFromLearnedRules(rules){
     if(!domainRules || typeof domainRules !== "object") return;
     Object.keys(domainRules).forEach((name) => {
       if(/^qa-auto-/.test(name)) return;
-      fields.push(normalizeField({ name:name, value:domainRules[name] }, fields.length, "learnedRules:" + domain));
+      const value = domainRules[name];
+      fields.push(normalizeField({ name:name, value:value, type:typeof value === "boolean" ? "checkbox" : undefined }, fields.length, "learnedRules:" + domain));
     });
   });
   return fields;
@@ -587,10 +649,84 @@ function buildTestCases(blueprint){
   return cases;
 }
 
+const ASSERTION_TYPES = {
+  textVisible:"Text is visible",
+  textHidden:"Text is not visible",
+  selectorVisible:"Selector is visible",
+  selectorHidden:"Selector is hidden",
+  urlContains:"URL contains",
+  titleContains:"Title contains"
+};
+
+function normalizeAssertions(raw){
+  const list = Array.isArray(raw) ? raw : [];
+  return list.map((item, index) => {
+    const type = ASSERTION_TYPES[item.type] ? item.type : "textVisible";
+    const target = String(item.target ?? item.value ?? item.text ?? item.selector ?? "").trim();
+    const path = String(item.path || item.whenPath || "").trim();
+    return {
+      id:String(item.id || "assertion-" + (index + 1)),
+      name:String(item.name || item.label || ASSERTION_TYPES[type] + (target ? ": " + target.slice(0, 64) : "")),
+      type:type,
+      target:target,
+      path:path,
+      severity:item.severity === "soft" ? "soft" : "critical",
+      timeoutMs:Number(item.timeoutMs || 10000)
+    };
+  }).filter((item) => item.target);
+}
+
+function normalizeSuggestedAssertions(raw){
+  const list = Array.isArray(raw) ? raw : [];
+  const seen = new Set();
+  return list.map((item, index) => {
+    const type = ASSERTION_TYPES[item.type] ? item.type : "textVisible";
+    const target = String(item.target ?? item.value ?? item.text ?? item.selector ?? "").trim();
+    const path = String(item.path || item.whenPath || "").trim();
+    const key = [type, path, target].join("|");
+    if(!target || seen.has(key)) return null;
+    seen.add(key);
+    return {
+      id:String(item.id || "suggested-assertion-" + (index + 1)),
+      name:String(item.name || item.label || ASSERTION_TYPES[type] + (target ? ": " + target.slice(0, 64) : "")),
+      type:type,
+      target:target,
+      path:path,
+      severity:item.severity === "soft" ? "soft" : "critical",
+      timeoutMs:Number(item.timeoutMs || 10000),
+      category:String(item.category || "static"),
+      confidence:String(item.confidence || "medium"),
+      reason:String(item.reason || "Suggested from recorded flow page content."),
+      source:String(item.source || "qa-engine")
+    };
+  }).filter(Boolean);
+}
+
+function normalizeNegativeValidations(raw){
+  const list = Array.isArray(raw) ? raw : [];
+  return list.map((item, index) => {
+    const targetField = String(item.field || item.fieldName || item.fieldId || item.label || "").trim();
+    const selector = String(item.selector || item.fieldSelector || "").trim();
+    const value = String(item.value ?? item.invalidValue ?? "").trim();
+    const path = String(item.path || item.whenPath || "").trim();
+    return {
+      id:String(item.id || "negative-validation-" + (index + 1)),
+      name:String(item.name || item.label || "Reject invalid value" + (targetField ? ": " + targetField : "")),
+      path:path,
+      field:targetField,
+      selector:selector,
+      value:value,
+      expected:String(item.expected || item.expectedBehavior || "Field should reject the value, show validation, or block navigation."),
+      severity:item.severity === "soft" ? "soft" : "critical"
+    };
+  }).filter((item) => (item.field || item.selector) && item.value);
+}
+
 function makeBlueprint(base){
   const blueprint = {
     version:"1.0",
     source:base.source,
+    api:base.api || null,
     flows:[{
       id:"flow-1",
       name:"Recorded flow",
@@ -608,6 +744,9 @@ function makeBlueprint(base){
         security:"Security payloads are checked for rejection or safe escaping."
       }
     },
+    assertions:normalizeAssertions(base.assertions || []),
+    suggestedAssertions:normalizeSuggestedAssertions(base.suggestedAssertions || base.assertionCandidates || []),
+    negativeValidations:normalizeNegativeValidations(base.negativeValidations || base.validationChecks || []),
     testCases:[],
     warnings:[]
   };
@@ -617,6 +756,24 @@ function makeBlueprint(base){
 }
 
 function buildFromBundle(data){
+  if(Array.isArray(data.flows)) {
+    const flow = data.flows[0] || {};
+    return makeBlueprint({
+      source:data.source || {
+        type:"blueprint-json",
+        url:flow.startUrl || "",
+        generatedAt:new Date().toISOString()
+      },
+      startUrl:flow.startUrl || data.startUrl || data.url || data.source && data.source.url || "",
+      api:data.api || null,
+      flowMap:Array.isArray(flow.steps) ? flow.steps : [],
+      learnedRules:data.rules && data.rules.learnedRules || {},
+      fields:data.elements || data.fields || [],
+      assertions:data.assertions || [],
+      suggestedAssertions:data.suggestedAssertions || data.assertionCandidates || [],
+      negativeValidations:data.negativeValidations || data.validationChecks || []
+    });
+  }
   const learnedRules = data.learnedRules || {};
   const fields = []
     .concat(fieldsFromLearnedRules(learnedRules))
@@ -632,9 +789,13 @@ function buildFromBundle(data){
       generatedAt:new Date().toISOString()
     },
     startUrl:startUrl,
+    api:data.api || data.apiConfig || data.startApi || null,
     flowMap:data.flowMap || [],
     learnedRules:learnedRules,
-    fields:fields
+    fields:fields,
+    assertions:data.assertions || data.checks || [],
+    suggestedAssertions:data.suggestedAssertions || data.assertionCandidates || [],
+    negativeValidations:data.negativeValidations || data.validationChecks || []
   });
 }
 
@@ -698,11 +859,24 @@ function buildFromSpec(source){
   const flow = extractConst(source, "FLOW_STEPS");
   const rules = extractConst(source, "LEARNED_RULES");
   const staticUrl = extractConst(source, "STATIC_START_URL");
+  const apiEndpoint = extractConst(source, "API_ENDPOINT");
+  const apiMethod = extractConst(source, "API_METHOD");
+  const apiResponsePath = extractConst(source, "API_RESPONSE_PATH");
+  const apiHeaders = extractConst(source, "API_HEADERS");
+  const apiBodyRaw = extractConst(source, "API_BODY_RAW");
+  const assertions = extractConst(source, "BLUEPRINT_ASSERTIONS");
   if(!flow.found || flow.error || !Array.isArray(flow.value)) {
     throw new Error("Unsupported Playwright spec. This parser expects a QA Flow Runner generated const FLOW_STEPS array.");
   }
   const learnedRules = rules.found && !rules.error ? rules.value : {};
   const startUrl = staticUrl.found && !staticUrl.error ? staticUrl.value : "";
+  const api = apiEndpoint.found && !apiEndpoint.error && apiEndpoint.value ? {
+    endpoint:String(apiEndpoint.value),
+    method:apiMethod.found && !apiMethod.error ? String(apiMethod.value || "GET").toUpperCase() : "GET",
+    responsePath:apiResponsePath.found && !apiResponsePath.error ? String(apiResponsePath.value || "") : "",
+    headers:apiHeaders.found && !apiHeaders.error && apiHeaders.value && typeof apiHeaders.value === "object" ? apiHeaders.value : {},
+    bodyRaw:apiBodyRaw.found && !apiBodyRaw.error ? String(apiBodyRaw.value || "") : ""
+  } : null;
   const fields = fieldsFromLearnedRules(learnedRules);
   return makeBlueprint({
     source:{
@@ -712,9 +886,11 @@ function buildFromSpec(source){
       generatedAt:new Date().toISOString()
     },
     startUrl:startUrl,
+    api:api,
     flowMap:flow.value,
     learnedRules:learnedRules,
-    fields:fields
+    fields:fields,
+    assertions:assertions.found && !assertions.error && Array.isArray(assertions.value) ? assertions.value : []
   });
 }
 
@@ -746,6 +922,9 @@ function renderPreview(blueprint){
     [blueprint.flows[0].steps.length, "Flow steps"],
     [blueprint.elements.length, "Elements"],
     [blueprint.testCases.length, "Test cases"],
+    [(blueprint.assertions || []).length, "Assertions"],
+    [(blueprint.negativeValidations || []).length, "Negative validations"],
+    [(blueprint.suggestedAssertions || []).length, "Suggestions"],
     [blueprint.warnings.length, "Warnings"]
   ];
   document.getElementById("stats").innerHTML = stats.map((item) =>
@@ -755,6 +934,8 @@ function renderPreview(blueprint){
   renderFlows(blueprint);
   renderElements(blueprint);
   renderCases(blueprint);
+  renderAssertions(blueprint);
+  renderNegativeValidations(blueprint);
   renderWarnings(blueprint);
   document.getElementById("panel-json").innerHTML = "<pre>" + escapeHtml(JSON.stringify(blueprint, null, 2)) + "</pre>";
 }
@@ -784,6 +965,204 @@ function renderCases(blueprint){
   document.getElementById("panel-cases").innerHTML = rows
     ? "<table><thead><tr><th>Category</th><th>Name</th><th>Field</th><th>Value</th><th>Expected</th></tr></thead><tbody>" + rows + "</tbody></table>"
     : "<div class='empty'>No test cases generated.</div>";
+}
+
+function renderAssertions(blueprint){
+  const assertions = blueprint.assertions || [];
+  const existingKeys = new Set(assertions.map((assertion) => [assertion.type, assertion.path || "", assertion.target].join("|")));
+  const suggestions = (blueprint.suggestedAssertions || []).filter((suggestion) => !existingKeys.has([suggestion.type, suggestion.path || "", suggestion.target].join("|")));
+  const paths = (blueprint.flows[0].steps || [])
+    .map((step) => String(step.path || ""))
+    .filter(Boolean)
+    .filter((path, index, list) => list.indexOf(path) === index);
+  const pathOptions = ["", ...paths].map((path) =>
+    "<option value='" + escapeAttr(path) + "'>" + escapeHtml(path || "End of flow") + "</option>"
+  ).join("");
+  const typeOptions = Object.keys(ASSERTION_TYPES).map((key) =>
+    "<option value='" + key + "'>" + escapeHtml(ASSERTION_TYPES[key]) + "</option>"
+  ).join("");
+  const rows = assertions.map((assertion, index) =>
+    "<tr><td><span class='badge " + (assertion.severity === "soft" ? "warn" : "ok") + "'>" + escapeHtml(assertion.severity) + "</span></td><td>" + escapeHtml(assertion.name) + "</td><td>" + escapeHtml(ASSERTION_TYPES[assertion.type] || assertion.type) + "</td><td class='code'>" + escapeHtml(assertion.target) + "</td><td class='code'>" + escapeHtml(assertion.path || "End of flow") + "</td><td><button class='inline-action' onclick='removeAssertion(" + index + ")'>Remove</button></td></tr>"
+  ).join("");
+  const suggestionRows = suggestions.map((suggestion, index) =>
+    "<tr><td><input class='suggestion-check' type='checkbox' data-suggestion-index='" + index + "'></td><td><span class='badge " + (suggestion.confidence === "high" ? "ok" : "warn") + "'>" + escapeHtml(suggestion.confidence) + "</span></td><td>" + escapeHtml(suggestion.name) + "<div class='hint'>" + escapeHtml(suggestion.reason) + "</div></td><td>" + escapeHtml(ASSERTION_TYPES[suggestion.type] || suggestion.type) + "</td><td class='code'>" + escapeHtml(suggestion.target) + "</td><td class='code'>" + escapeHtml(suggestion.path || "End of flow") + "</td></tr>"
+  ).join("");
+  document.getElementById("panel-assertions").innerHTML =
+    "<div class='assertion-help'>Add business assertions that prove the flow reached the right state, not only that it clicked through. Example: success text is visible, final URL contains a token, or a legal text block appears on a specific path.</div>" +
+    "<div class='assertion-builder'>" +
+      "<label>Name<input id='assertionName' placeholder='e.g. Final success message'></label>" +
+      "<label>Check type<select id='assertionType'>" + typeOptions + "</select></label>" +
+      "<label>Expected value<input id='assertionTarget' placeholder='Text, selector, URL part, or title text'></label>" +
+      "<label>Run when<select id='assertionPath'>" + pathOptions + "</select></label>" +
+      "<label>Severity<select id='assertionSeverity'><option value='critical'>Critical</option><option value='soft'>Soft</option></select></label>" +
+      "<button class='success' onclick='addAssertion()'>Add assertion</button>" +
+    "</div>" +
+    (suggestionRows
+      ? "<div class='suggestion-toolbar'><div><strong>Suggested static assertions</strong><p class='hint'>Generated by Flow Runner from stable page text/element names. They are not added to tests until you select them.</p></div><div class='row'><button class='secondary' onclick='toggleAllSuggestedAssertions(true)'>Select all</button><button class='secondary' onclick='toggleAllSuggestedAssertions(false)'>Clear</button><button class='success' onclick='addSelectedSuggestedAssertions()'>Add selected</button></div></div><table><thead><tr><th></th><th>Confidence</th><th>Suggestion</th><th>Type</th><th>Expected</th><th>Run when</th></tr></thead><tbody>" + suggestionRows + "</tbody></table>"
+      : "<div class='empty'>No suggested assertions were found in this source. Run the flow again with the updated Flow Runner, export the bundle, then build Blueprint.</div>") +
+    (rows
+      ? "<table><thead><tr><th>Severity</th><th>Name</th><th>Type</th><th>Expected</th><th>Run when</th><th></th></tr></thead><tbody>" + rows + "</tbody></table>"
+      : "<div class='empty'>No business assertions yet. Add at least one final success text or confirmation indicator.</div>");
+}
+
+function toggleAllSuggestedAssertions(checked){
+  document.querySelectorAll("#panel-assertions input[data-suggestion-index]").forEach((input) => {
+    input.checked = Boolean(checked);
+  });
+}
+
+function addSelectedSuggestedAssertions(){
+  if(!currentBlueprint) return;
+  const existing = currentBlueprint.assertions || [];
+  const existingKeys = new Set(existing.map((assertion) => [assertion.type, assertion.path || "", assertion.target].join("|")));
+  const suggestions = (currentBlueprint.suggestedAssertions || []).filter((suggestion) => !existingKeys.has([suggestion.type, suggestion.path || "", suggestion.target].join("|")));
+  const selected = Array.from(document.querySelectorAll("#panel-assertions input[data-suggestion-index]:checked"))
+    .map((input) => suggestions[Number(input.getAttribute("data-suggestion-index"))])
+    .filter(Boolean);
+  if(!selected.length){
+    setMessage("Select at least one suggested assertion first.", "warn");
+    return;
+  }
+  const nextAssertions = selected.map((suggestion) => ({
+    id:"assertion-" + slug(suggestion.type + "-" + suggestion.target) + "-" + Date.now().toString(36),
+    name:suggestion.name,
+    type:suggestion.type,
+    target:suggestion.target,
+    path:suggestion.path || "",
+    severity:suggestion.severity || "critical",
+    timeoutMs:suggestion.timeoutMs || 10000
+  }));
+  currentBlueprint.assertions = normalizeAssertions(existing.concat(nextAssertions));
+  renderPreview(currentBlueprint);
+  setMessage(selected.length + " suggested assertion(s) added. Download the ZIP again to generate them into the tests.", "ok");
+}
+
+function addAssertion(){
+  if(!currentBlueprint) return;
+  const type = document.getElementById("assertionType").value;
+  const target = document.getElementById("assertionTarget").value.trim();
+  const path = document.getElementById("assertionPath").value.trim();
+  const severity = document.getElementById("assertionSeverity").value;
+  const nameInput = document.getElementById("assertionName").value.trim();
+  if(!target){
+    setMessage("Assertion expected value is required.", "warn");
+    return;
+  }
+  const next = {
+    id:"assertion-" + slug(type + "-" + target) + "-" + Date.now().toString(36),
+    name:nameInput || (ASSERTION_TYPES[type] + ": " + target.slice(0, 64)),
+    type:type,
+    target:target,
+    path:path,
+    severity:severity,
+    timeoutMs:10000
+  };
+  currentBlueprint.assertions = normalizeAssertions([...(currentBlueprint.assertions || []), next]);
+  renderPreview(currentBlueprint);
+  setMessage("Assertion added. Download the ZIP again to generate it into the tests.", "ok");
+}
+
+function removeAssertion(index){
+  if(!currentBlueprint) return;
+  currentBlueprint.assertions = (currentBlueprint.assertions || []).filter((_, itemIndex) => itemIndex !== index);
+  renderPreview(currentBlueprint);
+  setMessage("Assertion removed.", "ok");
+}
+
+function renderNegativeValidations(blueprint){
+  const validations = blueprint.negativeValidations || [];
+  const paths = (blueprint.flows[0].steps || [])
+    .map((step) => String(step.path || ""))
+    .filter(Boolean)
+    .filter((path, index, list) => list.indexOf(path) === index);
+  const pathOptions = ["", ...paths].map((path) =>
+    "<option value='" + escapeAttr(path) + "'>" + escapeHtml(path || "Auto / current start") + "</option>"
+  ).join("");
+  const fieldOptions = (blueprint.elements || []).map((field) => {
+    const value = field.name || field.label || field.selector || "";
+    const label = (field.label || field.name || field.selector || "Unnamed field") + (field.type ? " · " + field.type : "");
+    return "<option value='" + escapeAttr(value) + "' data-selector='" + escapeAttr(field.selector || "") + "'>" + escapeHtml(label) + "</option>";
+  }).join("");
+  const rows = validations.map((item, index) =>
+    "<tr><td><span class='badge " + (item.severity === "soft" ? "warn" : "fail") + "'>" + escapeHtml(item.severity) + "</span></td><td>" + escapeHtml(item.name) + "</td><td class='code'>" + escapeHtml(item.field || item.selector) + "</td><td class='code'>" + escapeHtml(item.value) + "</td><td>" + escapeHtml(item.expected) + "</td><td class='code'>" + escapeHtml(item.path || "Auto") + "</td><td><button class='inline-action' onclick='removeNegativeValidation(" + index + ")'>Remove</button></td></tr>"
+  ).join("");
+  document.getElementById("panel-negative").innerHTML =
+    "<div class='assertion-help'>Add negative validation tests as separate specs. Example: phone field rejects <span class='code'>avior</span>. These do not belong in the happy flow.</div>" +
+    "<div class='assertion-builder'>" +
+      "<label>Name<input id='negativeName' placeholder='e.g. Phone rejects letters'></label>" +
+      "<label>Field<select id='negativeField'>" + fieldOptions + "</select></label>" +
+      "<label>Invalid value<input id='negativeValue' placeholder='avior'></label>" +
+      "<label>Run when<select id='negativePath'>" + pathOptions + "</select></label>" +
+      "<label>Severity<select id='negativeSeverity'><option value='critical'>Critical</option><option value='soft'>Soft</option></select></label>" +
+      "<button class='success' onclick='addNegativeValidation()'>Add negative test</button>" +
+    "</div>" +
+    "<div class='suggestion-toolbar'><div><strong>Quick presets</strong><p class='hint'>Use these as a starting point, then edit/remove rows as needed.</p></div><div class='row'><button class='secondary' onclick='presetPhoneRejectsAvior()'>Phone rejects avior</button></div></div>" +
+    (rows
+      ? "<table><thead><tr><th>Severity</th><th>Name</th><th>Field</th><th>Invalid value</th><th>Expected</th><th>Run when</th><th></th></tr></thead><tbody>" + rows + "</tbody></table>"
+      : "<div class='empty'>No negative validations yet. Add one to generate a dedicated negative spec.</div>");
+}
+
+function addNegativeValidation(){
+  if(!currentBlueprint) return;
+  const fieldSelect = document.getElementById("negativeField");
+  const selected = fieldSelect.options[fieldSelect.selectedIndex];
+  const field = fieldSelect.value.trim();
+  const selector = selected ? String(selected.getAttribute("data-selector") || "") : "";
+  const value = document.getElementById("negativeValue").value.trim();
+  const path = document.getElementById("negativePath").value.trim();
+  const severity = document.getElementById("negativeSeverity").value;
+  const nameInput = document.getElementById("negativeName").value.trim();
+  if(!field && !selector){
+    setMessage("Choose a field for the negative validation.", "warn");
+    return;
+  }
+  if(!value){
+    setMessage("Invalid value is required.", "warn");
+    return;
+  }
+  const next = {
+    id:"negative-validation-" + slug((field || selector) + "-" + value) + "-" + Date.now().toString(36),
+    name:nameInput || ("Reject invalid value: " + (field || selector)),
+    path:path,
+    field:field,
+    selector:selector,
+    value:value,
+    expected:"Field should reject the value, show validation, or block navigation.",
+    severity:severity
+  };
+  currentBlueprint.negativeValidations = normalizeNegativeValidations([...(currentBlueprint.negativeValidations || []), next]);
+  renderPreview(currentBlueprint);
+  setMessage("Negative validation added. Download the project ZIP again to generate a dedicated spec.", "ok");
+}
+
+function presetPhoneRejectsAvior(){
+  if(!currentBlueprint) return;
+  const phone = (currentBlueprint.elements || []).find((field) =>
+    /phone|mobile|tel|m[oó]vil|tel[eé]fono/i.test([field.name, field.label, field.selector, field.type].filter(Boolean).join(" "))
+  );
+  const phonePath = ((currentBlueprint.flows[0].steps || []).find((step) =>
+    /phone|otp\/phone|mobile/i.test([step.path, step.cta].filter(Boolean).join(" "))
+  ) || {}).path || "";
+  const next = {
+    id:"negative-validation-phone-avior-" + Date.now().toString(36),
+    name:"Phone number rejects alphabetic value",
+    path:phonePath,
+    field:phone ? (phone.name || phone.label || "") : "phone",
+    selector:phone ? (phone.selector || "") : "",
+    value:"avior",
+    expected:"Phone field should reject letters, show validation, or block navigation.",
+    severity:"critical"
+  };
+  currentBlueprint.negativeValidations = normalizeNegativeValidations([...(currentBlueprint.negativeValidations || []), next]);
+  renderPreview(currentBlueprint);
+  setMessage("Preset added: phone rejects avior.", "ok");
+}
+
+function removeNegativeValidation(index){
+  if(!currentBlueprint) return;
+  currentBlueprint.negativeValidations = (currentBlueprint.negativeValidations || []).filter((_, itemIndex) => itemIndex !== index);
+  renderPreview(currentBlueprint);
+  setMessage("Negative validation removed.", "ok");
 }
 
 function renderWarnings(blueprint){
@@ -820,14 +1199,78 @@ function tsString(value){
 function generatedFiles(blueprint){
   const bp = tsString(blueprint);
   const files = {};
+  files["source-input-for-blueprint.json"] = JSON.stringify({
+    ...blueprint,
+    suggestedAssertions:blueprint.suggestedAssertions || [],
+    sourceInputPurpose:"Canonical source input for qa-blueprint.html. Paste this file back into Source input when regenerating or updating this suite.",
+    sourceInputGeneratedAt:new Date().toISOString()
+  }, null, 2) + "\n";
   files["fixtures/blueprint.ts"] = `export const blueprint = ${bp} as const;\n\nexport type TestBlueprint = typeof blueprint;\n`;
   files["support/selectors.ts"] = `import { Page, Locator } from '@playwright/test';\n\nexport type BlueprintField = {\n  name: string;\n  label?: string;\n  selector?: string;\n  type?: string;\n  kind?: string;\n};\n\nexport async function fieldLocator(page: Page, field: BlueprintField): Promise<Locator> {\n  const candidates = [field.selector, field.name ? '[name=\"' + field.name.replace(/\"/g, '\\\\\"') + '\"]' : '', field.name ? '#' + field.name : ''].filter(Boolean) as string[];\n  for (const selector of candidates) {\n    const locator = page.locator(selector).first();\n    if (await locator.count()) return locator;\n  }\n  if (field.label) {\n    const byLabel = page.getByLabel(field.label, { exact: false }).first();\n    if (await byLabel.count()) return byLabel;\n  }\n  throw new Error('No locator found for field: ' + field.name);\n}\n`;
   files["support/assertions.ts"] = `import { expect, Page } from '@playwright/test';\n\nexport async function expectValidationFeedback(page: Page, expected: string): Promise<void> {\n  const invalidControls = page.locator(':invalid, [aria-invalid=\"true\"]');\n  const visibleErrors = page.locator('[role=\"alert\"], [aria-live], .error, .field-error, .invalid-feedback, mat-error');\n  const invalidCount = await invalidControls.count().catch(() => 0);\n  const errorCount = await visibleErrors.count().catch(() => 0);\n  if (invalidCount === 0 && errorCount === 0) {\n    await testStepNote(page, expected);\n  }\n  expect.soft(invalidCount + errorCount, expected).toBeGreaterThan(0);\n}\n\nasync function testStepNote(page: Page, note: string): Promise<void> {\n  await page.evaluate((message) => console.warn('[QA Blueprint]', message), note).catch(() => undefined);\n}\n`;
+  files["support/business-assertions.ts"] = [
+    "import { expect, Page } from '@playwright/test';",
+    "",
+    "export type BlueprintAssertion = {",
+    "  id: string;",
+    "  name: string;",
+    "  type: string;",
+    "  target: string;",
+    "  path?: string;",
+    "  severity?: 'critical' | 'soft';",
+    "  timeoutMs?: number;",
+    "};",
+    "",
+    "function escapeRegExp(value: string): string {",
+    "  return value.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');",
+    "}",
+    "",
+    "function applies(assertion: BlueprintAssertion, currentPath: string): boolean {",
+    "  const expectedPath = String(assertion.path || '').trim();",
+    "  if (!expectedPath) return !currentPath;",
+    "  return currentPath === expectedPath || currentPath.includes(expectedPath);",
+    "}",
+    "",
+    "async function check(assertion: BlueprintAssertion, page: Page): Promise<void> {",
+    "  const target = String(assertion.target || '').trim();",
+    "  const timeout = Number(assertion.timeoutMs || 10_000);",
+    "  const message = assertion.name || assertion.id || assertion.type;",
+    "  const soft = assertion.severity === 'soft';",
+    "  const assertVisible = async (locator: any) => soft",
+    "    ? await expect.soft(locator, message).toBeVisible({ timeout })",
+    "    : await expect(locator, message).toBeVisible({ timeout });",
+    "  const assertHidden = async (locator: any) => soft",
+    "    ? await expect.soft(locator, message).toBeHidden({ timeout })",
+    "    : await expect(locator, message).toBeHidden({ timeout });",
+    "  if (assertion.type === 'textVisible') return await assertVisible(page.getByText(target, { exact: false }).first());",
+    "  if (assertion.type === 'textHidden') return await assertHidden(page.getByText(target, { exact: false }).first());",
+    "  if (assertion.type === 'selectorVisible') return await assertVisible(page.locator(target).first());",
+    "  if (assertion.type === 'selectorHidden') return await assertHidden(page.locator(target).first());",
+    "  if (assertion.type === 'urlContains') {",
+    "    const expected = new RegExp(escapeRegExp(target));",
+    "    return soft ? await expect.soft(page, message).toHaveURL(expected, { timeout }) : await expect(page, message).toHaveURL(expected, { timeout });",
+    "  }",
+    "  if (assertion.type === 'titleContains') {",
+    "    const expected = new RegExp(escapeRegExp(target), 'i');",
+    "    return soft ? await expect.soft(page, message).toHaveTitle(expected, { timeout }) : await expect(page, message).toHaveTitle(expected, { timeout });",
+    "  }",
+    "  throw new Error('Unsupported assertion type: ' + assertion.type);",
+    "}",
+    "",
+    "export async function runBlueprintAssertions(page: Page, assertions: readonly BlueprintAssertion[] = [], currentPath = ''): Promise<void> {",
+    "  for (const assertion of assertions) {",
+    "    if (!applies(assertion, currentPath)) continue;",
+    "    await check(assertion, page);",
+    "  }",
+    "}",
+    ""
+  ].join("\n");
   files["support/test-data.ts"] = `export type GeneratedCase = {\n  id: string;\n  category: string;\n  name: string;\n  fieldId: string | null;\n  fieldName?: string;\n  value: unknown;\n  expected: string;\n};\n\nexport function casesByCategory(blueprint: { testCases: readonly GeneratedCase[] }, category: string): GeneratedCase[] {\n  return blueprint.testCases.filter((testCase) => testCase.category === category);\n}\n\nexport function fieldById(blueprint: { elements: readonly any[] }, fieldId: string | null): any {\n  if (!fieldId) throw new Error('Test case has no fieldId');\n  const field = blueprint.elements.find((item) => item.id === fieldId);\n  if (!field) throw new Error('Unknown fieldId: ' + fieldId);\n  return field;\n}\n`;
   files["support/flow-runner.ts"] = `import { expect, Page } from '@playwright/test';\nimport { fieldLocator } from './selectors';\n\nexport function startUrl(blueprint: any): string {\n  return blueprint.flows?.[0]?.startUrl || blueprint.source?.url || '';\n}\n\nexport async function visitStartUrl(page: Page, blueprint: any): Promise<void> {\n  const url = startUrl(blueprint);\n  if (!url) throw new Error('Blueprint is missing a start URL');\n  await page.goto(url);\n  await page.waitForLoadState('domcontentloaded').catch(() => undefined);\n}\n\nexport async function fillElement(page: Page, field: any, value: unknown): Promise<void> {\n  const locator = await fieldLocator(page, field);\n  const tag = await locator.evaluate((el) => el.tagName.toLowerCase()).catch(() => 'input');\n  const type = String(field.type || field.kind || '').toLowerCase();\n  if (type === 'checkbox') {\n    const shouldCheck = Boolean(value);\n    if (shouldCheck) await locator.check({ force: true });\n    else await locator.uncheck({ force: true }).catch(async () => locator.click({ force: true }));\n    return;\n  }\n  if (tag === 'select' || type === 'select') {\n    const option = value === 'first-non-empty-option' ? await firstOption(locator) : String(value ?? '');\n    await locator.selectOption(option);\n    return;\n  }\n  await locator.fill(String(value ?? ''));\n}\n\nexport async function fillKnownFields(page: Page, blueprint: any): Promise<void> {\n  for (const field of blueprint.elements || []) {\n    if (field.happyValue === undefined || field.happyValue === '__SKIP__') continue;\n    await fillElement(page, field, field.happyValue).catch((error) => {\n      console.warn('[QA Blueprint] skipped field', field.name, error.message);\n    });\n  }\n}\n\nexport async function runHappyFlow(page: Page, blueprint: any): Promise<void> {\n  await visitStartUrl(page, blueprint);\n  const steps = blueprint.flows?.[0]?.steps || [];\n  for (const step of steps) {\n    await fillKnownFields(page, blueprint);\n    if (step.cta) await clickCTA(page, step.cta);\n    await page.waitForLoadState('domcontentloaded').catch(() => undefined);\n  }\n  await expect(page).toHaveTitle(/.+/);\n}\n\nasync function clickCTA(page: Page, text: string): Promise<void> {\n  const escaped = text.replace(/[.*+?^${'${'} }()|[\\]\\\\]/g, '\\\\$&').trim();\n  const pattern = new RegExp(escaped, 'i');\n  const candidates = [\n    page.getByRole('button', { name: pattern }).first(),\n    page.getByRole('link', { name: pattern }).first(),\n    page.locator('[role=\"button\"], button, a', { hasText: pattern }).first()\n  ];\n  for (const candidate of candidates) {\n    if (await candidate.count()) {\n      await candidate.scrollIntoViewIfNeeded().catch(() => undefined);\n      await candidate.click({ timeout: 5000 });\n      return;\n    }\n  }\n  throw new Error('CTA not found: ' + text);\n}\n\nasync function firstOption(locator: any): Promise<string> {\n  return await locator.evaluate((select: HTMLSelectElement) => {\n    const option = Array.from(select.options).find((item) => item.value) || select.options[0];\n    return option ? option.value : '';\n  });\n}\n`;
   files["support/flow-runner.ts"] = [
     "import { expect, Page } from '@playwright/test';",
     "import { fieldLocator } from './selectors';",
+    "import { runBlueprintAssertions } from './business-assertions';",
     "",
     "export function startUrl(blueprint: any): string {",
     "  return blueprint.flows?.[0]?.startUrl || blueprint.source?.url || '';",
@@ -874,7 +1317,9 @@ function generatedFiles(blueprint){
     "    await fillKnownFields(page, blueprint);",
     "    if (step.cta) await clickCTA(page, step.cta);",
     "    await page.waitForLoadState('domcontentloaded').catch(() => undefined);",
+    "    await runBlueprintAssertions(page, blueprint.assertions || [], step.path || '');",
     "  }",
+    "  await runBlueprintAssertions(page, blueprint.assertions || [], '');",
     "  await expect(page).toHaveTitle(/.+/);",
     "}",
     "",
@@ -907,6 +1352,9 @@ function generatedFiles(blueprint){
   files["tests/negative-fields.spec.ts"] = variantSpec("negative");
   files["tests/boundary-fields.spec.ts"] = variantSpec("boundary");
   files["tests/security-fields.spec.ts"] = variantSpec("security");
+  if((blueprint.negativeValidations || []).length) {
+    files["tests/custom-negative-validations.spec.ts"] = customNegativeValidationsSpec();
+  }
   files["package.json"] = JSON.stringify({
     name:"qa-blueprint-playwright-suite",
     version:"1.0.0",
@@ -957,6 +1405,10 @@ function variantSpec(category){
   return `import { test } from '@playwright/test';\nimport { blueprint } from '../fixtures/blueprint';\nimport { expectValidationFeedback } from '../support/assertions';\nimport { fieldById, casesByCategory } from '../support/test-data';\nimport { fillElement, fillKnownFields, visitStartUrl } from '../support/flow-runner';\n\nfor (const testCase of casesByCategory(blueprint, '${category}')) {\n  test(testCase.name, async ({ page }) => {\n    await visitStartUrl(page, blueprint);\n    await fillKnownFields(page, blueprint);\n    const field = fieldById(blueprint, testCase.fieldId);\n    await fillElement(page, field, testCase.value);\n    await expectValidationFeedback(page, testCase.expected);\n  });\n}\n`;
 }
 
+function customNegativeValidationsSpec(){
+  return `import { test } from '@playwright/test';\nimport { blueprint } from '../fixtures/blueprint';\nimport { expectValidationFeedback } from '../support/assertions';\nimport { fillElement, fillKnownFields, visitStartUrl } from '../support/flow-runner';\n\nconst validations = ((blueprint as any).negativeValidations || []) as any[];\n\nfunction fieldForValidation(validation: any): any {\n  const fieldName = String(validation.field || '').trim();\n  const selector = String(validation.selector || '').trim();\n  const existing = ((blueprint as any).elements || []).find((field: any) =>\n    field.name === fieldName || field.label === fieldName || field.selector === selector\n  );\n  return { ...(existing || {}), name: fieldName || existing?.name || selector, label: fieldName || existing?.label, selector: selector || existing?.selector, kind: existing?.kind || 'text', type: existing?.type || 'text' };\n}\n\nfor (const validation of validations) {\n  test(validation.name || validation.id || 'custom negative validation', async ({ page }) => {\n    await visitStartUrl(page, blueprint);\n    await fillKnownFields(page, blueprint);\n    await fillElement(page, fieldForValidation(validation), validation.value);\n    await page.keyboard.press('Tab').catch(() => undefined);\n    await expectValidationFeedback(page, validation.expected || 'Invalid input should be rejected');\n  });\n}\n`;
+}
+
 async function downloadZip(){
   if(!currentBlueprint) return;
   if(typeof JSZip === "undefined") {
@@ -967,7 +1419,7 @@ async function downloadZip(){
   const files = generatedFiles(currentBlueprint);
   Object.keys(files).forEach((path) => zip.file(path, files[path]));
   zip.file("blueprint.json", JSON.stringify(currentBlueprint, null, 2));
-  zip.file("README.md", "# QA Blueprint Playwright Suite\n\nThis ZIP is a standalone Playwright project generated from `blueprint.json`.\n\n## First-time setup\n\n```bash\nnpm install\nnpx playwright install chromium\n```\n\n## Run\n\n```bash\nnpm test\n```\n\nUseful variants:\n\n```bash\nnpm run test:headed\nnpm run test:ui\nnpm run report\n```\n\n## Maintain\n\n- Keep `blueprint.json` as the source of truth.\n- Update selectors in `support/selectors.ts` only when a field cannot be found reliably.\n- Update shared flow behavior in `support/flow-runner.ts`.\n- Keep individual files under `tests/` small; they should call helpers, not hold infrastructure.\n");
+  zip.file("README.md", "# QA Blueprint Playwright Suite\n\nThis ZIP is a standalone Playwright project generated from `blueprint.json`.\n\n## First-time setup\n\n```bash\nnpm install\nnpx playwright install chromium\n```\n\n## Run\n\n```bash\nnpm test\n```\n\nUseful variants:\n\n```bash\nnpm run test:headed\nnpm run test:ui\nnpm run report\n```\n\n## Maintain\n\n- For future updates, paste `source-input-for-blueprint.json` into `qa-blueprint.html` Source input.\n- Keep `blueprint.json` as the runtime source of truth.\n- Update selectors in `support/selectors.ts` only when a field cannot be found reliably.\n- Update shared flow behavior in `support/flow-runner.ts`.\n- Keep individual files under `tests/` small; they should call helpers, not hold infrastructure.\n");
   const blob = await zip.generateAsync({ type:"blob" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -1040,5 +1492,10 @@ function loadTransferredSource(){
 })();
 loadTransferredSource();
 </script>
+<!-- <qa-blueprint-managed id="production-project-maintenance"> -->
+<script src="qa-blueprint-project-model.js"></script>
+<script src="qa-blueprint-production-templates.js"></script>
+<script src="qa-blueprint-maintenance.js"></script>
+<!-- </qa-blueprint-managed> -->
 </body>
 </html>
