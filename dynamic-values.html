@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Dynamic Values Reference</title>
+<style>
+:root{--bg:#0f172a;--panel:#1e293b;--panel2:#0b1120;--text:#e2e8f0;--muted:#94a3b8;--border:#334155;--accent:#38bdf8;--warn:#fbbf24;--success:#10b981}
+*{box-sizing:border-box}
+body{margin:0;padding:28px;background:linear-gradient(180deg,#0f172a,#111827 55%,#0b1120);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+.wrap{max-width:1100px;margin:0 auto}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+h1{margin:0;font-size:30px}
+.subtitle{color:var(--muted);margin:8px 0 22px;max-width:780px}
+.card{background:rgba(30,41,59,.92);border:1px solid var(--border);border-radius:12px;padding:18px;margin:14px 0;box-shadow:0 18px 42px rgba(0,0,0,.18)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.example{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:13px}
+code{color:var(--warn);background:#020617;border:1px solid #1e293b;border-radius:6px;padding:2px 6px;font-family:ui-monospace,"Cascadia Code",Menlo,monospace;font-size:12px}
+pre{white-space:pre-wrap;background:#020617;border:1px solid #1e293b;border-radius:10px;padding:14px;color:#dbeafe;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid #263449;padding:10px 12px;text-align:left;vertical-align:top}
+th{color:#a5b4fc;text-transform:uppercase;font-size:11px;letter-spacing:.07em;background:#111827;position:sticky;top:0}
+.pill{display:inline-block;border-radius:999px;background:rgba(56,189,248,.12);color:#bae6fd;border:1px solid rgba(56,189,248,.25);padding:3px 8px;font-size:11px;font-weight:700}
+.note{color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <a href="qa-engine.html">← Back to QA Flow Runner</a>
+  <h1>Dynamic Values Reference</h1>
+  <p class="subtitle">Use these values in QA Engine custom field rules, API bodies, headers, start URL templates, generated Playwright specs, Console Replay, and Blueprint production projects.</p>
+
+  <section class="card">
+    <h2>Top 10 popular field presets</h2>
+    <div class="grid">
+      <div class="example"><span class="pill">Email</span><p><code>{{$randomEmail}}</code></p></div>
+      <div class="example"><span class="pill">First name</span><p><code>{{randomFirstName}}</code></p></div>
+      <div class="example"><span class="pill">Last name</span><p><code>{{randomLastName}}</code></p></div>
+      <div class="example"><span class="pill">Full name</span><p><code>{{randomFullName}}</code></p></div>
+      <div class="example"><span class="pill">Phone</span><p><code>20{{rInt(10000000,99999999)}}</code></p></div>
+      <div class="example"><span class="pill">Date of birth</span><p><code>{{randomDOB}}</code></p></div>
+      <div class="example"><span class="pill">Number range</span><p><code>{{number(1,100)}}</code></p></div>
+      <div class="example"><span class="pill">8 digit ID</span><p><code>{{rDigits(8)}}</code></p></div>
+      <div class="example"><span class="pill">Company</span><p><code>{{$randomCompanyName}}</code></p></div>
+      <div class="example"><span class="pill">Timestamp</span><p><code>{{$timestamp}}</code></p></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Tokens</h2>
+    <table>
+      <thead><tr><th>Token</th><th>Result</th><th>Example use</th></tr></thead>
+      <tbody>
+        <tr><td><code>{{$timestamp}}</code></td><td>Unix timestamp in seconds</td><td><code>qa+{{$timestamp}}@jifiti.com</code></td></tr>
+        <tr><td><code>{{$timestampMs}}</code></td><td>Current time in milliseconds</td><td><code>qa{{$timestampMs}}@test.com</code></td></tr>
+        <tr><td><code>{{$isoTimestamp}}</code></td><td>ISO date-time string</td><td><code>{{$isoTimestamp}}</code></td></tr>
+        <tr><td><code>{{$randomUUID}}</code></td><td>Random UUID</td><td><code>{{$randomUUID}}</code></td></tr>
+        <tr><td><code>{{$randomEmail}}</code></td><td>Random QA email</td><td><code>{{$randomEmail}}</code></td></tr>
+        <tr><td><code>{{$randomDNI}}</code> / <code>{{Random_DNI}}</code></td><td>Spanish DNI-like value</td><td><code>{{Random_DNI}}</code></td></tr>
+        <tr><td><code>{{name}}</code> / <code>{{firstName}}</code> / <code>{{randomFirstName}}</code></td><td>Random first name</td><td><code>{{randomFirstName}}</code></td></tr>
+        <tr><td><code>{{lastName}}</code> / <code>{{randomLastName}}</code></td><td>Random last name</td><td><code>{{randomLastName}}</code></td></tr>
+        <tr><td><code>{{fullName}}</code> / <code>{{randomFullName}}</code></td><td>Random full name</td><td><code>{{randomFullName}}</code></td></tr>
+        <tr><td><code>{{randomDOB}}</code> / <code>{{randomDateOfBirth}}</code></td><td>Random date of birth, YYYY-MM-DD</td><td><code>{{randomDOB}}</code></td></tr>
+        <tr><td><code>{{email_prefix}}</code></td><td>Stable automation prefix</td><td><code>{{email_prefix}}+{{$timestamp}}@jifiti.com</code></td></tr>
+        <tr><td><code>{{RandomPhoneNumber}}</code> / <code>{{randomPhone}}</code></td><td>8 random digits</td><td><code>02{{randomPhone}}</code></td></tr>
+        <tr><td><code>{{$randomBankAccount}}</code></td><td>8 random digits</td><td><code>{{$randomBankAccount}}</code></td></tr>
+        <tr><td><code>{{$randomCompanyName}}</code></td><td>Random company-like name</td><td><code>{{name}} {{$randomCompanyName}}</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Safe functions</h2>
+    <table>
+      <thead><tr><th>Function</th><th>Result</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>{{rInt(min,max)}}</code> / <code>{{number(min,max)}}</code></td><td>Random integer in range</td><td><code>{{number(1,100)}}</code></td></tr>
+        <tr><td><code>{{rDigits(length)}}</code></td><td>Random digits</td><td><code>{{rDigits(8)}}</code></td></tr>
+        <tr><td><code>{{rString(length)}}</code></td><td>Random lowercase letters/digits</td><td><code>{{rString(10)}}</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Expression mode</h2>
+    <p class="note">Expression mode is intentionally small and safe. It supports quoted strings plus approved functions joined with <code>+</code>. It does not run arbitrary JavaScript.</p>
+    <pre>="20" + rInt(10000000,99999999)
+phone='20'+rInt(10000000,99999999)</pre>
+  </section>
+</main>
+</body>
+</html>
