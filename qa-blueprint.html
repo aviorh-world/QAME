@@ -862,6 +862,7 @@ function buildFromSpec(source){
   const apiEndpoint = extractConst(source, "API_ENDPOINT");
   const apiMethod = extractConst(source, "API_METHOD");
   const apiResponsePath = extractConst(source, "API_RESPONSE_PATH");
+  const apiStartUrlTemplate = extractConst(source, "API_START_URL_TEMPLATE");
   const apiHeaders = extractConst(source, "API_HEADERS");
   const apiBodyRaw = extractConst(source, "API_BODY_RAW");
   const assertions = extractConst(source, "BLUEPRINT_ASSERTIONS");
@@ -874,6 +875,7 @@ function buildFromSpec(source){
     endpoint:String(apiEndpoint.value),
     method:apiMethod.found && !apiMethod.error ? String(apiMethod.value || "GET").toUpperCase() : "GET",
     responsePath:apiResponsePath.found && !apiResponsePath.error ? String(apiResponsePath.value || "") : "",
+    startUrlTemplate:apiStartUrlTemplate.found && !apiStartUrlTemplate.error ? String(apiStartUrlTemplate.value || "") : "",
     headers:apiHeaders.found && !apiHeaders.error && apiHeaders.value && typeof apiHeaders.value === "object" ? apiHeaders.value : {},
     bodyRaw:apiBodyRaw.found && !apiBodyRaw.error ? String(apiBodyRaw.value || "") : ""
   } : null;
@@ -1301,10 +1303,43 @@ function generatedFiles(blueprint){
     "  await locator.fill(String(value ?? ''));",
     "}",
     "",
+    "function randomDigits(length: number): string { return Array.from({ length: Math.max(0, Number(length) || 0) }, () => Math.floor(Math.random() * 10)).join(''); }",
+    "function randomString(length: number): string { const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'; return Array.from({ length: Math.max(0, Number(length) || 0) }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }",
+    "function pick(items: string[]): string { return items[Math.floor(Math.random() * items.length)]; }",
+    "function randomDni(): string { const n = randomDigits(8); return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[Number(n) % 23]; }",
+    "function randomDob(): string { const start = new Date(1950, 0, 1).getTime(); const end = new Date(2005, 11, 31).getTime(); return new Date(start + Math.random() * (end - start)).toISOString().slice(0, 10); }",
+    "function dynamicToken(raw: string): string {",
+    "  const key = String(raw || '').trim();",
+    "  const intMatch = key.match(/^(?:\\$randomInt|rInt|number|randomNumber)\\((\\d+)\\s*,\\s*(\\d+)\\)$/i);",
+    "  if (intMatch) return String(Math.floor(Math.random() * (Number(intMatch[2]) - Number(intMatch[1]) + 1)) + Number(intMatch[1]));",
+    "  if (/^\\$randomInt$/i.test(key)) return String(Math.floor(Math.random() * 1000));",
+    "  const digitsMatch = key.match(/^rDigits\\((\\d+)\\)$/i); if (digitsMatch) return randomDigits(Number(digitsMatch[1]));",
+    "  const stringMatch = key.match(/^(?:\\$randomString|rString)\\((\\d+)\\)$/i); if (stringMatch) return randomString(Number(stringMatch[1]));",
+    "  if (/^\\$timestampMs$/i.test(key)) return String(Date.now());",
+    "  if (/^\\$timestamp$/i.test(key)) return String(Math.floor(Date.now() / 1000));",
+    "  if (/^\\$isoTimestamp$/i.test(key)) return new Date().toISOString();",
+    "  if (/^\\$randomUUID$/i.test(key)) return (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.floor(Math.random() * 1e9);",
+    "  if (/^\\$randomEmail$/i.test(key)) return 'qa' + Date.now() + '@test.com';",
+    "  if (/^\\$randomDNI$|^Random_DNI$/i.test(key)) return randomDni();",
+    "  if (/^name$|^firstName$|^randomFirstName$|^\\$randomFirstName$/i.test(key)) return pick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']);",
+    "  if (/^lastName$|^randomLastName$|^\\$randomLastName$/i.test(key)) return pick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);",
+    "  if (/^fullName$|^randomFullName$|^\\$randomFullName$/i.test(key)) return pick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']) + ' ' + pick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);",
+    "  if (/^dob$|^randomDOB$|^randomDob$|^randomDateOfBirth$|^\\$randomDOB$/i.test(key)) return randomDob();",
+    "  if (/^email_prefix$/i.test(key)) return 'qa.automation';",
+    "  if (/^RandomPhoneNumber$|^randomPhone$|^\\$randomPhoneNumber$/i.test(key)) return randomDigits(8);",
+    "  if (/^\\$randomBankAccount$/i.test(key)) return randomDigits(8);",
+    "  if (/^\\$randomCompanyName$/i.test(key)) return pick(['Green Field','Blue River','North Star','Silver Oak','Bright Farm','Urban Tech']) + ' ' + pick(['GmbH','Trading','Services','Group']);",
+    "  return '{{' + key + '}}';",
+    "}",
+    "function normalizeDynamicExpression(value: string): string { const text = String(value == null ? '' : value).trim(); const eq = text.indexOf('='); if (eq === 0) return text.slice(1).trim(); if (eq > 0 && /^[A-Za-z_$][\\w$.-]*\\s*$/.test(text.slice(0, eq))) return text.slice(eq + 1).trim(); return text; }",
+    "function splitDynamicPlus(expression: string): string[] { const parts: string[] = []; let current = '', quote = '', depth = 0; for (let i = 0; i < expression.length; i++) { const ch = expression[i]; if (quote) { current += ch; if (ch === quote && expression[i - 1] !== '\\\\') quote = ''; continue; } if (ch === '\"' || ch === \"'\") { quote = ch; current += ch; continue; } if (ch === '(') { depth++; current += ch; continue; } if (ch === ')') { depth--; current += ch; continue; } if (ch === '+' && depth === 0) { parts.push(current.trim()); current = ''; continue; } current += ch; } parts.push(current.trim()); return parts; }",
+    "function evalDynamicTerm(term: string): string { const text = String(term || '').trim(); const quoted = text.match(/^(['\"])([\\s\\S]*)\\1$/); if (quoted) return quoted[2]; const fn = text.match(/^([A-Za-z_$][\\w$]*)\\(([^()]*)\\)$/); if (fn) return dynamicToken(fn[1] + '(' + fn[2] + ')'); return text; }",
+    "function resolveDynamicValue(value: unknown): unknown { if (typeof value !== 'string') return value; const normalized = normalizeDynamicExpression(value); const expressionLike = normalized !== value.trim() || /^(['\"]).*\\1\\s*\\+/.test(normalized) || /\\+\\s*(?:rInt|number|randomNumber|rDigits|rString)\\(/i.test(normalized); if (expressionLike) return splitDynamicPlus(normalized).map(evalDynamicTerm).join(''); return normalized.replace(/\\{\\{\\s*([^}]+?)\\s*\\}\\}/g, (_match, token) => dynamicToken(token)); }",
+    "",
     "export async function fillKnownFields(page: Page, blueprint: any): Promise<void> {",
     "  for (const field of blueprint.elements || []) {",
     "    if (field.happyValue === undefined || field.happyValue === '__SKIP__') continue;",
-    "    await fillElement(page, field, field.happyValue).catch((error) => {",
+    "    await fillElement(page, field, resolveDynamicValue(field.happyValue)).catch((error) => {",
     "      console.warn('[QA Blueprint] skipped field', field.name, error.message);",
     "    });",
     "  }",

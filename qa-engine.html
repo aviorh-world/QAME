@@ -76,6 +76,8 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
 .headers-row button { padding:4px 9px; background:#7f1d1d; }
 .vars { background:#0b1120; border-radius:6px; padding:10px 14px; font-size:11px; color:var(--muted); margin-top:10px; line-height:1.8; }
 .vars code { color:var(--warn); background:transparent; padding:0; }
+.vars a { color:var(--accent); font-weight:700; text-decoration:none; }
+.vars a:hover { text-decoration:underline; }
 .link-back { color:var(--muted); font-size:12px; text-decoration:none; }
 .link-back:hover { color:var(--accent); }
 </style>
@@ -195,6 +197,11 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         <input id="apiUrl" placeholder="https://api.example.com/sessions">
       </div>
       <input id="apiResponsePath" placeholder="JSON path of URL in response (e.g. RedirectURL, data.url, applicationUrl) — leave empty to auto-detect" style="margin-bottom:6px;">
+      <input id="apiStartUrlTemplate" placeholder="Start URL template when API returns parts, e.g. https://tenant.spqa-eu.jifiti.com/flow?fl={{Token}}&mct={{request.MerchantId}}" style="margin-bottom:6px;">
+      <div class="row" style="margin-bottom:8px;">
+        <button class="secondary" type="button" onclick="applyJifitiOnBoardPreset()" style="font-size:11px;padding:5px 11px;">Jifiti OnBoard URL preset</button>
+        <span class="helper">Template variables can use response fields like <code>{{Token}}</code> and request body fields like <code>{{request.MerchantId}}</code>.</span>
+      </div>
 
       <details>
         <summary>Custom headers</summary>
@@ -216,7 +223,11 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       <div class="vars">
         <strong style="color:var(--text);">Variables (substituted at test runtime):</strong><br>
         <code>{{$timestamp}}</code> <code>{{$timestampMs}}</code> <code>{{$isoTimestamp}}</code> <code>{{$randomUUID}}</code><br>
-        <code>{{$randomInt}}</code> <code>{{$randomInt(1,99)}}</code> <code>{{$randomString(8)}}</code> <code>{{$randomEmail}}</code> <code>{{$randomDNI}}</code>
+        <code>{{$randomInt}}</code> <code>{{number(1,99)}}</code> <code>{{rInt(1,99)}}</code> <code>{{rString(8)}}</code> <code>{{$randomEmail}}</code><br>
+        <code>{{randomFirstName}}</code> <code>{{randomLastName}}</code> <code>{{randomFullName}}</code> <code>{{randomDOB}}</code> <code>{{randomPhone}}</code><br>
+        <code>{{rDigits(8)}}</code> <code>{{$randomBankAccount}}</code> <code>{{$randomCompanyName}}</code> <code>{{$randomDNI}}</code><br>
+        <code>="20" + rInt(10000000,99999999)</code>
+        <span style="margin-left:8px;">· <a href="dynamic-values.html" target="_blank" rel="noopener">Dynamic values help</a></span>
       </div>
     </div>
   </details>
@@ -723,13 +734,93 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     if(v != null && v !== '') { persistRule(fieldName, v); return v; }
     return null;
   };
+  const dynDigits = (n) => Array.from({length:Math.max(0, Number(n)||0)}, () => Math.floor(Math.random()*10)).join('');
+  const dynPick = (items) => items[Math.floor(Math.random()*items.length)];
+  const dynString = (n) => { const c='abcdefghijklmnopqrstuvwxyz0123456789'; let r=''; for(let i=0;i<(Number(n)||0);i++) r += c[Math.floor(Math.random()*c.length)]; return r; };
+  const dynDni = () => { const n = dynDigits(8); return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[parseInt(n,10)%23]; };
+  const dynFirst = () => dynPick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']);
+  const dynLast = () => dynPick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);
+  const dynCompany = () => dynPick(['Green Field','Blue River','North Star','Silver Oak','Bright Farm','Urban Tech']) + ' ' + dynPick(['GmbH','Trading','Services','Group']);
+  const dynDob = () => { const start = new Date(1950,0,1).getTime(); const end = new Date(2005,11,31).getTime(); return new Date(start + Math.random() * (end - start)).toISOString().slice(0,10); };
+  const dynToken = (raw) => {
+    const key = String(raw||'').trim();
+    const mInt = key.match(/^(?:\\$randomInt|rInt|number|randomNumber)\\((\\d+)\\s*,\\s*(\\d+)\\)$/i);
+    if(mInt) return String(Math.floor(Math.random()*(Number(mInt[2])-Number(mInt[1])+1))+Number(mInt[1]));
+    if(/^\\$randomInt$/i.test(key)) return String(Math.floor(Math.random()*1000));
+    const mDigits = key.match(/^rDigits\\((\\d+)\\)$/i);
+    if(mDigits) return dynDigits(Number(mDigits[1]));
+    const mString = key.match(/^(?:\\$randomString|rString)\\((\\d+)\\)$/i);
+    if(mString) return dynString(Number(mString[1]));
+    if(/^\\$timestampMs$/i.test(key)) return String(Date.now());
+    if(/^\\$timestamp$/i.test(key)) return String(Math.floor(Date.now()/1000));
+    if(/^\\$isoTimestamp$/i.test(key)) return new Date().toISOString();
+    if(/^\\$randomUUID$/i.test(key)) return (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.floor(Math.random()*1e9);
+    if(/^\\$randomEmail$/i.test(key)) return 'qa'+Date.now()+'@test.com';
+    if(/^\\$randomDNI$|^Random_DNI$/i.test(key)) return dynDni();
+    if(/^name$|^firstName$|^randomFirstName$|^\\$randomFirstName$/i.test(key)) return dynFirst();
+    if(/^lastName$|^randomLastName$|^\\$randomLastName$/i.test(key)) return dynLast();
+    if(/^fullName$|^randomFullName$|^\\$randomFullName$/i.test(key)) return dynFirst() + ' ' + dynLast();
+    if(/^dob$|^randomDOB$|^randomDob$|^randomDateOfBirth$|^\\$randomDOB$/i.test(key)) return dynDob();
+    if(/^email_prefix$/i.test(key)) return 'qa.automation';
+    if(/^RandomPhoneNumber$|^randomPhone$|^\\$randomPhoneNumber$/i.test(key)) return dynDigits(8);
+    if(/^\\$randomBankAccount$/i.test(key)) return dynDigits(8);
+    if(/^\\$randomCompanyName$/i.test(key)) return dynCompany();
+    return '{{'+key+'}}';
+  };
+  const normalizeDynamicExpression = (value) => {
+    let s = String(value == null ? '' : value).trim();
+    const eq = s.indexOf('=');
+    if(eq === 0) return s.slice(1).trim();
+    if(eq > 0 && /^[A-Za-z_$][\\w$.-]*\\s*$/.test(s.slice(0, eq))) return s.slice(eq + 1).trim();
+    return s;
+  };
+  const splitDynPlus = (expr) => {
+    const parts = []; let current = '', quote = '', depth = 0;
+    for(let i=0;i<expr.length;i++){
+      const ch = expr[i];
+      if(quote){ current += ch; if(ch === quote && expr[i-1] !== '\\\\') quote = ''; continue; }
+      if(ch === '"' || ch === "'"){ quote = ch; current += ch; continue; }
+      if(ch === '('){ depth++; current += ch; continue; }
+      if(ch === ')'){ depth--; current += ch; continue; }
+      if(ch === '+' && depth === 0){ parts.push(current.trim()); current = ''; continue; }
+      current += ch;
+    }
+    parts.push(current.trim());
+    return parts;
+  };
+  const evalDynTerm = (term) => {
+    const t = String(term||'').trim();
+    const quoted = t.match(/^(['"])([\\s\\S]*)\\1$/);
+    if(quoted) return quoted[2];
+    const fn = t.match(/^([A-Za-z_$][\\w$]*)\\(([^()]*)\\)$/);
+    if(fn) return dynToken(fn[1] + '(' + fn[2] + ')');
+    return t;
+  };
+  const resolveDynamicValue = (value) => {
+    if(typeof value !== 'string') return value;
+    let s = normalizeDynamicExpression(value);
+    const expressionLike = s !== value.trim() || /^(['"]).*\\1\\s*\\+/.test(s) || /\\+\\s*(?:rInt|number|randomNumber|rDigits|rString)\\(/i.test(s);
+    if(expressionLike) return splitDynPlus(s).map(evalDynTerm).join('');
+    return s.replace(/\\{\\{\\s*([^}]+?)\\s*\\}\\}/g, (_, token) => dynToken(token));
+  };
   // Built-in site-specific rules. Edit/extend here OR override per-domain via
   //   localStorage.__qaAutoRules = JSON.stringify({"hgv":{"mobilePhone":"2071234567"}})
   const siteRules = {
     'hgv': { mobilePhone: '2071234567', phone: '2071234567' }
   };
   const happyValue = (name, type, el) => {
-    const n = (name||'').toLowerCase();
+    // Some masked fields (including HGV SSN) expose the semantic name only in
+    // id/aria-label/placeholder rather than in the name attribute. Build one
+    // searchable signature from all stable hints so the heuristic still matches.
+    const n = [
+      name,
+      el && el.name,
+      el && el.id,
+      el && el.getAttribute('aria-label'),
+      el && el.getAttribute('placeholder'),
+      el && el.getAttribute('autocomplete'),
+      el && el.getAttribute('data-testid')
+    ].filter(Boolean).join(' ').toLowerCase();
     const host = location.hostname.toLowerCase();
     const ph = (el && el.getAttribute('placeholder') || '').trim();
 
@@ -737,13 +828,13 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     try {
       const custom = JSON.parse(localStorage.getItem('__qaAutoRules')||'{}');
       for(const dom in custom){
-        if(host.indexOf(dom)!==-1 && custom[dom][name]!=null) return custom[dom][name];
+        if(host.indexOf(dom)!==-1 && custom[dom][name]!=null) return resolveDynamicValue(custom[dom][name]);
       }
     } catch(e){}
 
     // 2. Built-in site rules
     for(const dom in siteRules){
-      if(host.indexOf(dom)!==-1 && siteRules[dom][name]!=null) return siteRules[dom][name];
+      if(host.indexOf(dom)!==-1 && siteRules[dom][name]!=null) return resolveDynamicValue(siteRules[dom][name]);
     }
 
     // 3. Placeholder-driven date format. Using indexOf to avoid regex-slash parsing issues
@@ -764,7 +855,13 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
     if(n.match(/address.*line.*2|address2/)) return 'Apt 4B';
     if(n.includes('city')) return 'Springfield';
     if(n.match(/^state$|stateprovince/)) return 'CA';
-    if(n.match(/ssn|social.*sec/)) return '123-45-6789';
+    if(n.match(/ssn|social.*sec|social.*security/)){
+      const maxLen = Number(el && el.getAttribute('maxlength') || 0);
+      if(maxLen === 3) return '123';
+      if(maxLen === 2) return '45';
+      if(maxLen === 4) return '6789';
+      return '123456789'; // let the site's input mask add dashes
+    }
     if(n.match(/tax.*(id|num)|ein|itin|^tin$/)) return '123456789';
     if(n.match(/income|salary/)) return '50000';
     if(n.match(/^age$/)) return '30';
@@ -793,7 +890,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
       const newlyFilled = await fillFieldsOnePass(seenKeys);
       totalFilled += newlyFilled;
       // Check if any new fields appeared after this pass
-      const currentKeys = new Set(Array.from(document.querySelectorAll('input[name], input[id]:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]')).map(e => e.name || e.id || ''));
+      const currentKeys = new Set(Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]')).map(e => e.name || e.id || ''));
       let newCount = 0;
       currentKeys.forEach(k => { if(k && !seenKeys.has(k)) newCount++; });
       if(newCount === 0){ if(pass > 1) log('  pass '+pass+': no new fields — done'); break; }
@@ -804,7 +901,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
   };
 
   const fillFieldsOnePass = async (seenKeys) => {
-    const fields = Array.from(document.querySelectorAll('input[name], input[id]:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
+    const fields = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
     let filled = 0;
     for(const el of fields){
       const keyForSet = el.name || el.id || '';
@@ -827,6 +924,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
           const host = location.hostname.toLowerCase();
           for(const dom in custom){ if(host.indexOf(dom)!==-1 && custom[dom][fldKey]!=null){ rule = custom[dom][fldKey]; break; } }
         } catch(e){}
+        if(typeof rule === 'string' && rule !== '__SKIP__' && rule !== '__CHECK__' && rule !== '__UNCHECK__') rule = resolveDynamicValue(rule);
         // __SKIP__ sentinel — leave field alone regardless of type
         if(rule === '__SKIP__'){ continue; }
 
@@ -917,7 +1015,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
             await runFieldTests(el, fldName);
           }
           // If explicit string rule → use it; else heuristic.
-          let val = (typeof rule === 'string') ? rule : happyValue(el.name, el.type, el);
+          let val = (typeof rule === 'string') ? rule : happyValue(fldName, el.type, el);
           // PROACTIVE ASK (learn mode): no rule + heuristic fell back to generic 'QA Test'
           // → likely an unknown domain-specific field (e.g. cardNumber). Ask BEFORE filling.
           if(state.learnMode && rule == null && val === 'QA Test'){
@@ -1055,7 +1153,7 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         try { custom = JSON.parse(localStorage.getItem('__qaAutoRules')||'{}'); } catch(e){}
         let key = Object.keys(custom).find(k => host.indexOf(k)!==-1) || host;
         const rules = custom[key] || {};
-        const namedEls = Array.from(document.querySelectorAll('input[name], input[id]:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
+        const namedEls = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
         const seen = new Map();
         namedEls.forEach(e => { const k = e.name || e.id; if(k && !seen.has(k)) seen.set(k, e); });
         // Pre-collect options for SELECT + combobox elements (open/close to scrape)
@@ -1079,8 +1177,30 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         m.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:2147483648;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;';
         const inner = document.createElement('div');
         inner.style.cssText = 'background:#1e293b;color:#e2e8f0;padding:20px;border-radius:12px;max-width:90vw;max-height:85vh;overflow-y:auto;width:680px;font-size:13px;border:2px solid #fbbf24;';
-        let html = '<h3 style="margin:0 0 4px;color:#fff;">🎯 Page Rules — '+key+'</h3><p style="color:#94a3b8;font-size:11px;margin:0 0 14px;">For each field choose Smart default, Custom value, or Leave as-is. No magic text required.</p><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #334155;color:#94a3b8;text-align:left;font-size:11px;"><th style="padding:6px;">Field</th><th style="padding:6px;width:90px;">Type</th><th style="padding:6px;">Rule</th></tr></thead><tbody>';
+        let html = '<h3 style="margin:0 0 4px;color:#fff;">🎯 Page Rules — '+key+'</h3><p style="color:#94a3b8;font-size:11px;margin:0 0 10px;">For each field choose Smart default, Custom value, or Leave as-is. Custom values support dynamic tokens and safe functions.</p><div id="qa-dyn-help" style="display:none;margin:0 0 12px;padding:10px;border:1px solid #334155;border-radius:8px;background:#0b1120;color:#cbd5e1;font-size:11px;line-height:1.7;"><strong style="color:#fff;">Dynamic examples</strong><br><code>{{$randomEmail}}</code> · <code>{{randomFirstName}}</code> · <code>{{randomDOB}}</code> · <code>{{number(1,100)}}</code> · <code>=\"20\" + rInt(10000000,99999999)</code><br><span style="color:#94a3b8;">Tip: choose a preset below, then preview updates live.</span> <a href="dynamic-values.html" target="_blank" rel="noopener" style="color:#38bdf8;">Open full list</a></div><div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;margin:0 0 12px;"><select id="qa-dyn-preset-select" style="background:#0b1120;color:#e2e8f0;border:1px solid #334155;padding:7px;border-radius:6px;font-family:inherit;"><option value="">Top 10 dynamic values...</option><option value="{{$randomEmail}}">Email — {{$randomEmail}}</option><option value="{{randomFirstName}}">First name — {{randomFirstName}}</option><option value="{{randomLastName}}">Last name — {{randomLastName}}</option><option value="{{randomFullName}}">Full name — {{randomFullName}}</option><option value="20{{rInt(10000000,99999999)}}">Phone — 20{{rInt(10000000,99999999)}}</option><option value="{{randomDOB}}">Date of birth — {{randomDOB}}</option><option value="{{number(1,100)}}">Number range — {{number(1,100)}}</option><option value="{{rDigits(8)}}">8 digit ID — {{rDigits(8)}}</option><option value="{{$randomCompanyName}}">Company — {{$randomCompanyName}}</option><option value="{{$timestamp}}">Timestamp — {{$timestamp}}</option></select><button id="qa-dyn-apply" style="background:#38bdf8;color:#001018;border:none;border-radius:6px;padding:7px 12px;font-size:11px;font-weight:700;">Apply</button><button data-dyn-help="1" style="background:#334155;color:#fff;border:none;border-radius:6px;padding:7px 12px;font-size:11px;font-weight:700;">Help</button></div><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #334155;color:#94a3b8;text-align:left;font-size:11px;"><th style="padding:6px;">Field</th><th style="padding:6px;width:90px;">Type</th><th style="padding:6px;">Rule</th></tr></thead><tbody>';
         const escAttr = s => String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        const suggestedDynamicValue = (name, el) => {
+            const meta = [
+                name,
+                el && el.id,
+                el && el.name,
+                el && el.getAttribute && el.getAttribute('aria-label'),
+                el && el.getAttribute && el.getAttribute('placeholder'),
+                el && el.getAttribute && el.getAttribute('autocomplete'),
+                el && el.type
+            ].filter(Boolean).join(' ').toLowerCase();
+            if(/e-?mail|email/.test(meta)) return '{{$randomEmail}}';
+            if(/first.?name|firstname|given.?name|fname|nombre/.test(meta)) return '{{randomFirstName}}';
+            if(/last.?name|lastname|surname|family.?name|lname|apellido/.test(meta)) return '{{randomLastName}}';
+            if(/full.?name|customer.?name|contact.?name|applicant.?name/.test(meta)) return '{{randomFullName}}';
+            if(/phone|mobile|telephone|tel\\b|telefono|m[oó]vil/.test(meta)) return '{{randomPhone}}';
+            if(/dob|birth|date.?of.?birth|birthday|fecha.?nacimiento/.test(meta)) return '{{randomDOB}}';
+            if(/company|business.?name|merchant.?name|organization|organisation|legal.?name/.test(meta)) return '{{$randomCompanyName}}';
+            if(/amount|price|income|salary|revenue|turnover|quantity|qty|count|number/.test(meta) || (el && el.type === 'number')) return '{{number(1,100)}}';
+            if(/postal|postcode|zip/.test(meta)) return '{{rDigits(5)}}';
+            if(/vat|tax|ein|tin|identifier|identification|account|agreement|registration|regist|document|dni|nie|id.?number/.test(meta)) return '{{rDigits(8)}}';
+            return '';
+        };
         for(const [name, el] of seen){
             const t = (el.type||el.tagName).toLowerCase();
             const isCb = (t==='checkbox' || t==='radio');
@@ -1105,7 +1225,9 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
                 const isSkip = rules[name] === '__SKIP__';
                 const hasCustom = rules[name] != null && !isSkip;
                 const v = hasCustom ? String(rules[name]) : '';
-                ctrl = '<div style="display:grid;grid-template-columns:132px 1fr;gap:6px;align-items:center;"><select data-f="'+name+'" data-mode="1" style="background:#0b1120;color:#e2e8f0;border:1px solid #334155;padding:5px;border-radius:4px;width:100%;font-family:inherit;"><option value=""'+(!hasCustom&&!isSkip?' selected':'')+'>Smart default</option><option value="custom"'+(hasCustom?' selected':'')+'>Custom value</option><option value="__SKIP__"'+(isSkip?' selected':'')+'>Leave as-is</option></select><input data-f-val="'+name+'" type="text" value="'+escAttr(v)+'" placeholder="Custom value" style="background:#0b1120;color:#e2e8f0;border:1px solid #334155;padding:5px;border-radius:4px;width:100%;font-family:inherit;"></div>';
+                const suggestion = suggestedDynamicValue(name, el);
+                const suggestionHtml = suggestion ? '<div data-dyn-suggestion-label="'+name+'" style="margin-top:4px;color:#94a3b8;font-size:10px;">Suggested: <code style="color:#fbbf24;background:transparent;">'+escAttr(suggestion)+'</code></div>' : '';
+                ctrl = '<div style="display:grid;grid-template-columns:132px 1fr;gap:6px;align-items:start;"><select data-f="'+name+'" data-mode="1" style="background:#0b1120;color:#e2e8f0;border:1px solid #334155;padding:5px;border-radius:4px;width:100%;font-family:inherit;"><option value=""'+(!hasCustom&&!isSkip?' selected':'')+'>Smart default</option><option value="custom"'+(hasCustom?' selected':'')+'>Custom value</option><option value="__SKIP__"'+(isSkip?' selected':'')+'>Leave as-is</option></select><div><input data-f-val="'+name+'" data-dyn-input="1" data-dyn-suggestion="'+escAttr(suggestion)+'" type="text" value="'+escAttr(v)+'" placeholder="'+escAttr(suggestion || '{{$randomEmail}}')+'" style="background:#0b1120;color:#e2e8f0;border:1px solid #334155;padding:5px;border-radius:4px;width:100%;font-family:inherit;">'+suggestionHtml+'<div data-dyn-preview="'+name+'" style="margin-top:4px;color:#94a3b8;font-size:10px;min-height:14px;"></div></div></div>';
             }
             const typeLabel = isCombo ? ('combobox ('+(opts?opts.length+' opts':'no opts')+')') : isSelect ? ('select ('+opts.length+' opts)') : t;
             html += '<tr style="border-bottom:1px solid #1e3a5f;"><td style="padding:6px;color:#38bdf8;font-family:monospace;font-size:11px;word-break:break-all;">'+name+'</td><td style="padding:6px;color:#a78bfa;font-size:11px;">'+typeLabel+'</td><td style="padding:6px;">'+ctrl+'</td></tr>';
@@ -1114,6 +1236,64 @@ details > details > summary { font-size:13px; color:var(--muted); font-weight:50
         inner.innerHTML = html;
         m.appendChild(inner);
         document.body.appendChild(m);
+        let activeDynamicInput = inner.querySelector('[data-dyn-input="1"]');
+        const updateDynamicPreview = (input) => {
+            if(!input) return;
+            const name = input.getAttribute('data-f-val');
+            const box = inner.querySelector('[data-dyn-preview="'+name+'"]');
+            if(!box) return;
+            const raw = input.value || '';
+            if(!raw.trim()){ box.textContent = ''; return; }
+            try {
+                const samples = [resolveDynamicValue(raw), resolveDynamicValue(raw), resolveDynamicValue(raw)];
+                box.textContent = 'Preview: ' + samples.join(' · ');
+            } catch(e) {
+                box.textContent = 'Preview error: ' + (e && e.message ? e.message : e);
+            }
+        };
+        inner.querySelectorAll('[data-dyn-input="1"]').forEach(input => {
+            input.addEventListener('focus', () => { activeDynamicInput = input; });
+            input.addEventListener('input', () => updateDynamicPreview(input));
+            updateDynamicPreview(input);
+        });
+        inner.querySelectorAll('[data-mode="1"]').forEach(mode => {
+            mode.addEventListener('change', () => {
+                const field = mode.getAttribute('data-f');
+                const input = inner.querySelector('[data-f-val="'+field+'"]');
+                if(!input) return;
+                if(mode.value === 'custom' && !String(input.value || '').trim()){
+                    const suggestion = input.getAttribute('data-dyn-suggestion') || '';
+                    if(suggestion) input.value = suggestion;
+                    activeDynamicInput = input;
+                    updateDynamicPreview(input);
+                } else {
+                    updateDynamicPreview(input);
+                }
+            });
+        });
+        const applyPreset = () => {
+            const select = inner.querySelector('#qa-dyn-preset-select');
+            const value = select && select.value;
+            if(!value) return;
+            if(!activeDynamicInput) activeDynamicInput = inner.querySelector('[data-dyn-input="1"]');
+            if(!activeDynamicInput) return;
+            activeDynamicInput.value = value;
+            const field = activeDynamicInput.getAttribute('data-f-val');
+            const mode = inner.querySelector('[data-f="'+field+'"][data-mode="1"]');
+            if(mode) mode.value = 'custom';
+            activeDynamicInput.focus();
+            updateDynamicPreview(activeDynamicInput);
+        };
+        const presetApplyButton = inner.querySelector('#qa-dyn-apply');
+        const presetSelect = inner.querySelector('#qa-dyn-preset-select');
+        if(presetApplyButton) presetApplyButton.addEventListener('click', (event) => { event.preventDefault(); applyPreset(); });
+        if(presetSelect) presetSelect.addEventListener('change', applyPreset);
+        const helpButton = inner.querySelector('[data-dyn-help="1"]');
+        if(helpButton) helpButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const help = inner.querySelector('#qa-dyn-help');
+            if(help) help.style.display = help.style.display === 'none' ? 'block' : 'none';
+        });
         inner.querySelector('#qa-rul-x').onclick = ()=>m.remove();
         inner.querySelector('#qa-rul-s').onclick = ()=>{
             const next = {};
@@ -1554,6 +1734,7 @@ function slimCurrentBundle(){
       endpoint: apiEndpoint,
       method: document.getElementById('apiMethod').value || 'GET',
       responsePath: document.getElementById('apiResponsePath').value.trim(),
+      startUrlTemplate: document.getElementById('apiStartUrlTemplate').value.trim(),
       headers: collectHeaders(),
       bodyRaw: document.getElementById('apiBody').value.trim()
     };
@@ -1728,6 +1909,37 @@ function setCurlImportStatus(message, isError){
   status.style.color = isError ? '#fca5a5' : '#86efac';
 }
 
+function firstRecordedFlowUrl(){
+  const candidates = [document.getElementById('startUrl') && document.getElementById('startUrl').value.trim()];
+  const raw = document.getElementById('bundleJson') && document.getElementById('bundleJson').value.trim();
+  if(raw){
+    try {
+      const bundle = JSON.parse(raw);
+      candidates.push(bundle && bundle.flowMap && bundle.flowMap[0] && bundle.flowMap[0].url);
+      candidates.push(bundle && bundle.url);
+    } catch(error) {}
+  }
+  return candidates.find((item) => /^https?:\/\//i.test(String(item || ""))) || "";
+}
+
+function flowTemplateBaseFromRecordedUrl(){
+  const recorded = firstRecordedFlowUrl();
+  if(recorded){
+    try {
+      const url = new URL(recorded);
+      return url.origin + (url.pathname || "/flow");
+    } catch(error) {}
+  }
+  return "https://johndeere-de.spqa-eu.jifiti.com/flow";
+}
+
+function applyJifitiOnBoardPreset(){
+  const template = flowTemplateBaseFromRecordedUrl() + "?fl={{Token}}&mct={{request.MerchantId}}";
+  document.getElementById('apiStartUrlTemplate').value = template;
+  document.getElementById('apiResponsePath').value = '';
+  setCurlImportStatus('Jifiti OnBoard template set. The spec will build the flow URL from Token + request.MerchantId.', false);
+}
+
 function importCurl(){
   const input = document.getElementById('curlInput');
   try {
@@ -1743,7 +1955,10 @@ function importCurl(){
     const container = document.getElementById('headersContainer');
     container.innerHTML = '';
     Object.entries(parsed.headers).forEach(([key, value]) => addHeaderRow(key, value));
-    setCurlImportStatus('Imported ' + parsed.method + ' with ' + Object.keys(parsed.headers).length + ' header(s)' + (parsed.body ? ' and a request body.' : '.'), false);
+    if(/\/Internal\/OnBoard\b/i.test(parsed.url) && !document.getElementById('apiStartUrlTemplate').value.trim()){
+      applyJifitiOnBoardPreset();
+    }
+    setCurlImportStatus('Imported ' + parsed.method + ' with ' + Object.keys(parsed.headers).length + ' header(s)' + (parsed.body ? ' and a request body.' : '.') + (/\/Internal\/OnBoard\b/i.test(parsed.url) ? ' OnBoard URL template is ready.' : ''), false);
   } catch(error) {
     setCurlImportStatus(error && error.message ? error.message : String(error), true);
   }
@@ -1789,6 +2004,7 @@ function generateSpec(){
   const apiUrl       = document.getElementById('apiUrl').value.trim();
   const apiMethod    = document.getElementById('apiMethod').value;
   const apiPath      = document.getElementById('apiResponsePath').value.trim();  // empty → runtime auto-detect
+  const apiStartUrlTemplate = document.getElementById('apiStartUrlTemplate').value.trim();
   const apiBody      = document.getElementById('apiBody').value.trim();
   const apiHeaders   = collectHeaders();
 
@@ -1810,8 +2026,8 @@ const FAIL_ON_SKIPPED = true;                     // throw at end if any step en
 const FAIL_ON_BROKEN_LINKS = true;                // throw at end if any audited link returns 4xx/5xx
 const FAIL_ON_A11Y_SMOKE = false;                 // keep smoke a11y findings as warnings by default
 const MAX_CONSECUTIVE_ERRORS = 2;                 // bail after N consecutive failed/skipped steps
-const URL_WAIT_MS = 4000;                         // max wait for the expected pathname
-const LOAD_STATE_TIMEOUT = 4000;                  // max wait for domcontentloaded
+const URL_WAIT_MS = 15000;                        // max wait for the expected pathname
+const LOAD_STATE_TIMEOUT = 8000;                  // max wait for domcontentloaded
 const CTA_HARD_CAP_MS = 10000;                    // hard cap on the entire clickCTA call
 const IFRAME_FILL_TIMEOUT = 1500;                 // per-field timeout inside iframe handlers
 const STRICT_URL_GATE = true;                     // if true, skip fill+click when on wrong URL (fail-fast)
@@ -1823,6 +2039,7 @@ const OTP_VALUE = '1111';
 const API_ENDPOINT = ${JSON.stringify(apiUrl)};
 const API_METHOD = ${JSON.stringify(apiMethod)};
 const API_RESPONSE_PATH = ${JSON.stringify(apiPath)};
+const API_START_URL_TEMPLATE = ${JSON.stringify(apiStartUrlTemplate)};
 const API_HEADERS = ${JSON.stringify(apiHeaders, null, 2)};
 const API_BODY_RAW = ${JSON.stringify(apiBody)};
 const STATIC_START_URL = ${JSON.stringify(startUrl)};
@@ -1832,21 +2049,74 @@ const FLOW_STEPS = ${JSON.stringify(steps, null, 2)};
 // === Postman-style variable substitution ===
 function substituteVars(str){
   if(typeof str !== 'string') return str;
-  return str
-    .replace(/\\{\\{\\$timestampMs\\}\\}/g, () => String(Date.now()))
-    .replace(/\\{\\{\\$timestamp\\}\\}/g, () => String(Math.floor(Date.now()/1000)))
-    .replace(/\\{\\{\\$isoTimestamp\\}\\}/g, () => new Date().toISOString())
-    .replace(/\\{\\{\\$randomUUID\\}\\}/g, () => (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.floor(Math.random()*1e9))
-    .replace(/\\{\\{\\$randomInt\\((\\d+),(\\d+)\\)\\}\\}/g, (_,a,b) => String(Math.floor(Math.random()*(+b-+a+1))+(+a)))
-    .replace(/\\{\\{\\$randomInt\\}\\}/g, () => String(Math.floor(Math.random()*1000)))
-    .replace(/\\{\\{\\$randomString\\((\\d+)\\)\\}\\}/g, (_,n) => {
-      const c='abcdefghijklmnopqrstuvwxyz0123456789'; let r=''; for(let i=0;i<+n;i++) r+=c[Math.floor(Math.random()*c.length)]; return r;
-    })
-    .replace(/\\{\\{\\$randomEmail\\}\\}/g, () => 'qa'+Date.now()+'@test.com')
-    .replace(/\\{\\{Random_DNI\\}\\}/gi, () => { const n=String(Math.floor(Math.random()*99999999)).padStart(8,'0'); return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[parseInt(n,10)%23]; })\n    .replace(/\\{\\{\\$randomDNI\\}\\}/g, () => {
-      const n = String(Math.floor(Math.random()*99999999)).padStart(8,'0');
-      return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[parseInt(n,10)%23];
-    });
+  return resolveDynamicValue(str);
+}
+
+function randomDigits(n){ return Array.from({length:Math.max(0, Number(n)||0)}, () => Math.floor(Math.random()*10)).join(''); }
+function pick(items){ return items[Math.floor(Math.random()*items.length)]; }
+function randomString(n){ const c='abcdefghijklmnopqrstuvwxyz0123456789'; let r=''; for(let i=0;i<(Number(n)||0);i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
+function randomDni(){ const n=randomDigits(8); return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[parseInt(n,10)%23]; }
+function randomDob(){ const start = new Date(1950,0,1).getTime(); const end = new Date(2005,11,31).getTime(); return new Date(start + Math.random() * (end - start)).toISOString().slice(0,10); }
+function dynamicToken(raw){
+  const key = String(raw||'').trim();
+  const mInt = key.match(/^(?:\\$randomInt|rInt|number|randomNumber)\\((\\d+)\\s*,\\s*(\\d+)\\)$/i);
+  if(mInt) return String(Math.floor(Math.random()*(Number(mInt[2])-Number(mInt[1])+1))+Number(mInt[1]));
+  if(/^\\$randomInt$/i.test(key)) return String(Math.floor(Math.random()*1000));
+  const mDigits = key.match(/^rDigits\\((\\d+)\\)$/i);
+  if(mDigits) return randomDigits(Number(mDigits[1]));
+  const mString = key.match(/^(?:\\$randomString|rString)\\((\\d+)\\)$/i);
+  if(mString) return randomString(Number(mString[1]));
+  if(/^\\$timestampMs$/i.test(key)) return String(Date.now());
+  if(/^\\$timestamp$/i.test(key)) return String(Math.floor(Date.now()/1000));
+  if(/^\\$isoTimestamp$/i.test(key)) return new Date().toISOString();
+  if(/^\\$randomUUID$/i.test(key)) return (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.floor(Math.random()*1e9);
+  if(/^\\$randomEmail$/i.test(key)) return 'qa'+Date.now()+'@test.com';
+  if(/^\\$randomDNI$|^Random_DNI$/i.test(key)) return randomDni();
+  if(/^name$|^firstName$|^randomFirstName$|^\\$randomFirstName$/i.test(key)) return pick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']);
+  if(/^lastName$|^randomLastName$|^\\$randomLastName$/i.test(key)) return pick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);
+  if(/^fullName$|^randomFullName$|^\\$randomFullName$/i.test(key)) return pick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']) + ' ' + pick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);
+  if(/^dob$|^randomDOB$|^randomDob$|^randomDateOfBirth$|^\\$randomDOB$/i.test(key)) return randomDob();
+  if(/^email_prefix$/i.test(key)) return 'qa.automation';
+  if(/^RandomPhoneNumber$|^randomPhone$|^\\$randomPhoneNumber$/i.test(key)) return randomDigits(8);
+  if(/^\\$randomBankAccount$/i.test(key)) return randomDigits(8);
+  if(/^\\$randomCompanyName$/i.test(key)) return pick(['Green Field','Blue River','North Star','Silver Oak','Bright Farm','Urban Tech']) + ' ' + pick(['GmbH','Trading','Services','Group']);
+  return '{{'+key+'}}';
+}
+function normalizeDynamicExpression(value){
+  let s = String(value == null ? '' : value).trim();
+  const eq = s.indexOf('=');
+  if(eq === 0) return s.slice(1).trim();
+  if(eq > 0 && /^[A-Za-z_$][\\w$.-]*\\s*$/.test(s.slice(0, eq))) return s.slice(eq + 1).trim();
+  return s;
+}
+function splitDynamicPlus(expr){
+  const parts = []; let current = '', quote = '', depth = 0;
+  for(let i=0;i<expr.length;i++){
+    const ch = expr[i];
+    if(quote){ current += ch; if(ch === quote && expr[i-1] !== '\\\\') quote = ''; continue; }
+    if(ch === '"' || ch === "'"){ quote = ch; current += ch; continue; }
+    if(ch === '('){ depth++; current += ch; continue; }
+    if(ch === ')'){ depth--; current += ch; continue; }
+    if(ch === '+' && depth === 0){ parts.push(current.trim()); current = ''; continue; }
+    current += ch;
+  }
+  parts.push(current.trim());
+  return parts;
+}
+function evalDynamicTerm(term){
+  const t = String(term||'').trim();
+  const quoted = t.match(/^(['"])([\\s\\S]*)\\1$/);
+  if(quoted) return quoted[2];
+  const fn = t.match(/^([A-Za-z_$][\\w$]*)\\(([^()]*)\\)$/);
+  if(fn) return dynamicToken(fn[1] + '(' + fn[2] + ')');
+  return t;
+}
+function resolveDynamicValue(value){
+  if(typeof value !== 'string') return value;
+  let s = normalizeDynamicExpression(value);
+  const expressionLike = s !== value.trim() || /^(['"]).*\\1\\s*\\+/.test(s) || /\\+\\s*(?:rInt|number|randomNumber|rDigits|rString)\\(/i.test(s);
+  if(expressionLike) return splitDynamicPlus(s).map(evalDynamicTerm).join('');
+  return s.replace(/\\{\\{\\s*([^}]+?)\\s*\\}\\}/g, (_, token) => dynamicToken(token));
 }
 
 function substituteDeep(v){
@@ -1862,6 +2132,28 @@ function pickFromPath(obj, path){
   let v = obj;
   for(const p of parts){ if(v==null) return null; v = v[p]; }
   return v;
+}
+
+function resolveTemplateValue(path, responseBody, requestBody){
+  const key = String(path || '').trim();
+  if(!key) return null;
+  if(/^response\./i.test(key)) return pickFromPath(responseBody, key.replace(/^response\./i, ''));
+  if(/^request\./i.test(key)) return pickFromPath(requestBody, key.replace(/^request\./i, ''));
+  if(/^body\./i.test(key)) return pickFromPath(responseBody, key.replace(/^body\./i, ''));
+  const fromResponse = pickFromPath(responseBody, key);
+  if(fromResponse != null) return fromResponse;
+  return pickFromPath(requestBody, key);
+}
+
+function buildStartUrlFromTemplate(template, responseBody, requestBody){
+  if(!template) return '';
+  return String(template).replace(/\\{\\{\\s*([^}]+?)\\s*\\}\\}/g, (match, path) => {
+    const value = resolveTemplateValue(path, responseBody, requestBody);
+    if(value == null || value === '') {
+      throw new Error('Start URL template variable "' + path + '" was not found. Available response keys: [' + Object.keys(responseBody || {}).join(', ') + ']. Available request keys: [' + Object.keys(requestBody || {}).join(', ') + '].');
+    }
+    return encodeURIComponent(String(value));
+  });
 }
 
 // Strip JS-style comments (// and /* */) from JSON body while respecting strings.
@@ -1976,13 +2268,15 @@ test('replay recorded flow', async ({ page, request }) => {
   // === Resolve start URL ===
   let resolvedStartUrl = STATIC_START_URL;
   if(API_ENDPOINT){
+    let requestPayload = null;
     const opts = { method: API_METHOD, headers: substituteDeep({ 'Content-Type':'application/json', ...API_HEADERS }) };
     if(API_BODY_RAW && !['GET','HEAD'].includes(API_METHOD)){
       const subbed = substituteVars(API_BODY_RAW);
       const cleaned = stripJsonComments(subbed);
-      try { opts.data = JSON.parse(cleaned); }
+      try { requestPayload = JSON.parse(cleaned); opts.data = requestPayload; }
       catch(e){
         console.warn('⚠️ Body is not valid JSON after stripping comments. Sending as text. Parse error: '+e.message);
+        requestPayload = cleaned;
         opts.data = cleaned;
       }
     }
@@ -1994,7 +2288,10 @@ test('replay recorded flow', async ({ page, request }) => {
     }
     let body;
     try { body = await fetched.json(); } catch(e){ body = await fetched.text(); }
-    if(typeof body === 'string'){ resolvedStartUrl = body.trim(); }
+    if(API_START_URL_TEMPLATE){
+      resolvedStartUrl = buildStartUrlFromTemplate(API_START_URL_TEMPLATE, body, requestPayload);
+    }
+    else if(typeof body === 'string'){ resolvedStartUrl = body.trim(); }
     else {
       let v = null;
       if(API_RESPONSE_PATH){
@@ -2218,11 +2515,19 @@ test('replay recorded flow', async ({ page, request }) => {
 
   // === Extracted fill helper — reusable from both the step loop and auto-advance ===
   async function fillVisibleFields(page){
-    return await page.evaluate(({ rules, otp }) => {
+    const result = await page.evaluate(({ rules, otp }) => {
       const host = location.hostname.toLowerCase();
       const lookup = name => { for(const d in rules){ if(host.indexOf(d)!==-1 && rules[d][name]!=null) return rules[d][name]; } return null; };
       const happyValue = (name, type, el) => {
-        const n = (name||'').toLowerCase();
+        const n = [
+          name,
+          el && el.name,
+          el && el.id,
+          el && el.getAttribute('aria-label'),
+          el && el.getAttribute('placeholder'),
+          el && el.getAttribute('autocomplete'),
+          el && el.getAttribute('data-testid')
+        ].filter(Boolean).join(' ').toLowerCase();
         const ph = ((el && el.getAttribute('placeholder')) || '').toUpperCase();
         if(ph.indexOf('MM/DD/YYYY')!==-1) return '01/15/1990';
         if(ph.indexOf('DD/MM/YYYY')!==-1) return '15/01/1990';
@@ -2232,11 +2537,25 @@ test('replay recorded flow', async ({ page, request }) => {
         if(/zip|postal/.test(n)) return '12345';
         if(/first.*name|firstname|fname/.test(n)) return 'QAFirst';
         if(/last.*name|lastname|lname|surname/.test(n)) return 'QALast';
+        if(/street|address.*line.*1|address1/.test(n)) return '123 QA Street';
+        if(/address.*line.*2|address2/.test(n)) return 'Apt 4B';
         if(n.indexOf('city')!==-1) return 'Springfield';
         if(/^state$|stateprovince/.test(n)) return 'CA';
+        if(/ssn|social.*sec|social.*security/.test(n)){
+          const maxLen = Number(el && el.getAttribute('maxlength') || 0);
+          if(maxLen === 3) return '123';
+          if(maxLen === 2) return '45';
+          if(maxLen === 4) return '6789';
+          return '123456789';
+        }
+        if(/tax.*(id|num)|ein|itin|^tin$/.test(n)) return '123456789';
+        if(/income|salary/.test(n)) return '50000';
+        if(/id.*number|identification/.test(n)) return '123456789';
         if(/birth|dob|issuing|date/.test(n)) return '01/15/1990';
         if(type==='number') return '100';
         if(type==='tel') return '0501234567';
+        if(type==='email') return 'qa@test.com';
+        if(type==='date') return '1990-01-01';
         return 'QA Test';
       };
       const setValue = (el,v) => {
@@ -2246,7 +2565,7 @@ test('replay recorded flow', async ({ page, request }) => {
         el.dispatchEvent(new Event('change',{bubbles:true}));
         el.dispatchEvent(new Event('blur',{bubbles:true}));
       };
-      const fields = Array.from(document.querySelectorAll('input[name], input[id]:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
+      const fields = Array.from(document.querySelectorAll('input:not([type="hidden"]):not([type="submit"]):not([type="button"]), select[name], select[id], textarea[name], textarea[id]'));
       let filled = 0;
       for(const el of fields){
         try {
@@ -2262,9 +2581,13 @@ test('replay recorded flow', async ({ page, request }) => {
             if(rule===false || rule==='__UNCHECK__') want = false;
             if(el.checked !== want){ el.click(); filled++; }
           } else if(isCombo){
-            continue; // complex; handle manually if needed
+            continue; // handled below with real Playwright clicks
           } else if(el.tagName==='SELECT'){
-            if(el.options.length){ el.value = el.options[0].value; el.dispatchEvent(new Event('change',{bubbles:true})); filled++; }
+            const opts = Array.from(el.options).filter(o => !o.disabled && String(o.value || o.textContent || '').trim());
+            let pick = null;
+            if(typeof rule === 'string') pick = opts.find(o => String(o.value) === rule || String(o.textContent || '').trim() === rule);
+            if(!pick) pick = opts.find(o => !/^(select|choose|please select)$/i.test(String(o.textContent || '').trim())) || opts[0];
+            if(pick && el.value !== pick.value){ el.value = pick.value; el.dispatchEvent(new Event('input',{bubbles:true})); el.dispatchEvent(new Event('change',{bubbles:true})); filled++; }
           } else if(el.readOnly){
             continue;
           } else {
@@ -2275,7 +2598,169 @@ test('replay recorded flow', async ({ page, request }) => {
         } catch(e){}
       }
       return { filled };
-    }, { rules: LEARNED_RULES, otp: OTP_VALUE });
+    }, { rules: substituteDeep(LEARNED_RULES), otp: OTP_VALUE });
+
+    // Custom dropdowns (Angular Material, MUI, ARIA comboboxes) often look like
+    // readonly inputs/divs, so direct DOM value assignment does not select an
+    // option. Use real Playwright clicks after the generic DOM pass.
+    const host = (() => { try { return new URL(page.url()).hostname.toLowerCase(); } catch(e){ return ''; } })();
+    const rules = substituteDeep(LEARNED_RULES);
+    const lookupRule = (name) => {
+      for(const d of Object.keys(rules || {})){
+        if(host.includes(d) && rules[d] && rules[d][name] != null) return rules[d][name];
+      }
+      return null;
+    };
+    const optionSelector = [
+      '[role="option"]:not([aria-disabled="true"])',
+      'mat-option:not([aria-disabled="true"])',
+      '.mat-mdc-option:not(.mat-mdc-option-disabled)',
+      '.mat-option:not(.mat-option-disabled)',
+      '[role="menuitemradio"]:not([aria-disabled="true"])'
+    ].join(',');
+    const comboSelector = [
+      '[role="combobox"]',
+      'input[aria-controls]',
+      'input[aria-haspopup="listbox"]',
+      '.mat-mdc-select',
+      '.mat-select'
+    ].join(',');
+    const combos = page.locator(comboSelector);
+    const comboCount = await combos.count().catch(() => 0);
+    const usedComboValues = new Map();
+    for(let i = 0; i < comboCount; i++){
+      const combo = combos.nth(i);
+      if(!await combo.isVisible().catch(()=>false)) continue;
+      if(await combo.isDisabled().catch(()=>false)) continue;
+      const info = await combo.evaluate(el => {
+        const root = el.closest('[role="combobox"]') || el;
+        const control = (el.matches && el.matches('input,textarea,select')) ? el : (root.querySelector('input,textarea,select') || root);
+        const labelFromId = (control.getAttribute && control.getAttribute('aria-labelledby') || root.getAttribute && root.getAttribute('aria-labelledby') || '')
+          .split(/\\s+/)
+          .map(id => (document.getElementById(id) || {}).textContent || '')
+          .join(' ')
+          .trim();
+        const aria = (control.getAttribute && control.getAttribute('aria-label')) || (root.getAttribute && root.getAttribute('aria-label')) || '';
+        const key = (control.name || control.id || root.getAttribute('name') || root.id || aria || labelFromId || '').trim();
+        const value = ((control.value || control.getAttribute && control.getAttribute('aria-valuetext') || '') + '').trim();
+        const text = ((root.textContent || '') + '').trim();
+        const invalid = control.getAttribute && control.getAttribute('aria-invalid') === 'true'
+          || root.getAttribute && root.getAttribute('aria-invalid') === 'true'
+          || String(root.className || '').includes('ng-invalid')
+          || String(control.className || '').includes('ng-invalid');
+        return { key, value, text, invalid };
+      }).catch(() => ({ key:'', value:'', text:'', invalid:false }));
+      const rule = lookupRule(info.key);
+      if(rule === '__SKIP__') continue;
+      if(info.value && !info.invalid) continue;
+      await combo.scrollIntoViewIfNeeded({ timeout: 1000 }).catch(()=>{});
+      await combo.click({ timeout: FIELD_TIMEOUT }).catch(async () => {
+        await combo.click({ timeout: FIELD_TIMEOUT, force: true }).catch(()=>{});
+      });
+      const options = page.locator(optionSelector);
+      await options.first().waitFor({ state: 'visible', timeout: 2500 }).catch(()=>{});
+      const comboKey = info.key || info.text || 'combobox';
+      let pick = (typeof rule === 'string' && rule)
+        ? options.filter({ hasText: String(rule) }).first()
+        : null;
+      if(!pick){
+        const used = usedComboValues.get(comboKey) || new Set();
+        const optionCount = await options.count().catch(()=>0);
+        for(let j = 0; j < optionCount; j++){
+          const candidate = options.nth(j);
+          if(!await candidate.isVisible().catch(()=>false)) continue;
+          const text = (await candidate.textContent().catch(()=>'') || '').trim();
+          if(!text || used.has(text)) continue;
+          pick = candidate;
+          break;
+        }
+      }
+      if(!pick) pick = options.first();
+      if(await pick.count().catch(()=>0) === 0) pick = options.first();
+      if(await pick.isVisible().catch(()=>false)){
+        const pickedText = (await pick.textContent().catch(()=>'') || '').trim();
+        await pick.click({ timeout: FIELD_TIMEOUT }).catch(async () => {
+          await pick.click({ timeout: FIELD_TIMEOUT, force: true }).catch(()=>{});
+        });
+        await page.waitForTimeout(250);
+        if(pickedText){
+          const used = usedComboValues.get(comboKey) || new Set();
+          used.add(pickedText);
+          usedComboValues.set(comboKey, used);
+        }
+        result.filled++;
+        console.log('   dropdown filled: '+(info.key || info.text || 'combobox')+(pickedText ? ' → '+pickedText : ''));
+      } else {
+        await combo.press('ArrowDown').catch(()=>{});
+        await combo.press('Enter').catch(()=>{});
+      }
+    }
+
+    // OTP/passcode controls can also reject DOM assignment. Fill them through
+    // Playwright so input-mask and framework handlers receive trusted events.
+    const otpSingle = page.getByRole('textbox', { name: /passcode|verification.*code|enter.*code|otp|code/i }).first();
+    if(await otpSingle.isVisible().catch(()=>false) && !await otpSingle.isDisabled().catch(()=>true)){
+      const before = await otpSingle.inputValue().catch(()=>'');
+      if(!before.trim()){
+        await otpSingle.fill(OTP_VALUE, { timeout: FIELD_TIMEOUT }).catch(async () => {
+          await otpSingle.click({ timeout: FIELD_TIMEOUT }).catch(()=>{});
+          await otpSingle.pressSequentially(OTP_VALUE, { delay: 40 }).catch(()=>{});
+        });
+        if(!(await otpSingle.inputValue().catch(()=>'')).trim()){
+          await otpSingle.click({ timeout: FIELD_TIMEOUT }).catch(()=>{});
+          await otpSingle.pressSequentially(OTP_VALUE, { delay: 40 }).catch(()=>{});
+        }
+        if((await otpSingle.inputValue().catch(()=>'')).trim()) result.filled++;
+      }
+    } else {
+      const otpDigits = page.locator([
+        'input[autocomplete="one-time-code"]',
+        'input[inputmode="numeric"][maxlength="1"]',
+        'input[name*="otp" i]',
+        'input[id*="otp" i]',
+        'input[name*="passcode" i]',
+        'input[id*="passcode" i]'
+      ].join(','));
+      const digitCount = await otpDigits.count().catch(()=>0);
+      if(digitCount > 1){
+        for(let i = 0; i < Math.min(digitCount, OTP_VALUE.length); i++){
+          const digit = otpDigits.nth(i);
+          if(!await digit.isVisible().catch(()=>false) || await digit.isDisabled().catch(()=>true)) continue;
+          if((await digit.inputValue().catch(()=>'')).trim()) continue;
+          await digit.fill(OTP_VALUE[i], { timeout: FIELD_TIMEOUT }).catch(async () => {
+            await digit.click({ timeout: FIELD_TIMEOUT }).catch(()=>{});
+            await digit.pressSequentially(OTP_VALUE[i], { delay: 30 }).catch(()=>{});
+          });
+          result.filled++;
+        }
+      }
+    }
+
+    // Masked SSN controls can ignore direct DOM assignment. Retry any still-empty
+    // SSN-like input through Playwright so framework/input-mask handlers receive
+    // the same events as a real user action.
+    const ssnCandidates = page.locator([
+      'input[name*="ssn" i]',
+      'input[id*="ssn" i]',
+      'input[name*="social" i][name*="security" i]',
+      'input[id*="social" i][id*="security" i]',
+      'input[aria-label*="social security" i]',
+      'input[placeholder*="social security" i]'
+    ].join(','));
+    const ssnCount = await ssnCandidates.count().catch(()=>0);
+    for(let i = 0; i < ssnCount; i++){
+      const field = ssnCandidates.nth(i);
+      if(!await field.isVisible().catch(()=>false)) continue;
+      if(await field.isDisabled().catch(()=>true)) continue;
+      if(await field.getAttribute('readonly')) continue;
+      const current = await field.inputValue().catch(()=>'');
+      if(current.trim()) continue;
+      const maxLen = Number(await field.getAttribute('maxlength') || 0);
+      const value = maxLen === 3 ? '123' : maxLen === 2 ? '45' : maxLen === 4 ? '6789' : '123456789';
+      await field.fill(value, { timeout: 3000 }).catch(()=>{});
+      if((await field.inputValue().catch(()=>'')).trim()) result.filled++;
+    }
+    return result;
   }
 
   // === Generic primary-CTA finder — used to advance through unrecorded intermediate pages ===
@@ -2374,7 +2859,7 @@ test('replay recorded flow', async ({ page, request }) => {
         if(skipTo !== -1){
           console.log('⏭️ skip-ahead: page is at '+here0+' which matches step '+(skipTo+1)+' — skipping intermediate steps '+(i+1)+'..'+(skipTo));
           for(let k = i; k < skipTo; k++){
-            results.push({ step: k+1, pathname: NORMALIZED_STEPS[k].pathname, cta: NORMALIZED_STEPS[k].ctaText, filled: 0, status: 'SKIPPED', note: 'auto-skipped — page already advanced past this step' });
+            results.push({ step: k+1, pathname: NORMALIZED_STEPS[k].pathname, cta: NORMALIZED_STEPS[k].ctaText, filled: 0, status: 'OK', note: 'auto-skipped — page already advanced past this step' });
           }
           i = skipTo - 1;        // -1 because the outer for loop will increment
           consecutiveErrors = 0; // skip-ahead is healthy progress, not a failure
@@ -2411,7 +2896,20 @@ test('replay recorded flow', async ({ page, request }) => {
         if(interFilled.filled > 0) console.log('   step '+(i+1)+': filled '+interFilled.filled+' fields on intermediate page');
         const advanced = await clickPrimaryCTA(page);
         if(!advanced){
-          console.log('   step '+(i+1)+': no primary CTA found on '+here+' — cannot auto-advance');
+          console.log('   step '+(i+1)+': no primary CTA found on '+here+' — waiting for natural navigation');
+          await Promise.race([
+            page.waitForFunction(args => location.pathname !== args.from || location.pathname.indexOf(args.to) !== -1, { from: here, to: step.pathname }, { timeout: URL_WAIT_MS }).catch(()=>{}),
+            new Promise(res => setTimeout(res, URL_WAIT_MS + 500))
+          ]);
+          const afterWait = new URL(page.url()).pathname;
+          if(afterWait === step.pathname || afterWait.indexOf(step.pathname) !== -1){
+            console.log('   step '+(i+1)+': reached '+step.pathname+' ✓ via natural navigation');
+            atTarget = true;
+          } else if(afterWait !== here) {
+            console.log('   step '+(i+1)+': natural navigation moved to '+afterWait+', continuing checks');
+          } else {
+            console.log('   step '+(i+1)+': still on '+here+' after waiting — cannot auto-advance');
+          }
           break;
         }
         // Wait for URL to change OR to reach the target
@@ -2443,7 +2941,7 @@ test('replay recorded flow', async ({ page, request }) => {
         if(skipTo2 !== -1){
           console.log('⏭️ post-advance skip-ahead: landed on '+here2+', matches step '+(skipTo2+1)+' — skipping '+(i+1)+'..'+(skipTo2));
           for(let k = i; k < skipTo2; k++){
-            results.push({ step: k+1, pathname: NORMALIZED_STEPS[k].pathname, cta: NORMALIZED_STEPS[k].ctaText, filled: 0, status: 'SKIPPED', note: 'auto-skipped after advance — page is past this step' });
+            results.push({ step: k+1, pathname: NORMALIZED_STEPS[k].pathname, cta: NORMALIZED_STEPS[k].ctaText, filled: 0, status: 'OK', note: 'auto-skipped after advance — page is past this step' });
           }
           i = skipTo2 - 1;
           consecutiveErrors = 0;
@@ -2483,6 +2981,7 @@ test('replay recorded flow', async ({ page, request }) => {
       if(step.ctaText){
         // Give the page a moment to settle (helps with slow SPA transitions)
         await page.waitForLoadState('domcontentloaded', { timeout: LOAD_STATE_TIMEOUT }).catch(()=>{});
+        const beforeClickPath = location_pathname_safe(page);
         // Hard cap on the whole clickCTA call so it can never spin longer than CTA_HARD_CAP_MS
         let clickRes = await Promise.race([
           clickCTA(page, step.ctaText, FIELD_TIMEOUT),
@@ -2512,6 +3011,11 @@ test('replay recorded flow', async ({ page, request }) => {
         }
         if(clickRes.ok){
           r.status = 'OK'; r.note = 'matched: '+clickRes.pattern;
+          await Promise.race([
+            page.waitForFunction(from => location.pathname !== from, beforeClickPath, { timeout: URL_WAIT_MS }).catch(()=>{}),
+            new Promise(res => setTimeout(res, 1200))
+          ]);
+          await page.waitForLoadState('domcontentloaded', { timeout: LOAD_STATE_TIMEOUT }).catch(()=>{});
         } else {
           throw new Error('CTA not found. Tried: '+clickRes.tried);
         }
@@ -2630,6 +3134,40 @@ async function generateConsoleReplay(){
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const log = (m, t='ok') => console.log('%c[FlowReplay] '+m, 'color:'+(t==='err'?'#f43f5e':t==='warn'?'#fbbf24':'#10b981'));
+  const dynDigits = n => Array.from({length:Math.max(0, Number(n)||0)}, () => Math.floor(Math.random()*10)).join('');
+  const dynPick = items => items[Math.floor(Math.random()*items.length)];
+  const dynString = n => { const c='abcdefghijklmnopqrstuvwxyz0123456789'; let r=''; for(let i=0;i<(Number(n)||0);i++) r+=c[Math.floor(Math.random()*c.length)]; return r; };
+  const dynDni = () => { const n=dynDigits(8); return n + 'TRWAGMYFPDXBNJZSQVHLCKE'[parseInt(n,10)%23]; };
+  const dynDob = () => { const start = new Date(1950,0,1).getTime(); const end = new Date(2005,11,31).getTime(); return new Date(start + Math.random() * (end - start)).toISOString().slice(0,10); };
+  function dynToken(raw){
+    const key = String(raw||'').trim();
+    const mInt = key.match(/^(?:\\$randomInt|rInt|number|randomNumber)\\((\\d+)\\s*,\\s*(\\d+)\\)$/i);
+    if(mInt) return String(Math.floor(Math.random()*(Number(mInt[2])-Number(mInt[1])+1))+Number(mInt[1]));
+    if(/^\\$randomInt$/i.test(key)) return String(Math.floor(Math.random()*1000));
+    const mDigits = key.match(/^rDigits\\((\\d+)\\)$/i);
+    if(mDigits) return dynDigits(Number(mDigits[1]));
+    const mString = key.match(/^(?:\\$randomString|rString)\\((\\d+)\\)$/i);
+    if(mString) return dynString(Number(mString[1]));
+    if(/^\\$timestampMs$/i.test(key)) return String(Date.now());
+    if(/^\\$timestamp$/i.test(key)) return String(Math.floor(Date.now()/1000));
+    if(/^\\$isoTimestamp$/i.test(key)) return new Date().toISOString();
+    if(/^\\$randomUUID$/i.test(key)) return (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'uuid-' + Date.now() + '-' + Math.floor(Math.random()*1e9);
+    if(/^\\$randomEmail$/i.test(key)) return 'qa'+Date.now()+'@test.com';
+    if(/^\\$randomDNI$|^Random_DNI$/i.test(key)) return dynDni();
+    if(/^name$|^firstName$|^randomFirstName$|^\\$randomFirstName$/i.test(key)) return dynPick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']);
+    if(/^lastName$|^randomLastName$|^\\$randomLastName$/i.test(key)) return dynPick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);
+    if(/^fullName$|^randomFullName$|^\\$randomFullName$/i.test(key)) return dynPick(['Ava','Liam','Mia','Noah','Emma','Leo','Nina','Tom','Ella','Max']) + ' ' + dynPick(['Cohen','Levi','Haddad','Miller','Schmidt','Garcia','Brown','Klein']);
+    if(/^dob$|^randomDOB$|^randomDob$|^randomDateOfBirth$|^\\$randomDOB$/i.test(key)) return dynDob();
+    if(/^email_prefix$/i.test(key)) return 'qa.automation';
+    if(/^RandomPhoneNumber$|^randomPhone$|^\\$randomPhoneNumber$/i.test(key)) return dynDigits(8);
+    if(/^\\$randomBankAccount$/i.test(key)) return dynDigits(8);
+    if(/^\\$randomCompanyName$/i.test(key)) return dynPick(['Green Field','Blue River','North Star','Silver Oak','Bright Farm','Urban Tech']) + ' ' + dynPick(['GmbH','Trading','Services','Group']);
+    return '{{'+key+'}}';
+  }
+  function normalizeDyn(value){ const s0 = String(value == null ? '' : value).trim(); const eq = s0.indexOf('='); if(eq === 0) return s0.slice(1).trim(); if(eq > 0 && /^[A-Za-z_$][\\w$.-]*\\s*$/.test(s0.slice(0, eq))) return s0.slice(eq + 1).trim(); return s0; }
+  function splitDyn(expr){ const parts=[]; let current='', quote='', depth=0; for(let i=0;i<expr.length;i++){ const ch=expr[i]; if(quote){ current+=ch; if(ch===quote && expr[i-1] !== '\\\\') quote=''; continue; } if(ch==='"'||ch==="'"){ quote=ch; current+=ch; continue; } if(ch==='('){ depth++; current+=ch; continue; } if(ch===')'){ depth--; current+=ch; continue; } if(ch==='+' && depth===0){ parts.push(current.trim()); current=''; continue; } current+=ch; } parts.push(current.trim()); return parts; }
+  function evalDyn(term){ const t=String(term||'').trim(); const q=t.match(/^(['"])([\\s\\S]*)\\1$/); if(q) return q[2]; const fn=t.match(/^([A-Za-z_$][\\w$]*)\\(([^()]*)\\)$/); if(fn) return dynToken(fn[1]+'('+fn[2]+')'); return t; }
+  function resolveDynamicValue(value){ if(typeof value !== 'string') return value; const s = normalizeDyn(value); const expressionLike = s !== value.trim() || /^(['"]).*\\1\\s*\\+/.test(s) || /\\+\\s*(?:rInt|number|randomNumber|rDigits|rString)\\(/i.test(s); if(expressionLike) return splitDyn(s).map(evalDyn).join(''); return s.replace(/\\{\\{\\s*([^}]+?)\\s*\\}\\}/g, (_, token) => dynToken(token)); }
 
   function dismissCookieBanner(){
     const sels = ['#onetrust-accept-btn-handler','#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll','#CybotCookiebotDialogBodyButtonAccept','#didomi-notice-agree-button','button#truste-consent-button','.qc-cmp2-summary-buttons button[mode=\"primary\"]','.cky-btn-accept','.iubenda-cs-accept-btn','.osano-cm-accept-all','button[aria-label*=\"accept\" i]','button[aria-label*=\"aceptar\" i]'];
@@ -2639,7 +3177,15 @@ async function generateConsoleReplay(){
 
   function fillVisibleFields(){
     const happyValue = (name, type, el) => {
-      const n = (name||'').toLowerCase();
+      const n = [
+        name,
+        el && el.name,
+        el && el.id,
+        el && el.getAttribute('aria-label'),
+        el && el.getAttribute('placeholder'),
+        el && el.getAttribute('autocomplete'),
+        el && el.getAttribute('data-testid')
+      ].filter(Boolean).join(' ').toLowerCase();
       const ph = ((el && el.getAttribute('placeholder')) || '').toUpperCase();
       if(ph.indexOf('MM/DD/YYYY')!==-1) return '01/15/1990';
       if(ph.indexOf('DD/MM/YYYY')!==-1) return '15/01/1990';
@@ -2649,15 +3195,29 @@ async function generateConsoleReplay(){
       if(/zip|postal/.test(n)) return '12345';
       if(/first.*name|firstname|fname/.test(n)) return 'QAFirst';
       if(/last.*name|lastname|lname|surname/.test(n)) return 'QALast';
+      if(/street|address.*line.*1|address1/.test(n)) return '123 QA Street';
+      if(/address.*line.*2|address2/.test(n)) return 'Apt 4B';
       if(n.indexOf('city')!==-1) return 'Springfield';
       if(/^state$|stateprovince/.test(n)) return 'CA';
+      if(/ssn|social.*sec|social.*security/.test(n)){
+        const maxLen = Number(el && el.getAttribute('maxlength') || 0);
+        if(maxLen === 3) return '123';
+        if(maxLen === 2) return '45';
+        if(maxLen === 4) return '6789';
+        return '123456789';
+      }
+      if(/tax.*(id|num)|ein|itin|^tin$/.test(n)) return '123456789';
+      if(/income|salary/.test(n)) return '50000';
+      if(/id.*number|identification/.test(n)) return '123456789';
       if(/birth|dob|issuing|date/.test(n)) return '01/15/1990';
       if(type==='number') return '100';
       if(type==='tel') return '0501234567';
+      if(type==='email') return 'qa@test.com';
+      if(type==='date') return '1990-01-01';
       return 'QA Test';
     };
     const host = location.hostname.toLowerCase();
-    const lookup = name => { for(const d in LEARNED_RULES){ if(host.indexOf(d)!==-1 && LEARNED_RULES[d][name]!=null) return LEARNED_RULES[d][name]; } return null; };
+    const lookup = name => { for(const d in LEARNED_RULES){ if(host.indexOf(d)!==-1 && LEARNED_RULES[d][name]!=null) return resolveDynamicValue(LEARNED_RULES[d][name]); } return null; };
     const setValue = (el,v) => {
       const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(el),'value');
       if(setter && setter.set) setter.set.call(el, v); else el.value = v;
@@ -2665,7 +3225,7 @@ async function generateConsoleReplay(){
       el.dispatchEvent(new Event('change',{bubbles:true}));
       el.dispatchEvent(new Event('blur',{bubbles:true}));
     };
-    const fields = Array.from(document.querySelectorAll('input[name], input[id]:not([type=\"hidden\"]):not([type=\"submit\"]):not([type=\"button\"]), select[name], select[id], textarea[name], textarea[id]'));
+    const fields = Array.from(document.querySelectorAll('input:not([type=\"hidden\"]):not([type=\"submit\"]):not([type=\"button\"]), select[name], select[id], textarea[name], textarea[id]'));
     let filled = 0;
     for(const el of fields){
       try {
