@@ -50,8 +50,13 @@ Load relevant skills before working on any area of the codebase:
 |---|---|
 | `ui-diff.html` | Pixel-level Figma-vs-browser design comparison tool |
 | `QA-DEEP-BUNDLE.html` | Floating QA scanner that exports structured bundles |
-| `qa-engine.html` | Bundle analysis layer for deeper QA checks |
-| `qa-blueprint.html` | Bundle-to-Playwright blueprint and ZIP generator |
+| `QA-DEEP-BUNDLE-V2.html` | V2.1 of the QA scanner — CORS-aware link checks (no false "Failed to fetch"), self-scan exclusion, unique per-element selectors, SPA-aware deep scan, multi-step happy-flow Learn/Replay (survives page/step changes), network capture in bundle, autocomplete/inputmode/label-based field profiling, knowledge-pack export/import, confidence score + auto-retry on transient failures, random data tokens (randomfirstname, randomemail, randomssn...) in rules and happy flows |
+| `QA-DEEP-AUTOPILOT-CODEX.html` | Autopilot evolution of the V2 scanner — persistent same-origin autopilot with forward momentum (multi-pass auto-fill incl. custom comboboxes, auto-checks all checkboxes/radio groups, aggressive CTA scoring with tie-breaking, clicks through soft-invalid forms, waits for real route/DOM progress, max 20 steps), dictation assist that learns any manual click/fill and resumes automatically, CSP-aware controller popup for re-injection, privacy layer (sensitive values always tokenized + migration), UNVERIFIED semantics for cross-origin only (same-origin failures stay ERROR), styled-label fallback for visually-hidden checkboxes/radios, draggable/minimizable panel with primary+More button rows and collapsed settings, O(1) result dedupe + throttled panel rendering |
+| `qa-engine.html` | Bundle analysis layer for deeper QA checks (QA Flow Runner) |
+| `qa-blueprint.html` | Bundle-to-Playwright blueprint and ZIP generator — requires `qa-blueprint-maintenance.js`, `qa-blueprint-production-templates.js`, `qa-blueprint-project-model.js` (allowed exception to the embedded-JS rule) |
+| `dynamic-values.html` | Reference page for all random-value tokens (randomfirstname, randomemail, DNI...) — linked from projects.html |
+| `instructions.html` | Complete guide for the QA Flow Runner toolchain — linked from projects.html |
+| `test-architect.html` | Playwright wizard (Test Architect) — standalone, not yet linked from projects.html |
 
 ### Personal Utilities (not linked from portfolio nav)
 
@@ -113,6 +118,7 @@ Key shared structure: `site-topbar` → hero section → `<main>` → section ca
 - **RTL pages** (`cv-he.html`, `calendar.html`, `PPOFORBATCHEN.HTML`) use `dir="rtl"` on `<html>` or `<body>` and load the Assistant font instead of Syne/DM Mono/Lora.
 - **Password `AviorW@`** gates work sample links in `projects.html`. Do not hardcode elsewhere; do not expose in documentation pushed to a public repo.
 - **`UI-diff.html`** is a stale duplicate of `ui-diff.html`. Any fix to the diff tool must only be applied to `ui-diff.html`.
+- **`QA-DEEP-AUTOPILOT-CODEX.html` carries a build number** (`S.version` + panel title, e.g. `codex-2.2001`). Every change to this file must increment the last digits (2.2001 → 2.2002 → ...) in both places so users can verify which build is running.
 
 ---
 
